@@ -1,0 +1,88 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:l="clr-namespace:Auremo">
+    <Style x:Key="PlaybackButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Height" Value="55"/>
+        <Setter Property="Width" Value="55"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="ClickMode" Value="Release"/>
+        <Setter Property="Foreground" Value="{StaticResource ButtonPassiveGlyphGlowBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border x:Name="GlowBorder" BorderThickness="8" BorderBrush="{StaticResource PlaybackButtonPassiveBorderGlowBrush}" CornerRadius="30">
+                        <Border x:Name="BevelBorder"
+                                CornerRadius="30"
+                                BorderThickness="2"
+                                BorderBrush="{StaticResource PlaybackButtonNormalBevelBrush}"
+                                Background="{StaticResource PlaybackButtonNormalBackgroundBrush}">
+                            <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="GlowBorder" Property="BorderBrush" Value="{StaticResource PlaybackButtonMouseOverBorderGlowBrush}"/>
+                            <Setter TargetName="BevelBorder" Property="BorderBrush" Value="{StaticResource PlaybackButtonMouseOverBevelBrush}"/>
+                            <Setter TargetName="BevelBorder" Property="Background" Value="{StaticResource PlaybackButtonMouseOverBackgroundBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource ButtonMouseOverGlyphGlowBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="GlowBorder" Property="BorderBrush" Value="{StaticResource PlaybackButtonPressedBorderGlowBrush}"/>
+                            <Setter TargetName="BevelBorder" Property="BorderBrush" Value="{StaticResource PlaybackButtonPressedBevelBrush}"/>
+                            <Setter TargetName="BevelBorder" Property="Background" Value="{StaticResource PlaybackButtonPressedBackgroundBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource ButtonActiveGlyphGlowBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="PlaybackStickyButtonStyle" TargetType="{x:Type l:StickyButton}">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Height" Value="55"/>
+        <Setter Property="Width" Value="55"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="ClickMode" Value="Release"/>
+        <Setter Property="Foreground" Value="{StaticResource ButtonPassiveGlyphGlowBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type l:StickyButton}">
+                    <Border x:Name="GlowBorder" BorderThickness="8" BorderBrush="{StaticResource PlaybackButtonPassiveBorderGlowBrush}" CornerRadius="30">
+                        <Border x:Name="BevelBorder"
+                                TextBlock.Foreground="{TemplateBinding Foreground}"
+                                CornerRadius="30"
+                                BorderThickness="2"
+                                BorderBrush="{StaticResource PlaybackButtonNormalBevelBrush}"
+                                Background="{StaticResource PlaybackButtonNormalBackgroundBrush}">
+                            <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsDown" Value="True">
+                            <Setter TargetName="GlowBorder" Property="BorderBrush" Value="{StaticResource PlaybackButtonActiveBorderGlowBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource ButtonActiveGlyphGlowBrush}"/>
+                            <Setter TargetName="BevelBorder" Property="Background" Value="{StaticResource PlaybackButtonMouseOverBackgroundBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="GlowBorder" Property="BorderBrush" Value="{StaticResource PlaybackButtonMouseOverBorderGlowBrush}"/>
+                            <Setter TargetName="BevelBorder" Property="BorderBrush" Value="{StaticResource PlaybackButtonMouseOverBevelBrush}"/>
+                            <Setter TargetName="BevelBorder" Property="Background" Value="{StaticResource PlaybackButtonMouseOverBackgroundBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource ButtonMouseOverGlyphGlowBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="GlowBorder" Property="BorderBrush" Value="{StaticResource PlaybackButtonPressedBorderGlowBrush}"/>
+                            <Setter TargetName="BevelBorder" Property="BorderBrush" Value="{StaticResource PlaybackButtonPressedBevelBrush}"/>
+                            <Setter TargetName="BevelBorder" Property="Background" Value="{StaticResource PlaybackButtonPressedBackgroundBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource ButtonActiveGlyphGlowBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

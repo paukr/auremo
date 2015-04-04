@@ -1,0 +1,9 @@
+﻿Auremo Copyright © 2013 Mikko Teräs and Niilo Säämänen.
+
+Written by
+    Mikko Teräs (auremompd@gmail.com)
+    Niilo Säämänen
+
+Thanks to
+    Katja Teräs, who designed the first version of the current GUI layout.
+    Mikko Kallinen, who suggested the name Auremo.

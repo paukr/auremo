@@ -1,0 +1,15 @@
+﻿<Window x:Class="Auremo.TextWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="500" Height="300"
+        Background="{StaticResource WindowBackgroundBrush}"
+        Closing="OnClose">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <TextBox Name="m_Content" Padding="15" BorderBrush="{StaticResource PassiveGenericBorderBrush}" Background="Transparent" ScrollViewer.VerticalScrollBarVisibility="Auto"  />
+        <Button Content="Close" Grid.Row="1" Width="100" Height="30" Click="OnCloseClicked" Style="{StaticResource ActionButtonStyle}"/>
+    </Grid>
+</Window>

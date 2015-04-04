@@ -1,0 +1,40 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="OptionTextBoxPassiveBorderBrush" Color="#999999"/>
+    
+    <!-- Common position and brush settings for the options window. -->
+
+    <Style x:Key="HeaderStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="#333333"/>
+        <Setter Property="Margin" Value="10,5,5,10"/>
+    </Style>
+    <Style x:Key="OptionLabelStyle" TargetType="{x:Type Label}">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0"/>
+    </Style>
+    <Style x:Key="OptionTextBlockStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="Margin" Value="5,0,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="OptionTextBoxStyle" TargetType="{x:Type TextBox}">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="BorderBrush" Value="{StaticResource OptionTextBoxPassiveBorderBrush}"/>
+        <Setter Property="Background" Value="White"/>
+    </Style>
+    <Style x:Key="OptionPasswordBoxStyle" TargetType="{x:Type PasswordBox}">
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="BorderBrush" Value="{StaticResource OptionTextBoxPassiveBorderBrush}"/>
+        <Setter Property="Background" Value="White"/>
+    </Style>
+    <Style x:Key="OptionRadioButton" TargetType="RadioButton">
+        <Setter Property="Margin" Value="4,0,0,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="OptionCheckBoxStyle" TargetType="{x:Type CheckBox}">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+</ResourceDictionary>

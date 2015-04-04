@@ -1,0 +1,30 @@
+﻿<Application x:Class="Auremo.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml"
+             DispatcherUnhandledException="OnDispatcherUnhandledException">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="WPFResources/Brushes.xaml"/>
+                <ResourceDictionary Source="WPFResources/CollectionHintTextStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/ScrollBarStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/ScrollViewerStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/ActionButtonStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/ButtonGlyphStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/ContextMenuStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/CopyableTextBlockStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/MainMenuStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/MusicCollectionDataGridStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/MusicCollectionTreeViewStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/MusicSliderStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/OptionControlStyles.xaml"/>
+                <ResourceDictionary Source="WPFResources/PlaybackButtonStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/PlaylistStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/SearchButtonStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/TabControlStyle.xaml"/>
+                <ResourceDictionary Source="WPFResources/TextBoxStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

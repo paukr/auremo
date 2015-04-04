@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="Auremo.MainWindowOverlay"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignWidth="800" d:DesignHeight="600">
+    <Border Background="{StaticResource StringQueryOverlayBackgroundBrush}" MouseDown="OnCancel">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Width="320" Height="120" Grid.Row="1" Grid.Column="1" Background="{StaticResource WindowBackgroundBrush}" MouseDown="OnBackgroundClicked">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{Binding Path=Caption}" TextWrapping="Wrap" Grid.ColumnSpan="2" Margin="10"/>
+                    <TextBox Name="m_InputBox" Text="{Binding Path=Input, UpdateSourceTrigger=PropertyChanged}" Margin="10,0" Height="20" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center" IsVisibleChanged="OnVisibleChanged"/>
+                    <Button Content="Cancel" IsCancel="True" Grid.Row="2" Margin="10,5" Width="80" HorizontalAlignment="Left" Click="OnCancel"/>
+                    <Button Content="OK" IsDefault="True" Grid.Row="2" Grid.Column="1" Margin="10,5" Width="80" HorizontalAlignment="Right" Click="OnOK"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

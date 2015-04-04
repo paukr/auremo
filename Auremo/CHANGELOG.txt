@@ -1,0 +1,137 @@
+Version history
+===============
+
+Auremo 0.7.0
+------------
+
+ * Reimplement networking subsystem, improving performance and error resilience.
+ * Improve Mopidy support.
+ * Add Advanced Search tab, rename former Search tab to Quick Search.
+ * Add "show in" functions into the playlist view's context menu.
+ * Add support for single and consume modes.
+ * Add rudimentary support for AlbumArtist tag.
+ * Make status bar messages more informative.
+ * Released on 14th September 2014.
+
+
+Auremo 0.6.1
+------------
+
+ * Fix disabled context menu items in music collection views.
+ * Fix album drag & drop from search results view.
+ * Released on 22nd September 2013.
+
+
+Auremo 0.6.0
+------------
+
+ * Add an option for sorting albums alphabetically or chronologically.
+ * Add support for date formats other than YYYY.
+ * Add settings for hiding individual music collection tabs.
+ * Add a view of items on a saved playlist. Allow adding individual items to
+   the current playlist.
+ * Add customizable behaviour for Enter or double-click in the music
+   collection.
+ * Fix the playlist context menu's item availability.
+ * Refactor the data model.
+ * Move streams collection to isolated storage so it won't be cleared during
+   version upgrades.
+ * Add audio quality info and the error message from the server to status bar.
+ * Add a new About window with the current version number included.
+ * Clean up the button glow implementation.
+ * Released on 22nd September 2013.
+
+
+Auremo 0.5.1
+------------
+
+ * Revise list and tree item selection and dragging behavior.
+ * Make song and stream path handling locale-agnostic.
+ * Shrink minimum window size to 960 x 590 for the further benefit
+   of 720p users.
+ * Released on 27th June 2013.
+
+
+Auremo 0.5.0
+------------
+
+ * Add a search tab.
+ * Add support for auto-search (finding an element in a list or tree
+   by typing the beginning of the text in it).
+ * Add support for HTTP streams, such as web radio. Supports PLS and M3U
+   playlist files.
+ * Add a menu for viewing and controlling server outputs.
+ * Add support for media keys (play/pause, stop, previous, next, volume
+   up and down).
+ * Shrink minimum window size to 960 x 640 for the benefit of 720p users.
+ * Add support for the shuffle command.
+ * Fix multiple usability issues in the GUI.
+ * Released on 15th June 2013.
+
+
+Auremo 0.4.0
+------------
+
+ * Redesign the GUI.
+ * Add mouse wheel support for seek bar and volume slider.
+ * Remove year property from album data. Sort albums
+   alphabetically instead of chronologically.
+ * Fix multiselecting using shift+click in tree views when
+   there are multiple roots. (Effectively the artist and genre trees.)
+ * Released 8th May 2013.
+
+
+Auremo 0.3.1
+------------
+
+ * Put back accidentally removed list column auto-stretch.
+ * Reposition and resize drop position indicator line.
+ * Released 3rd September 2012.
+
+
+Auremo 0.3.0
+------------
+
+ * Add an artist/album/song tree view of the music collection.
+ * Add a genre/album/song tree view of the music collection.
+ * Add a genre/album/song list view of the music collection.
+ * Add support for saving and loading playlists.
+ * Add a button for clearing the playlist.
+ * Add a button for removing duplicate items from the playlist.
+ * Add server tab and an "update collection" button.
+ * Add support for updating the collection without disconnecting.
+ * Add support for password protected servers.
+ * Fix mouse tooltip visibility during drop & drop.
+ * Fix occasional wrong results when moving playlist items with drag & drop.
+ * Released 3rd September 2012.
+
+
+Auremo 0.2.1
+------------
+
+ * Fix crash with some music collections with incomplete tags.
+ * Fix a bug that caused a tree view node be be unselected when being
+   collapsed.
+ * Released 26th August 2012.
+
+
+Auremo 0.2.0
+------------
+ 
+ * Add tabs for selecting a way to view the music collection.
+ * Add a directory tree view of the music collection.
+ * Switch all ListView controls to DataGrids, support column auto-resize.
+ * Make the enter key queue or select music to play.
+ * Improve the color scheme and control placement slightly.
+ * Add a tool tip to the mouse pointer when dragging music over
+   the playlist to describe the drag operation.
+ * Fix a bug that caused the space bar to only work outside the
+   music tab.
+ * Released 16th August 2012.
+
+
+Auremo 0.1.0
+------------
+
+ * Initial version.
+ * Released 30th July 2012.

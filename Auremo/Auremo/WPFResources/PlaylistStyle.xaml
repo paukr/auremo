@@ -16,9 +16,9 @@
         <Setter Property="SelectionMode" Value="Extended"/>
         <Setter Property="SelectionUnit" Value="FullRow"/>
         <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
-        <Setter Property="EnableRowVirtualization" Value="True"/>
-        <Setter Property="EnableColumnVirtualization" Value="True"/>
-        <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+        <Setter Property="EnableRowVirtualization" Value="False"/>
+        <Setter Property="EnableColumnVirtualization" Value="False"/>
+        <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="False"/>
         <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Standard"/>
         <Setter Property="Template">
             <Setter.Value>

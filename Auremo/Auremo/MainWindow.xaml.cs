@@ -819,6 +819,10 @@ namespace Auremo
                 {
                     result.Append((item as Playable).DisplayName);
                 }
+                else if (item is PlaylistItem)
+                {
+                    result.Append((item as PlaylistItem).Playable.DisplayName);
+                }
             }
 
             if (m_DragDropPayload.Count > nameLines)

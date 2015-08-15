@@ -23,7 +23,7 @@ using System.Text;
 
 namespace Auremo
 {
-    public class MusicCollectionItem : DataGridItem, INotifyPropertyChanged
+    public class MusicCollectionItem : DataGridItem, INotifyPropertyChanged, IComparable
     {
         #region INotifyPropertyChanged implementation
 
@@ -103,6 +103,18 @@ namespace Auremo
             }
 
             return "???";
+        }
+
+        public int CompareTo(object o)
+        {
+            if (o is MusicCollectionItem)
+            {
+                return Position - ((MusicCollectionItem)o).Position;
+            }
+            else
+            {
+                throw new Exception("MusicCollectionItem: attempt to compare to an incompatible object");
+            }
         }
     }
 }

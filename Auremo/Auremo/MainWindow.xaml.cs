@@ -23,6 +23,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Threading;
@@ -751,51 +752,32 @@ namespace Auremo
                     // the standard (through clipboard?) system is pure evil and
                     // since we don't need drag & drop across application borders,
                     // this will do for now.
-                    IList<object> payload = new List<object>();
+                    //IList<object> payload = new List<object>();
+                    IList<object> payload = null;
 
-                    if (m_DragSource == m_AlbumsOfSelectedGenresView)
+                    if (m_DragSource == m_SavedPlaylistsView)
                     {
-                        // Filter album contents by selected genres.
-                        foreach (MusicCollectionItem item in m_SongsOnSelectedGenreAlbumsView.Items)
+                        if (m_SavedPlaylistsView.SelectedItem != null)
                         {
-                            payload.Add(item.Content);
+                            payload = new List<object>();
+                            payload.Add(m_SavedPlaylistsView.SelectedItem);
                         }
-                    }
-                    else if (m_DragSource == m_SavedPlaylistsView)
-                    {
-                        payload.Add(m_SavedPlaylistsView.SelectedItem);
                     }
                     else if (m_DragSource == m_PlaylistView)
                     {
-                        foreach (object o in m_PlaylistView.SelectedItems)
-                        {
-                            payload.Add(o as PlaylistItem);
-                        }
+                        payload = Utils.GetPlaylistSortedSelection(m_PlaylistView);
                     }
                     else if (m_DragSource is DataGrid)
                     {
-                        DataGrid source = m_DragSource as DataGrid;
-
-                        foreach (object o in source.SelectedItems)
-                        {
-                            payload.Add((o as MusicCollectionItem).Content);
-                        }
+                        payload = Utils.GetSortedSelection(m_DragSource as DataGrid);
                     }
                     else if (m_DragSource is TreeView)
                     {
                         TreeViewController controller = TreeViewControllerOf(m_DragSource as TreeView);
-                        ISet<SongMetadataTreeViewNode> selection = controller.Songs;
-
-                        if (selection != null)
-                        {
-                            foreach (SongMetadataTreeViewNode node in selection)
-                            {
-                                payload.Add(node.Song);
-                            }
-                        }
+                        payload = controller.Songs == null ? new List<object>() : controller.Songs.Select(el => el.Song).ToList<object>();
                     }
 
-                    if (payload.Count > 0)
+                    if (payload != null && payload.Count > 0)
                     {
                         DragDropEffects mode = sender == m_PlaylistView ? DragDropEffects.Move : DragDropEffects.Copy;
                         m_DragDropPayload = payload;

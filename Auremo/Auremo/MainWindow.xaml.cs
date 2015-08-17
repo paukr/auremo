@@ -449,7 +449,9 @@ namespace Auremo
                 if (e.Key == Key.Enter)
                 {
                     DataGrid grid = sender as DataGrid;
-                    SendItemsToPlaylist(sender, Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items));
+                    // TODO: these albums appear to be alphabetized in the view despite settings
+                    // but get appended in chronoligical order anyway!
+                    SendItemsToPlaylist(sender, Utils.GetSortedSelection(m_SongsOnSelectedGenreAlbumsView));
                     e.Handled = true;
                 }
             }
@@ -466,11 +468,13 @@ namespace Auremo
                     if (grid == m_AlbumsOfSelectedGenresView)
                     {
                         // Filter album contents by selected genres.
-                        SendItemsToPlaylist(sender, Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items));
+                        // TODO: maybe add genre-filtered albums into the database to get
+                        // out of kludges like this?
+                        SendItemsToPlaylist(sender, Utils.ToTypedList<MusicCollectionItem>(m_SongsOnSelectedGenreAlbumsView.Items).OrderBy(el => el.Position));
                     }
                     else
                     {
-                        SendItemsToPlaylist(sender, Utils.ToTypedList<object>(grid.SelectedItems));
+                        SendItemsToPlaylist(sender, Utils.GetSortedSelection(grid));
                     }
                     
                     e.Handled = true;
@@ -521,6 +525,7 @@ namespace Auremo
 
                 if (row != null)
                 {
+                    // TODO: this is a kind of kludge as well.
                     SendItemsToPlaylist(sender, Utils.ToTypedList<SongMetadata>(m_SongsOnSelectedGenreAlbumsView.Items));
                     e.Handled = true;
                 }
@@ -539,6 +544,7 @@ namespace Auremo
                     if (grid == m_AlbumsOfSelectedGenresView)
                     {
                         // Filter album contents by selected genres.
+                        // TODO: another kludge.
                         SendItemsToPlaylist(sender, Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items));
                     }
                     else
@@ -995,6 +1001,7 @@ namespace Auremo
                             items.Add(leaf.Song);
                         }
 
+                        // TODO: is all this really necessary?
                         SendItemsToPlaylist(sender, items);
                     }
                 }
@@ -1098,6 +1105,7 @@ namespace Auremo
                             items.Add(leaf.Song);
                         }
 
+                        // TODO: is all this really necessary?
                         SendItemsToPlaylist(sender, items);
                         e.Handled = true;
                     }

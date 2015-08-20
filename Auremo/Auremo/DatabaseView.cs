@@ -415,7 +415,7 @@ namespace Auremo
 
         public void OnSelectedGenresChanged()
         {
-            ISet<AlbumMetadata> albums = new SortedSet<AlbumMetadata>();
+            IList<AlbumMetadata> albums = new List<AlbumMetadata>();
 
             foreach (string genre in SelectedGenres)
             {

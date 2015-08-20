@@ -449,8 +449,6 @@ namespace Auremo
                 if (e.Key == Key.Enter)
                 {
                     DataGrid grid = sender as DataGrid;
-                    // TODO: these albums appear to be alphabetized in the view despite settings
-                    // but get appended in chronoligical order anyway!
                     SendItemsToPlaylist(sender, Utils.GetSortedSelection(m_SongsOnSelectedGenreAlbumsView));
                     e.Handled = true;
                 }

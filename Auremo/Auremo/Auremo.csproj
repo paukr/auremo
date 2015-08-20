@@ -126,6 +126,12 @@
     <Compile Include="MainWindowOverlay.xaml.cs">
       <DependentUpon>MainWindowOverlay.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MusicCollection\Album.cs" />
+    <Compile Include="MusicCollection\Artist.cs" />
+    <Compile Include="MusicCollection\Genre.cs" />
+    <Compile Include="MusicCollection\GenreFilteredAlbum.cs" />
+    <Compile Include="MusicCollection\MusicCollectionItem.cs" />
+    <Compile Include="MusicCollection\Song.cs" />
     <Compile Include="MusicCollectionItem.cs" />
     <Compile Include="ConverterClasses.cs" />
     <Compile Include="CurrentSong.cs" />

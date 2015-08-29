@@ -128,10 +128,10 @@ namespace Auremo
         /// </summary>
         public static IList<T> ToContentList<T>(IEnumerable source)
         {
-            IList<MusicCollectionItem> collectionItems = ToTypedList<MusicCollectionItem>(source);
+            IList<OldMusicCollectionItem> collectionItems = ToTypedList<OldMusicCollectionItem>(source);
             IList<T> result = new List<T>();
 
-            foreach (MusicCollectionItem item in collectionItems)
+            foreach (OldMusicCollectionItem item in collectionItems)
             {
                 try
                 {
@@ -151,16 +151,18 @@ namespace Auremo
         /// </summary>
         public static IList<object> GetSortedSelection(DataGrid container)
         {
-            return ToTypedList<MusicCollectionItem>(container.SelectedItems).OrderBy(o => o.Position).Select(o => o.Content).ToList();
+            return ToTypedList<OldMusicCollectionItem>(container.SelectedItems).OrderBy(o => o.Position).Select(o => o.Content).ToList();
         }
 
+        /*
         /// <summary>
         /// Return a music playlist's selection sorted by position on screen.
         /// </summary>
         public static IList<object> GetPlaylistSortedSelection(DataGrid playlist)
         {
-            return ToTypedList<PlaylistItem>(playlist.SelectedItems).OrderBy(e => e.Position).ToList<object>();
+            return ToTypedList<OldPlaylistItem>(playlist.SelectedItems).OrderBy(e => e.Position).ToList<object>();
         }
+        */ 
 
         public static string ExtractYearFromDateString(string date)
         {

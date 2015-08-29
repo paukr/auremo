@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -60,7 +61,7 @@ namespace Auremo
         {
             if (response.Count() > 0)
             {
-                m_CurrentPlayable = response.First().ToPlayable(m_DataModel);
+                m_CurrentPlayable = PlayableFactory.CreatePlayable(response.First());
                 BuildDisplayString();
             }
         }
@@ -125,30 +126,30 @@ namespace Auremo
 
         private string CurrentPlayableToString()
         {
-            if (m_CurrentPlayable is SongMetadata)
+            if (m_CurrentPlayable is Song)
             {
                 return CurrentSongToString();
             }
-            else if (m_CurrentPlayable is StreamMetadata)
+            else if (m_CurrentPlayable is AudioStream)
             {
                 return CurrentStreamToString();
             }
             else
             {
-                return m_CurrentPlayable.Path;
+                return m_CurrentPlayable.Path.Full;
             }
         }
 
         private string CurrentSongToString()
         {
-            SongMetadata song = m_CurrentPlayable as SongMetadata;
+            Song song = m_CurrentPlayable as Song;
             StringBuilder result = new StringBuilder(); 
 
-            result.Append(song.Artist);
+            result.Append(song.Artist.Name);
             result.Append(": ");
             result.Append(song.Title);
             result.Append(" (");
-            result.Append(song.Album);
+            result.Append(song.Album.Title);
 
             if (song.Year != null)
             {
@@ -163,7 +164,7 @@ namespace Auremo
 
         private string CurrentStreamToString()
         {
-            StreamMetadata stream = m_CurrentPlayable as StreamMetadata;
+            AudioStream stream = m_CurrentPlayable as AudioStream;
             StringBuilder result = new StringBuilder();
 
             if (stream.Title != null)

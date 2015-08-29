@@ -120,24 +120,37 @@
     <Compile Include="AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AlbumComparison.cs" />
+    <Compile Include="MusicLibrary\AlbumComparison.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
+    <Compile Include="GUI\ExtensionMethods.cs" />
     <Compile Include="LinkMetadata.cs" />
     <Compile Include="MainWindowOverlay.xaml.cs">
       <DependentUpon>MainWindowOverlay.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MusicCollection\Album.cs" />
-    <Compile Include="MusicCollection\Artist.cs" />
-    <Compile Include="MusicCollection\Genre.cs" />
-    <Compile Include="MusicCollection\GenreFilteredAlbum.cs" />
-    <Compile Include="MusicCollection\MusicCollectionItem.cs" />
-    <Compile Include="MusicCollection\Song.cs" />
+    <Compile Include="MusicLibrary\Album.cs" />
+    <Compile Include="MusicLibrary\Artist.cs" />
+    <Compile Include="MusicLibrary\Directory.cs" />
+    <Compile Include="MusicLibrary\Genre.cs" />
+    <Compile Include="MusicLibrary\GenreFilteredAlbum.cs" />
+    <Compile Include="MusicLibrary\ExtensionMethods.cs" />
+    <Compile Include="MusicLibrary\HierarchicalLibraryItem.cs" />
+    <Compile Include="MusicLibrary\HierarchyController.cs" />
+    <Compile Include="MusicLibrary\LibraryItem.cs" />
+    <Compile Include="MusicLibrary\IndexedLibraryItem.cs" />
+    <Compile Include="MusicLibrary\Link.cs" />
+    <Compile Include="MusicLibrary\Path.cs" />
+    <Compile Include="MusicLibrary\Playable.cs" />
+    <Compile Include="MusicLibrary\PlayableFactory.cs" />
+    <Compile Include="MusicLibrary\PlaylistItem.cs" />
+    <Compile Include="MusicLibrary\SavedPlaylist.cs" />
+    <Compile Include="MusicLibrary\Song.cs" />
     <Compile Include="MusicCollectionItem.cs" />
     <Compile Include="ConverterClasses.cs" />
     <Compile Include="CurrentSong.cs" />
     <Compile Include="DataGridItem.cs" />
     <Compile Include="GlobalEnums.cs" />
     <Compile Include="ArtistTreeViewNode.cs" />
+    <Compile Include="MusicLibrary\AudioStream.cs" />
     <Compile Include="QuickSearch.cs" />
     <Compile Include="Crypto.cs" />
     <Compile Include="DatabaseView.cs" />
@@ -152,7 +165,7 @@
     <Compile Include="MPDSongResponseBlock.cs" />
     <Compile Include="Output.cs" />
     <Compile Include="OutputCollection.cs" />
-    <Compile Include="Playable.cs" />
+    <Compile Include="OldPlayable.cs" />
     <Compile Include="PlaylistFileParserBase.cs" />
     <Compile Include="PlaylistWriter.cs" />
     <Compile Include="QuickSearchThread.cs" />
@@ -168,14 +181,12 @@
     <Compile Include="PLSParser.cs" />
     <Compile Include="AdvancedSearch.cs" />
     <Compile Include="StickyButton.cs" />
-    <Compile Include="StreamMetadata.cs" />
     <Compile Include="StreamsCollection.cs" />
     <Compile Include="TextWindow.xaml.cs">
       <DependentUpon>TextWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TreeViewController.cs" />
+    <Compile Include="MusicLibrary\TreeViewController.cs" />
     <Compile Include="TreeViewNode.cs" />
-    <Compile Include="UnknownPlayable.cs" />
     <Compile Include="Utils.cs" />
     <Page Include="AboutWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -282,7 +293,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Playlist.cs" />
-    <Compile Include="PlaylistItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

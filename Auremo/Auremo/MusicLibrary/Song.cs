@@ -19,71 +19,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public class SongMetadata : OldPlayable, IComparable
+    /// <summary>
+    /// A song or track that is a part of the local music database.
+    /// Singleton copies of all songs stored in the Database object in the DataModel.
+    /// </summary>
+    public class Song : LibraryItem, Playable
     {
-        private string m_Path = null;
         private string m_PathTypePrefix = null; // This appears to be Mopidy-specific.
 
-        public SongMetadata()
+        public Song(Path path)
         {
-            Artist = "Unknown Artist";
-            Album = "Unknown Album";
-            Genre = "No Genre";
+            Path = path;
+
+            Artist = null;
+            Album = null;
+            Genre = null;
             Length = null;
             Track = null;
             Date = null;
-            Directory = "";
-            Filename = "";
+            Directory = null;
+            Filename = Path.Directories.Last();
         }
 
-        public string Path
-        {
-            get
-            {
-                return m_Path;
-            }
-            set
-            {
-                m_Path = value;
-                string strippedPath = value;
-
-                if (strippedPath.StartsWith("local:track:"))
-                {
-                    m_PathTypePrefix = "local:track:";
-                    strippedPath = strippedPath.Substring(12);
-                }
-                else if (strippedPath.StartsWith("spotify:track:"))
-                {
-                    m_PathTypePrefix = "spotify:track:";
-                    strippedPath = strippedPath.Substring(14);
-                }
-
-                int lastSlash = strippedPath.LastIndexOf('/');
-
-                if (lastSlash >= 0)
-                {
-                    Directory = strippedPath.Substring(0, lastSlash);
-                    strippedPath = strippedPath.Substring(lastSlash + 1);
-                }
-
-                Filename = strippedPath;
-            }
-        }
-
-        public string Directory
+        public Path Path
         {
             get;
-            private set;
-        }
-
-        public string Filename
-        {
-            get;
-            private set;
+            set;
         }
 
         public string Title
@@ -92,19 +56,37 @@ namespace Auremo
             set;
         }
 
-        public string Artist
+        public Directory Directory
         {
             get;
             set;
         }
 
-        public string Album
+        public string Filename
+        {
+            get;
+            private set;
+        }
+
+        public Artist Artist
         {
             get;
             set;
         }
 
-        public string Genre
+        public Album Album
+        {
+            get;
+            set;
+        }
+
+        public Genre Genre
+        {
+            get;
+            set;
+        }
+
+        public GenreFilteredAlbum GenreFilteredAlbum
         {
             get;
             set;
@@ -152,37 +134,38 @@ namespace Auremo
             }
         }
 
-        public string DisplayString
+        public override string DisplayString
         {
             get
             {
-                if (Title == null)
-                {
-                    return Filename;
-                }
-                else
-                {
-                    return Title;
-                }
+                return Title;
+            }
+        }
+
+        public string FilesystemDisplayString
+        {
+            get
+            {
+                return Filename;
+            }
+        }
+
+        public override int CompareTo(object o)
+        {
+            if (o is Song)
+            {
+                Song rhs = (Song)o;
+                return StringComparer.Ordinal.Compare(Path, rhs.Path);
+            }
+            else
+            {
+                throw new Exception("Song: attempt to compare to an incompatible object");
             }
         }
 
         public override string ToString()
         {
-            return Artist + ": " + Title + " (" + Album + ")";
-        }
-
-        public int CompareTo(object o)
-        {
-            if (o is SongMetadata)
-            {
-                SongMetadata rhs = (SongMetadata)o;
-                return StringComparer.Ordinal.Compare(Path, rhs.Path);
-            }
-            else
-            {
-                throw new Exception("SongMetadata: attempt to compare to an incompatible object");
-            }
+            return DisplayString;
         }
     }
 }

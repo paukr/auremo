@@ -78,7 +78,7 @@
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="{StaticResource RowSelectionBackgroundBrush}"/>
                         </Trigger>
-                        <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
+                        <DataTrigger Binding="{Binding Path=Item.IsPlaying}" Value="True">
                             <Setter Property="Background" Value="{StaticResource PlayingBackgroundBrush}"/>
                         </DataTrigger>
                     </Style.Triggers>
@@ -97,7 +97,7 @@
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Foreground" Value="{StaticResource SelectedTextBrush}"/>
                         </Trigger>
-                        <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
+                        <DataTrigger Binding="{Binding Path=Item.IsPlaying}" Value="True">
                             <Setter Property="Foreground" Value="{StaticResource PlayingTextBrush}"/>
                         </DataTrigger>
                     </Style.Triggers>

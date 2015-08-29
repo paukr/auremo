@@ -20,64 +20,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public class LinkMetadata : OldPlayable
+    public class Genre : LibraryItem
     {
-        public LinkMetadata()
+        public Genre(string name)
         {
+            Name = name;
         }
 
-        public string Path
+        public string Name
         {
             get;
-            set;
+            private set;
         }
 
-        public string Title
-        {
-            get;
-            set;
-        }
-
-        public string Artist
+        public override string DisplayString
         {
             get
             {
-                return "";
+                return Name;
             }
         }
 
-        public string Album
+        public override int CompareTo(object o)
         {
-            get
+            if (o is Genre)
             {
-                return "";
+                return StringComparer.Ordinal.Compare(Name, (o as Genre).Name);
+            }
+            else
+            {
+                throw new Exception("Genre: attempt to compare to an incompatible object");
             }
         }
 
-        public bool IsLocal
+        public override string ToString()
         {
-            get
-            {
-                return Path.StartsWith("local:");
-            }
-        }
-
-        public bool IsSpotify
-        {
-            get
-            {
-                return Path.StartsWith("spotify:");
-            }
-        }
-
-        public string DisplayString
-        {
-            get
-            {
-                return Title;
-            }
+            return DisplayString;
         }
     }
 }

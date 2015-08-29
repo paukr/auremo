@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -46,14 +47,14 @@ namespace Auremo
         private bool m_IncludeSpotify = true;
         private SearchType m_SearchType = SearchType.Any;
         string m_SearchString = "";
-        IList<Playable> m_UnfilteredSearchResults = new List<Playable>();
+        IList<LibraryItem> m_UnfilteredSearchResults = new List<LibraryItem>();
 
         public AdvancedSearch(DataModel dataModel)
         {
             m_DataModel = dataModel;
             string[] dateFormat = { "YYYY" };
             m_DateNormalizer = new DateNormalizer(dateFormat);
-            SearchResults = new ObservableCollection<MusicCollectionItem>();
+            SearchResults = new ObservableCollection<IndexedLibraryItem>();
 
             m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
         }
@@ -87,7 +88,7 @@ namespace Auremo
             }
         }
 
-        public IList<MusicCollectionItem> SearchResults
+        public ObservableCollection<IndexedLibraryItem> SearchResults
         {
             get;
             private set;
@@ -197,12 +198,7 @@ namespace Auremo
 
             foreach (MPDSongResponseBlock item in response)
             {
-                Playable playable = item.ToPlayable(m_DataModel);
-
-                if (playable != null && !(playable is UnknownPlayable))
-                {
-                    m_UnfilteredSearchResults.Add(playable);
-                }
+                m_UnfilteredSearchResults.Add(PlayableFactory.CreatePlayable(item, m_DataModel) as LibraryItem);
             }
 
             FilterSearchResults();
@@ -212,13 +208,11 @@ namespace Auremo
         {
             SearchResults.Clear();
 
-            foreach (Playable playable in m_UnfilteredSearchResults)
+            foreach (LibraryItem item in m_UnfilteredSearchResults)
             {
-                bool playableIsLocal = playable is SongMetadata && (playable as SongMetadata).IsLocal;
-
-                if (playableIsLocal && IncludeLocal || !playableIsLocal && IncludeSpotify)
+                if (item is Song && IncludeLocal || item is Link && IncludeSpotify)
                 {
-                    SearchResults.Add(new MusicCollectionItem(playable, SearchResults.Count));
+                    SearchResults.Add(new IndexedLibraryItem(item, SearchResults.Count));
                 }
             }
         }

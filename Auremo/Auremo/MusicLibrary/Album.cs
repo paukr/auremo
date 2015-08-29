@@ -20,15 +20,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public class LinkMetadata : OldPlayable
+    public class Album : LibraryItem
     {
-        public LinkMetadata()
+        public Album(Artist artist, string title, string date)
         {
+            Artist = artist;
+            Title = title;
+            Date = date;
         }
 
-        public string Path
+        public Artist Artist
         {
             get;
             set;
@@ -40,44 +43,51 @@ namespace Auremo
             set;
         }
 
-        public string Artist
+        public string Date
+        {
+            get;
+            set;
+        }
+
+        public string Year
         {
             get
             {
-                return "";
+                return Utils.ExtractYearFromDateString(Date);
             }
         }
 
-        public string Album
-        {
-            get
-            {
-                return "";
-            }
-        }
-
-        public bool IsLocal
-        {
-            get
-            {
-                return Path.StartsWith("local:");
-            }
-        }
-
-        public bool IsSpotify
-        {
-            get
-            {
-                return Path.StartsWith("spotify:");
-            }
-        }
-
-        public string DisplayString
+        public override string DisplayString
         {
             get
             {
                 return Title;
             }
+        }
+
+        public override int CompareTo(object o)
+        {
+            if (o is Album)
+            {
+                Album rhs = o as Album;
+                int result = Artist.CompareTo(rhs.Artist);
+
+                if (result == 0)
+                {
+                    result = StringComparer.Ordinal.Compare(Title, rhs.Title);
+                }
+
+                return result;
+            }
+            else
+            {
+                throw new Exception("Album: attempt to compare to an incompatible object");
+            }
+        }
+
+        public override string ToString()
+        {
+            return DisplayString;
         }
     }
 }

@@ -20,64 +20,73 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public class LinkMetadata : OldPlayable
+    public class Directory : LibraryItem
     {
-        public LinkMetadata()
+        public Directory(string name)
         {
+            Name = name;
+            Parent = null;
         }
 
-        public string Path
+        public Directory(string name, Directory parent)
+        {
+            Name = name;
+            Parent = parent;
+        }
+
+        public string Name
         {
             get;
-            set;
+            private set;
         }
-
-        public string Title
+        
+        public Directory Parent
         {
             get;
-            set;
+            private set;
         }
 
-        public string Artist
+        public string Full
         {
             get
             {
-                return "";
+                return Parent == null ? Name : Parent.Full + "/" + Name;
             }
         }
 
-        public string Album
+        public override string DisplayString
         {
             get
             {
-                return "";
+                return Name;
             }
         }
 
-        public bool IsLocal
+        public string FilesystemDisplayString
         {
             get
             {
-                return Path.StartsWith("local:");
+                return Name;
             }
         }
 
-        public bool IsSpotify
+        public override int CompareTo(object o)
         {
-            get
+            if (o is Directory)
             {
-                return Path.StartsWith("spotify:");
+                return StringComparer.Ordinal.Compare(Full, (o as Directory).Full);
+            }
+            else
+            {
+                throw new Exception("Directory: attempt to compare to an incompatible object");
             }
         }
 
-        public string DisplayString
+        public override string ToString()
         {
-            get
-            {
-                return Title;
-            }
+            return DisplayString;
         }
     }
 }

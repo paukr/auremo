@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,18 +25,18 @@ namespace Auremo
 {
     public class PlaylistWriter
     {
-        public static string Write(IEnumerable<Playable> playables)
+        public static string Write(IEnumerable<LibraryItem> items)
         {
-            if (playables.Count() > 0)
+            if (items.Count() > 0)
             {
                 StringBuilder result = new StringBuilder();
 
                 result.Append("[playlist]\r\n");
-                result.Append("NumberOfEntries=" + playables.Count() + "\r\n");
+                result.Append("NumberOfEntries=" + items.Count() + "\r\n");
 
                 int entryIndex = 1;
 
-                foreach (StreamMetadata entry in playables)
+                foreach (AudioStream entry in items)
                 {
                     result.Append("File" + entryIndex + "=" + entry.Path + "\r\n");
                     result.Append("Title" + entryIndex + "=" + entry.Label + "\r\n");
@@ -50,7 +51,6 @@ namespace Auremo
             {
                 return null;
             }
-
         }
     }
 }

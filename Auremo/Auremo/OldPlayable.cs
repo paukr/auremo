@@ -22,62 +22,31 @@ using System.Text;
 
 namespace Auremo
 {
-    public class LinkMetadata : OldPlayable
+    public interface OldPlayable
     {
-        public LinkMetadata()
-        {
-        }
-
-        public string Path
+        string Path
         {
             get;
-            set;
         }
 
-        public string Title
+        string Title
         {
             get;
-            set;
         }
 
-        public string Artist
+        string Artist
         {
-            get
-            {
-                return "";
-            }
+            get;
         }
 
-        public string Album
+        string Album
         {
-            get
-            {
-                return "";
-            }
+            get;
         }
 
-        public bool IsLocal
+        string DisplayString
         {
-            get
-            {
-                return Path.StartsWith("local:");
-            }
-        }
-
-        public bool IsSpotify
-        {
-            get
-            {
-                return Path.StartsWith("spotify:");
-            }
-        }
-
-        public string DisplayString
-        {
-            get
-            {
-                return Title;
-            }
+            get;
         }
     }
 }

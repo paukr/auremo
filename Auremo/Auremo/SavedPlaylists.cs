@@ -15,6 +15,8 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.GUI;
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -41,25 +43,24 @@ namespace Auremo
         #endregion
 
         private DataModel m_DataModel = null;
-        private IDictionary<string, IList<Playable>> m_Playlists = new SortedDictionary<string, IList<Playable>>();
-        private IList<MusicCollectionItem> m_SelectedItemsOnSelectedPlaylist = new List<MusicCollectionItem>();
-        private string m_SelectedPlaylist = null;
+        private IDictionary<string, SavedPlaylist> m_Playlists = new SortedDictionary<string, SavedPlaylist>(StringComparer.Ordinal);
+        private IDictionary<SavedPlaylist, IList<LibraryItem>> m_PlaylistContents = new SortedDictionary<SavedPlaylist, IList<LibraryItem>>();
         private string m_CurrentPlaylistName = "";
 
         public SavedPlaylists(DataModel dataModel)
         {
             m_DataModel = dataModel;
-            Playlists = new ObservableCollection<string>();
-            ItemsOnSelectedPlaylist = new ObservableCollection<MusicCollectionItem>();
-            SelectedItemsOnSelectedPlaylist = new ObservableCollection<MusicCollectionItem>();
-
+            Items = new ObservableCollection<IndexedLibraryItem>();
+            ItemsOnSelectedPlaylist = new ObservableCollection<IndexedLibraryItem>();
+        
             m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
         }
 
         public void Clear()
         {
             m_Playlists.Clear();
-            Playlists.Clear();
+            m_PlaylistContents.Clear();
+            Items.Clear();
         }
 
         public void Refresh()
@@ -70,36 +71,36 @@ namespace Auremo
         public void OnLsInfoResponseReceived(IEnumerable<MPDResponseLine> response)
         {
             Clear();
-            ISet<string> playlists = new SortedSet<string>();
+            ISet<SavedPlaylist> playlists = new SortedSet<SavedPlaylist>();
 
             foreach (MPDResponseLine line in response)
             {
                 if (line.Key == MPDResponseLine.Keyword.Playlist)
                 {
-                    playlists.Add(line.Value);
-                    m_DataModel.ServerSession.ListPlaylistInfo(line.Value);
+                    SavedPlaylist playlist = new SavedPlaylist(line.Value);
+                    playlists.Add(playlist);
+                    m_Playlists[line.Value] = playlist;
+                    m_PlaylistContents[playlist] = new List<LibraryItem>();
+                    m_DataModel.ServerSession.ListPlaylistInfo(playlist.Title);
                 }
             }
 
-            foreach (string playlist in playlists)
-            {
-                Playlists.Add(playlist);
-            }
+            Items.CreateFrom(playlists);
         }
 
         public void OnListPlaylistInfoResponseReceived(string name, IEnumerable<MPDSongResponseBlock> response)
         {
-            IList<Playable> playlist = new List<Playable>();
+            IList<LibraryItem> contents = new List<LibraryItem>();
 
             foreach (MPDSongResponseBlock block in response)
             {
-                Playable playable = block.ToPlayable(m_DataModel);
+                Playable playable = PlayableFactory.CreatePlayable(block, m_DataModel);
 
-                // If this is a stream that is in the collection, use the database version
+                // If this stream is a part of the collection, use the database version
                 // instead of the constructed one so we can display the user-set label.
-                if (playable is StreamMetadata)
+                if (playable is AudioStream)
                 {
-                    StreamMetadata stream = m_DataModel.StreamsCollection.StreamByPath(playable.Path);
+                    AudioStream stream = m_DataModel.StreamsCollection.StreamByPath(playable.Path);
 
                     if (stream != null)
                     {
@@ -107,69 +108,57 @@ namespace Auremo
                     }
                 }
 
-                if (playable != null)
-                {
-                    playlist.Add(playable);
-                }
+                contents.Add((LibraryItem)playable);
             }
 
-            m_Playlists[name] = playlist;
+            SavedPlaylist playlist = m_Playlists[name];
+            m_PlaylistContents[playlist] = contents;
+            IEnumerable<LibraryItem> selection = Items.SelectedItems();
 
-            if (name == SelectedPlaylist)
+            if (selection.Count() == 1 && ((AudioStream)selection.First()).Name == name)
             {
                 NotifyPropertyChanged("ItemsOnSelectedPlaylist");
             }
         }
 
-        public IList<string> Playlists
+        public ObservableCollection<IndexedLibraryItem> Items
         {
             get;
             private set;
         }
 
-        public string SelectedPlaylist
+        public void OnSelectedSavedPlaylistChanged()
+        {
+            ItemsOnSelectedPlaylist.Clear();
+            SavedPlaylist selection = SelectedSavedPlaylist;
+
+            if (selection != null && m_PlaylistContents.ContainsKey(selection))
+            {
+                ItemsOnSelectedPlaylist.CreateFrom(m_PlaylistContents[selection]);
+            }
+        }
+
+        public SavedPlaylist SelectedSavedPlaylist
         {
             get
             {
-                return m_SelectedPlaylist;
-            }
-            set
-            {
-                m_SelectedPlaylist = value;
-                ItemsOnSelectedPlaylist.Clear();
-
-                if (value != null && m_Playlists.ContainsKey(value))
+                IEnumerable<LibraryItem> selection = Items.SelectedItems();
+                
+                if (selection.Count() == 1)
                 {
-                    foreach (Playable playable in m_Playlists[value])
-                    {
-                        ItemsOnSelectedPlaylist.Add(new MusicCollectionItem(playable, ItemsOnSelectedPlaylist.Count));
-                    }
+                    return (SavedPlaylist)selection.First();
+                }
+                else
+                {
+                    return null;
                 }
             }
         }
 
-        public ObservableCollection<MusicCollectionItem> ItemsOnSelectedPlaylist
+        public ObservableCollection<IndexedLibraryItem> ItemsOnSelectedPlaylist
         {
             get;
             private set;
-        }
-
-        public IList<MusicCollectionItem> SelectedItemsOnSelectedPlaylist
-        {
-            get
-            {
-                return m_SelectedItemsOnSelectedPlaylist;
-            }
-            set
-            {
-                m_SelectedItemsOnSelectedPlaylist = value;
-                NotifyPropertyChanged("SelectedItemsOnSelectedPlaylist");
-            }
-        }
-
-        public IEnumerable<Playable> PlaylistContents(string playlistName)
-        {
-            return m_Playlists[playlistName];
         }
 
         public string CurrentPlaylistName
@@ -204,25 +193,6 @@ namespace Auremo
             {
                 return !CurrentPlaylistNameEmpty;
             }
-        }
-
-        private Playable GetPlayableByPath(string path)
-        {
-            Playable result = m_DataModel.Database.SongByPath(path);
-
-            if (result != null)
-            {
-                return result;
-            }
-
-            result = m_DataModel.StreamsCollection.StreamByPath(path);
-
-            if (result != null)
-            {
-                return result;
-            }
-
-            return new UnknownPlayable(path);
         }
 
         private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

@@ -21,15 +21,19 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public class OldMusicCollectionItem : DataGridItem, INotifyPropertyChanged, IComparable
+    /// <summary>
+    /// A wrapper for LibraryItem that adds indexing and selection features
+    /// useful for use in DataGrids.
+    /// </summary>
+    public class IndexedLibraryItem : INotifyPropertyChanged, IComparable
     {
         #region INotifyPropertyChanged implementation
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void NotifyPropertyChanged(string info)
+        protected void NotifyPropertyChanged(string info)
         {
             if (PropertyChanged != null)
             {
@@ -41,24 +45,33 @@ namespace Auremo
 
         private bool m_IsSelected = false;
 
-        public OldMusicCollectionItem(object content, int position)
+        public IndexedLibraryItem(LibraryItem item, int position)
         {
-            Content = content;
+            Item = item;
             Position = position;
         }
 
-        public OldMusicCollectionItem(object content, int position, bool isSelected)
+        public IndexedLibraryItem(LibraryItem item, int position, bool isSelected)
         {
-            Content = content;
+            Item = item;
             Position = position;
             IsSelected = isSelected;
         }
 
-        // TODO: there should be a common base class for genre/artist/album/song/stream, used here.
-        public object Content
+        public LibraryItem Item
         {
             get;
-            set;
+            private set;
+        }
+
+        public T ItemAs<T>() where T : LibraryItem
+        {
+            if (!(Item is T))
+            {
+                throw new Exception("IndexedLibraryItem: improper cast in call to ItemAs<T>().");
+            }
+
+            return (T)Item;
         }
 
         public int Position
@@ -83,21 +96,21 @@ namespace Auremo
             }
         }
 
-        public override string ToString()
-        {
-            return "";
-        }
-
         public int CompareTo(object o)
         {
-            if (o is OldMusicCollectionItem)
+            if (o is IndexedLibraryItem)
             {
-                return Position - ((OldMusicCollectionItem)o).Position;
+                return Position - ((IndexedLibraryItem)o).Position;
             }
             else
             {
-                throw new Exception("MusicCollectionItem: attempt to compare to an incompatible object");
+                throw new Exception("MusicCollectionListItem: attempt to compare to an incompatible object");
             }
+        }
+
+        public override string ToString()
+        {
+            return Item.ToString();
         }
     }
 }

@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -43,11 +44,11 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
 
-        private ISet<string> m_SelectedGenres = new SortedSet<string>();
-        private ISet<AlbumMetadata> m_SelectedAlbumsOfSelectedGenres = new SortedSet<AlbumMetadata>();
+        //private ISet<string> m_SelectedGenres = new SortedSet<string>();
+        //private ISet<AlbumMetadata> m_SelectedAlbumsOfSelectedGenres = new SortedSet<AlbumMetadata>();
 
-        public delegate ISet<AlbumMetadata> AlbumsUnderRoot(string root);
-        public delegate ISet<SongMetadata> SongsOnAlbum(AlbumMetadata album);
+        //public delegate ISet<AlbumMetadata> AlbumsUnderRoot(string root);
+        //public delegate ISet<SongMetadata> SongsOnAlbum(AlbumMetadata album);
 
         #region Construction and setup
 
@@ -55,22 +56,33 @@ namespace Auremo
         {
             m_DataModel = dataModel;
 
-            Artists = new ObservableCollection<MusicCollectionItem>();
-            AlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>();
-            SongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<MusicCollectionItem>();
+            Artists = new ObservableCollection<IndexedLibraryItem>();
+            AlbumsBySelectedArtists = new ObservableCollection<IndexedLibraryItem>();
+            SongsOnSelectedAlbumsBySelectedArtists = new ObservableCollection<IndexedLibraryItem>();
 
-            Genres = new ObservableCollection<MusicCollectionItem>();
-            AlbumsOfSelectedGenres = new ObservableCollection<MusicCollectionItem>();
-            SongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<MusicCollectionItem>();
+            Genres = new ObservableCollection<IndexedLibraryItem>();
+            AlbumsOfSelectedGenres = new ObservableCollection<IndexedLibraryItem>();
+            SongsOnSelectedAlbumsOfSelectedGenres = new ObservableCollection<IndexedLibraryItem>();
 
-            ArtistTree = new ObservableCollection<TreeViewNode>();
-            ArtistTreeController = new TreeViewController(ArtistTree);
+            ArtistTree = new ObservableCollection<HierarchicalLibraryItem>();
+            ArtistTreeController = new HierarchyController(ArtistTree);
 
-            GenreTree = new ObservableCollection<TreeViewNode>();
-            GenreTreeController = new TreeViewController(GenreTree);
+            GenreTree = new ObservableCollection<HierarchicalLibraryItem>();
+            GenreTreeController = new HierarchyController(GenreTree);
 
-            DirectoryTree = new ObservableCollection<TreeViewNode>();
-            DirectoryTreeController = new TreeViewController(DirectoryTree);
+            DirectoryTree = new ObservableCollection<HierarchicalLibraryItem>();
+            DirectoryTreeController = new HierarchyController(DirectoryTree);
+
+            /*
+            OldArtistTree = new ObservableCollection<TreeViewNode>();
+            OldArtistTreeController = new TreeViewController(OldArtistTree);
+
+            OldGenreTree = new ObservableCollection<TreeViewNode>();
+            OldGenreTreeController = new TreeViewController(OldGenreTree);
+
+            OldDirectoryTree = new ObservableCollection<TreeViewNode>();
+            OldDirectoryTreeController = new TreeViewController(OldDirectoryTree);
+            */ 
 
             m_DataModel.Database.PropertyChanged += new PropertyChangedEventHandler(OnDatabasePropertyChanged);
         }
@@ -79,8 +91,16 @@ namespace Auremo
         {
             if (e.PropertyName == "Database")
             {
-                PopulateArtists();
-                AlbumsBySelectedArtists.Clear();
+                Artists.CreateFrom(m_DataModel.Database.Artists.Values);
+                Genres.CreateFrom(m_DataModel.Database.Genres.Values);
+                PopulateArtistTree();
+                PopulateGenreTree();
+                PopulateDirectoryTree();
+
+                return;
+
+                /*
+                AlbumsBySelectedArtistsTODO.Clear();
                 SongsOnSelectedAlbumsBySelectedArtists.Clear();
                 PopulateGenres();
                 AlbumsOfSelectedGenres.Clear();
@@ -88,66 +108,16 @@ namespace Auremo
                 PopulateDirectoryTree();
                 PopulateArtistTree();
                 PopulateGenreTree();
-            }
-        }
-
-        private void PopulateArtists()
-        {
-            Artists.Clear();
-
-            foreach (string artist in m_DataModel.Database.Artists)
-            {
-                Artists.Add(new MusicCollectionItem(artist, Artists.Count));
-            }
-        }
-
-        private void PopulateGenres()
-        {
-            Genres.Clear();
-
-            foreach (string genre in m_DataModel.Database.Genres)
-            {
-                Genres.Add(new MusicCollectionItem(genre, Genres.Count));
+                */ 
             }
         }
         
-        private void PopulateArtistTree()
-        {
-            ArtistTree.Clear();
-            ArtistTreeController.MultiSelection.Clear();
-
-            foreach (string artist in m_DataModel.Database.Artists)
-            {
-                ArtistTreeViewNode artistNode = new ArtistTreeViewNode(artist, null, ArtistTreeController);
-
-                foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByArtist(artist))
-                {
-                    AlbumMetadataTreeViewNode albumNode = new AlbumMetadataTreeViewNode(album, artistNode, ArtistTreeController);
-                    artistNode.AddChild(albumNode);
-
-                    foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
-                    {
-                        SongMetadataTreeViewNode songNode = new SongMetadataTreeViewNode("", song, albumNode, ArtistTreeController);
-                        albumNode.AddChild(songNode);
-                    }
-                }
-
-                ArtistTree.Add(artistNode); // Insert now that branch is fully populated.
-            }
-
-            int id = 0;
-
-            foreach (TreeViewNode baseNode in ArtistTree)
-            {
-                id = AssignTreeViewNodeIDs(baseNode, id);
-            }
-        }
-
+        /*
         private void PopulateGenreTree()
         {
-            GenreTreeController.ClearMultiSelection();
-            GenreTree.Clear();
-
+            OldGenreTreeController.ClearMultiSelection();
+            OldGenreTree.Clear();
+            
             foreach (string genre in m_DataModel.Database.Genres)
             {
                 GenreTreeViewNode genreNode = new GenreTreeViewNode(genre, null, GenreTreeController);
@@ -176,33 +146,37 @@ namespace Auremo
             {
                 id = AssignTreeViewNodeIDs(baseNode, id);
             }
-        }
-
-        private void PopulateDirectoryTree()
-        {
-            DirectoryTreeController.ClearMultiSelection();
-            DirectoryTree.Clear();
-
-            DirectoryTreeViewNode rootNode = new DirectoryTreeViewNode("/", null, DirectoryTreeController);
-            IDictionary<string, TreeViewNode> directoryLookup = new SortedDictionary<string, TreeViewNode>();
-            directoryLookup[rootNode.DisplayString] = rootNode;
-
-            foreach (SongMetadata song in m_DataModel.Database.Songs)
-            {
-                TreeViewNode parent = FindDirectoryNode(song.Directory, directoryLookup, rootNode);
-                SongMetadataTreeViewNode leaf = new SongMetadataTreeViewNode(song.Filename, song, parent, DirectoryTreeController);
-                parent.AddChild(leaf);
-            }
-
-            AssignTreeViewNodeIDs(rootNode, 0);
             
-            if (rootNode.Children.Count > 0)
-            {
-                DirectoryTree.Add(rootNode);
-                rootNode.IsExpanded = true;
-            }
         }
+        */
+        /*
+         private void PopulateDirectoryTree()
+         {
+             DirectoryTreeController.ClearMultiSelection();
+             DirectoryTree.Clear();
 
+             DirectoryTreeViewNode rootNode = new DirectoryTreeViewNode("/", null, DirectoryTreeController);
+             IDictionary<string, TreeViewNode> directoryLookup = new SortedDictionary<string, TreeViewNode>();
+             directoryLookup[rootNode.DisplayString] = rootNode;
+
+             foreach (SongMetadata song in m_DataModel.Database.Songs)
+             {
+                 TreeViewNode parent = FindDirectoryNode(song.Directory, directoryLookup, rootNode);
+                 SongMetadataTreeViewNode leaf = new SongMetadataTreeViewNode(song.Filename, song, parent, DirectoryTreeController);
+                 parent.AddChild(leaf);
+             }
+
+             AssignTreeViewNodeIDs(rootNode, 0);
+            
+             if (rootNode.Children.Count > 0)
+             {
+                 DirectoryTree.Add(rootNode);
+                 rootNode.IsExpanded = true;
+             }
+
+         }
+         */
+        
         private TreeViewNode FindDirectoryNode(string path, IDictionary<string, TreeViewNode> lookup, TreeViewNode rootNode)
         {
             if (path == "")
@@ -217,62 +191,50 @@ namespace Auremo
             {
                 Tuple<string, string> parentAndSelf = Utils.SplitPath(path);
                 TreeViewNode parent = FindDirectoryNode(parentAndSelf.Item1, lookup, rootNode);
-                TreeViewNode self = new DirectoryTreeViewNode(parentAndSelf.Item2, parent, DirectoryTreeController);
-                parent.AddChild(self);
-                lookup[path] = self;
-                return self;
+                //TreeViewNode self = new DirectoryTreeViewNode(parentAndSelf.Item2, parent, DirectoryTreeController);
+                //parent.AddChild(self);
+                //lookup[path] = self;
+                //return self;
+                return null; 
             }
-        }
-
-        private int AssignTreeViewNodeIDs(TreeViewNode node, int nodeID)
-        {
-            node.ID = nodeID;
-            int nextNodeID = nodeID + 1;
-
-            foreach (TreeViewNode child in node.Children)
-            {
-                nextNodeID = AssignTreeViewNodeIDs(child, nextNodeID);
-            }
-
-            node.HighestChildID = nextNodeID - 1;
-            return nextNodeID;
         }
 
         #endregion
 
         #region Artist/album/song view
 
-        public ObservableCollection<MusicCollectionItem> Artists
+        public ObservableCollection<IndexedLibraryItem> Artists
         {
             get;
             private set;
         }
 
-        public ObservableCollection<MusicCollectionItem> AlbumsBySelectedArtists
+        public ObservableCollection<IndexedLibraryItem> AlbumsBySelectedArtists
         {
             get;
             private set;
         }
 
-        public ObservableCollection<MusicCollectionItem> SongsOnSelectedAlbumsBySelectedArtists
+        public ObservableCollection<IndexedLibraryItem> SongsOnSelectedAlbumsBySelectedArtists
         {
             get;
             private set;
         }
 
-        public IEnumerable<string> SelectedArtists
+        /*
+        public IEnumerable<Artist> SelectedArtists
         {
             get
             {
-                return CollectSelectedElements<string>(Artists);
+                return CollectSelectedElements<string>(ArtistsTODO);
             }
         }
-
+        
         public IEnumerable<AlbumMetadata> SelectedAlbumsBySelectedArtists
         {
             get
             {
-                return CollectSelectedElements<AlbumMetadata>(AlbumsBySelectedArtists);
+                return CollectSelectedElements<AlbumMetadata>(AlbumsBySelectedArtistsTODO);
             }
         }
 
@@ -283,45 +245,45 @@ namespace Auremo
                 return CollectSelectedElements<SongMetadata>(SongsOnSelectedAlbumsBySelectedArtists);
             }
         }
+        */
+
+        /*
+        public void OnSelectedGenresChanged()
+        {
+            AlbumsOfSelectedGenres.CreateFrom(m_DataModel.Database.Expand(Genres.SelectedItems()));
+            NotifyPropertyChanged("AlbumsOfSelectedGenres");
+        }
+
+        public void OnSelectedAlbumsOfSelectedGenresChanged()
+        {
+            SongsOnSelectedAlbumsOfSelectedGenres.CreateFrom(m_DataModel.Database.Expand(AlbumsOfSelectedGenres.SelectedItems()));
+            NotifyPropertyChanged("SongsOnSelectedAlbumsOfSelectedGenres");
+        }
+        */
 
         public void OnSelectedArtistsChanged()
         {
-            AlbumsBySelectedArtists.Clear();
-
-            foreach (string artist in SelectedArtists)
-            {
-                foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByArtist(artist))
-                {
-                    AlbumsBySelectedArtists.Add(new MusicCollectionItem(album, AlbumsBySelectedArtists.Count));
-                }
-            }
-
-            NotifyPropertyChanged("SelectedArtists");
+            AlbumsBySelectedArtists.CreateFrom(m_DataModel.Database.Expand(Artists.SelectedItems()));
+            NotifyPropertyChanged("AlbumsBySelectedArtists");
         }
 
         public void OnSelectedAlbumsBySelectedArtistsChanged()
         {
-            SongsOnSelectedAlbumsBySelectedArtists.Clear();
-
-            foreach (AlbumMetadata album in SelectedAlbumsBySelectedArtists)
-            {
-                foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
-                {
-                    SongsOnSelectedAlbumsBySelectedArtists.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsBySelectedArtists.Count));
-                }
-            }
-
-            NotifyPropertyChanged("SelectedAlbumsBySelectedArtists");
+            SongsOnSelectedAlbumsBySelectedArtists.CreateFrom(m_DataModel.Database.Expand(AlbumsBySelectedArtists.SelectedItems()));
+            NotifyPropertyChanged("SongsOnSelectedAlbumsBySelectedArtists");
         }
 
+        /*
         public void OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged()
         {
             NotifyPropertyChanged("SelectedSongsOnSelectedAlbumsBySelectedArtists");
         }
+        */ 
 
         public void ShowSongsInArtistList(IEnumerable<SongMetadata> selectedSongs)
         {
-            foreach (MusicCollectionItem artistItem in Artists)
+            /*
+            foreach (MusicCollectionItem artistItem in ArtistsTODO)
             {
                 artistItem.IsSelected = false;
 
@@ -336,7 +298,7 @@ namespace Auremo
 
             OnSelectedArtistsChanged();
 
-            foreach (MusicCollectionItem albumItem in AlbumsBySelectedArtists)
+            foreach (MusicCollectionItem albumItem in AlbumsBySelectedArtistsTODO)
             {
                 albumItem.IsSelected = false;
                 AlbumMetadata album = albumItem.Content as AlbumMetadata;
@@ -365,109 +327,46 @@ namespace Auremo
                     }
                 }
             }
+            */ 
         }
 
         #endregion
 
         #region Genre/album/artist view
 
-        public IList<MusicCollectionItem> Genres
+        public ObservableCollection<IndexedLibraryItem> Genres
         {
             get;
             private set;
         }
 
-        public ObservableCollection<MusicCollectionItem> AlbumsOfSelectedGenres
+        public ObservableCollection<IndexedLibraryItem> AlbumsOfSelectedGenres
         {
             get;
             private set;
         }
 
-        public ObservableCollection<MusicCollectionItem> SongsOnSelectedAlbumsOfSelectedGenres
+        public ObservableCollection<IndexedLibraryItem> SongsOnSelectedAlbumsOfSelectedGenres
         {
             get;
             private set;
         }
-
-        public IEnumerable<string> SelectedGenres
-        {
-            get
-            {
-                return CollectSelectedElements<string>(Genres);
-            }
-        }
-
-        public IEnumerable<AlbumMetadata> SelectedAlbumsOfSelectedGenres
-        {
-            get
-            {
-                return CollectSelectedElements<AlbumMetadata>(AlbumsOfSelectedGenres);
-            }
-        }
-
-        public IEnumerable<SongMetadata> SelectedSongsOnSelectedAlbumsOfSelectedGenres
-        {
-            get
-            {
-                return CollectSelectedElements<SongMetadata>(SongsOnSelectedAlbumsOfSelectedGenres);
-            }
-        }
-
+        
         public void OnSelectedGenresChanged()
         {
-            IList<AlbumMetadata> albums = new List<AlbumMetadata>();
-
-            foreach (string genre in SelectedGenres)
-            {
-                foreach (AlbumMetadata album in m_DataModel.Database.AlbumsByGenre(genre))
-                {
-                    albums.Add(album);
-                }
-            }
-
-            AlbumsOfSelectedGenres.Clear();
-
-            foreach (AlbumMetadata album in albums)
-            {
-                AlbumsOfSelectedGenres.Add(new MusicCollectionItem(album, AlbumsOfSelectedGenres.Count));
-            }
-
-            NotifyPropertyChanged("SelectedGenres");
+            AlbumsOfSelectedGenres.CreateFrom(m_DataModel.Database.Expand(Genres.SelectedItems()));
+            NotifyPropertyChanged("AlbumsOfSelectedGenres");
         }
 
         public void OnSelectedAlbumsOfSelectedGenresChanged()
         {
-            ISet<SongMetadata> songs = new SortedSet<SongMetadata>();
-            ISet<string> genres = new SortedSet<string>(SelectedGenres);
-
-            foreach (AlbumMetadata album in SelectedAlbumsOfSelectedGenres)
-            {
-                foreach (SongMetadata song in m_DataModel.Database.SongsByAlbum(album))
-                {
-                    if (genres.Contains(song.Genre))
-                    {
-                        songs.Add(song);
-                    }
-                }
-            }
-
-            SongsOnSelectedAlbumsOfSelectedGenres.Clear();
-
-            foreach (SongMetadata song in songs)
-            {
-                SongsOnSelectedAlbumsOfSelectedGenres.Add(new MusicCollectionItem(song, SongsOnSelectedAlbumsOfSelectedGenres.Count));
-            }
-
-            NotifyPropertyChanged("SelectedAlbumsOfSelectedGenres");
-        }
-
-        public void OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged()
-        {
-            NotifyPropertyChanged("SelectedSongsOnSelectedAlbumsOfSelectedGenres");
+            SongsOnSelectedAlbumsOfSelectedGenres.CreateFrom(m_DataModel.Database.Expand(AlbumsOfSelectedGenres.SelectedItems()));
+            NotifyPropertyChanged("SongsOnSelectedAlbumsOfSelectedGenres");
         }
 
         public void ShowSongsInGenreList(IEnumerable<SongMetadata> selectedSongs)
         {
+            /*
             foreach (MusicCollectionItem genreItem in Genres)
             {
                 genreItem.IsSelected = false;
@@ -512,32 +411,171 @@ namespace Auremo
                     }
                 }
             }
+            */ 
         }
 
         #endregion
 
         #region Artist/album/song tree view
 
-        public IList<TreeViewNode> ArtistTree
+        public ObservableCollection<HierarchicalLibraryItem> ArtistTree
         {
             get;
             private set;
         }
 
-        public TreeViewController ArtistTreeController
+        public HierarchyController ArtistTreeController
         {
             get;
             private set;
         }
 
-        public ISet<SongMetadataTreeViewNode> ArtistTreeSelectedSongs
+        private void PopulateArtistTree()
+        {
+            ArtistTreeController.Clear();
+            ArtistTree.Clear();
+
+            foreach (Artist artist in m_DataModel.Database.Artists.Values)
+            {
+                HierarchicalLibraryItem artistNode = new HierarchicalLibraryItem(artist, ArtistTreeController);
+                ArtistTree.Add(artistNode);
+
+                foreach (LibraryItem album in m_DataModel.Database.Expand(artist))
+                {
+                    HierarchicalLibraryItem albumNode = new HierarchicalLibraryItem(album, artistNode);
+
+                    foreach (LibraryItem song in m_DataModel.Database.Expand(album))
+                    {
+                        new HierarchicalLibraryItem(song, albumNode);
+                    }
+                }
+            }
+
+            ArtistTreeController.ResetNodeIds();
+        }
+
+        #endregion
+
+        #region Genre/album/song tree view
+        
+        public ObservableCollection<HierarchicalLibraryItem> GenreTree
+        {
+            get;
+            private set;
+        }
+
+        public HierarchyController GenreTreeController
+        {
+            get;
+            private set;
+        }
+
+        private void PopulateGenreTree()
+        {
+            GenreTreeController.Clear();
+            GenreTree.Clear();
+
+            foreach (Genre genre in m_DataModel.Database.Genres.Values)
+            {
+                HierarchicalLibraryItem genreNode = new HierarchicalLibraryItem(genre, GenreTreeController);
+                GenreTree.Add(genreNode);
+
+                foreach (LibraryItem album in m_DataModel.Database.Expand(genre))
+                {
+                    HierarchicalLibraryItem albumNode = new HierarchicalLibraryItem(album, genreNode);
+
+                    foreach (LibraryItem song in m_DataModel.Database.Expand(album))
+                    {
+                        new HierarchicalLibraryItem(song, albumNode);
+                    }
+                }
+            }
+
+            GenreTreeController.ResetNodeIds();
+        }
+        
+        #endregion
+
+        #region Directory tree
+
+        public ObservableCollection<HierarchicalLibraryItem> DirectoryTree
+        {
+            get;
+            private set;
+        }
+
+        public HierarchyController DirectoryTreeController
+        {
+            get;
+            private set;
+        }
+
+        private void PopulateDirectoryTree()
+        {
+            DirectoryTreeController.Clear();
+            DirectoryTree.Clear();
+
+            IDictionary<Directory, HierarchicalLibraryItem> directoryLookup = new SortedDictionary<Directory, HierarchicalLibraryItem>();
+
+            foreach (Directory directory in m_DataModel.Database.Directories.Values)
+            {
+                CreateDirectoryBranchNodesRecursively(directory, directoryLookup);
+            }
+
+            foreach (Song song in m_DataModel.Database.Songs.Values)
+            {
+                new HierarchicalLibraryItem(song, directoryLookup[song.Directory]);
+            }
+
+            DirectoryTreeController.ResetNodeIds();
+        }
+
+        private HierarchicalLibraryItem CreateDirectoryBranchNodesRecursively(Directory directory, IDictionary<Directory, HierarchicalLibraryItem> directoryLookup)
+        {
+            HierarchicalLibraryItem result = null;
+
+            if (directory.Parent == null)
+            {
+                result = new HierarchicalLibraryItem(directory, DirectoryTreeController);
+                DirectoryTree.Add(result);
+            }
+            else if (directoryLookup.ContainsKey(directory.Parent))
+            {
+                result = new HierarchicalLibraryItem(directory, directoryLookup[directory.Parent]);
+            }
+            else
+            {
+                result = new HierarchicalLibraryItem(directory, CreateDirectoryBranchNodesRecursively(directory.Parent, directoryLookup));
+            }
+
+            directoryLookup[directory] = result;
+            return result;
+        }
+
+        #endregion
+
+        #region Old artist/album/song tree view
+
+        public IList<TreeViewNode> OldArtistTree
+        {
+            get;
+            private set;
+        }
+
+        public TreeViewController OldArtistTreeController
+        {
+            get;
+            private set;
+        }
+
+        public ISet<SongMetadataTreeViewNode> OldArtistTreeSelectedSongs
         {
             get
             {
-                return ArtistTreeController.Songs;
+                return OldArtistTreeController.Songs;
             }
         }
-
+        
         public void ShowSongsInArtistTree(IEnumerable<SongMetadata> selectedSongs)
         {
             ISet<string> selectedArtists = new SortedSet<string>();
@@ -554,9 +592,9 @@ namespace Auremo
                 }
             }
 
-            ArtistTreeController.ClearMultiSelection();
+            OldArtistTreeController.ClearMultiSelection();
 
-            foreach (TreeViewNode rootNode in ArtistTreeController.RootLevelNodes)
+            foreach (TreeViewNode rootNode in OldArtistTreeController.RootLevelNodes)
             {
                 ArtistTreeViewNode artistNode = rootNode as ArtistTreeViewNode;
                 artistNode.IsExpanded = false;
@@ -593,23 +631,23 @@ namespace Auremo
 
         #region Genre/album/song tree view
 
-        public IList<TreeViewNode> GenreTree
+        public IList<TreeViewNode> OldGenreTree
         {
             get;
             private set;
         }
 
-        public TreeViewController GenreTreeController
+        public TreeViewController OldGenreTreeController
         {
             get;
             private set;
         }
 
-        public ISet<SongMetadataTreeViewNode> GenreTreeSelectedSongs
+        public ISet<SongMetadataTreeViewNode> OldGenreTreeSelectedSongs
         {
             get
             {
-                return GenreTreeController.Songs;
+                return OldGenreTreeController.Songs;
             }
         }
 
@@ -629,9 +667,9 @@ namespace Auremo
                 }
             }
 
-            GenreTreeController.ClearMultiSelection();
+            OldGenreTreeController.ClearMultiSelection();
 
-            foreach (TreeViewNode rootNode in GenreTreeController.RootLevelNodes)
+            foreach (TreeViewNode rootNode in OldGenreTreeController.RootLevelNodes)
             {
                 GenreTreeViewNode genreNode = rootNode as GenreTreeViewNode;
                 genreNode.IsExpanded = false;
@@ -665,9 +703,9 @@ namespace Auremo
         }
 
         #endregion
-
+        
         #region Directory tree view
-
+        /*
         public IList<TreeViewNode> DirectoryTree
         {
             get;
@@ -712,7 +750,7 @@ namespace Auremo
                 }
             }
         }
-
+        */
         // Expand/multiselect node if the path is found under it.
         private bool SearchAndSelectPath(TreeViewNode node, string path)
         {
@@ -752,11 +790,11 @@ namespace Auremo
 
         #region Utility
 
-        private ISet<T> CollectSelectedElements<T>(IEnumerable<MusicCollectionItem> collection) where T : class
+        private ISet<T> CollectSelectedElements<T>(IEnumerable<OldMusicCollectionItem> collection) where T : class
         {
             ISet<T> result = new SortedSet<T>();
 
-            foreach (MusicCollectionItem item in collection)
+            foreach (OldMusicCollectionItem item in collection)
             {
                 if (item.IsSelected)
                 {

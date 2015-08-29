@@ -102,6 +102,34 @@ namespace Auremo.MusicLibrary
             private set;
         }
 
+        /// <summary>
+        /// Return the LibraryItems contained in leaf-level children.
+        /// </summary>
+        public IEnumerable<LibraryItem> LeafItems
+        {
+            get
+            {
+                IList<LibraryItem> result = new List<LibraryItem>();
+                FillLeafItemsRecursively(result);
+                return result;
+            }
+        }
+
+        private void FillLeafItemsRecursively(IList<LibraryItem> result)
+        {
+            if (Children.Count == 0)
+            {
+                result.Add(Item);
+            }
+            else
+            {
+                foreach (HierarchicalLibraryItem child in Children)
+                {
+                    child.FillLeafItemsRecursively(result);
+                }
+            }
+        }
+
         public void AddChild(HierarchicalLibraryItem child)
         {
             Children.Add(child);

@@ -29,12 +29,14 @@ namespace Auremo.MusicLibrary
         {
             RootLevelNodes = new List<HierarchicalLibraryItem>();
             MultiSelection = new ObservableCollection<HierarchicalLibraryItem>();
+            Current = null;
         }
 
         public void Clear()
         {
             RootLevelNodes.Clear();
             MultiSelection.Clear();
+            Current = null;
         }
 
         /// <summary>
@@ -96,12 +98,12 @@ namespace Auremo.MusicLibrary
         {
             if (Pivot != null)
             {
-                int minID = Math.Min(Pivot.ID, toNode.Id);
-                int maxID = Math.Max(Pivot.ID, toNode.Id);
+                int minId = Math.Min(Pivot.Id, toNode.Id);
+                int maxId = Math.Max(Pivot.Id, toNode.Id);
 
                 foreach (HierarchicalLibraryItem root in RootLevelNodes)
                 {
-                    SelectVisibleWithinRange(root, minID, maxID);
+                    SelectVisibleWithinRange(root, minId, maxId);
                 }
             }
         }
@@ -129,7 +131,7 @@ namespace Auremo.MusicLibrary
         }
 
         /// Start point of range selection (mouse or key with shift down).
-        public TreeViewNode Pivot
+        public HierarchicalLibraryItem Pivot
         {
             get;
             set;
@@ -139,6 +141,19 @@ namespace Auremo.MusicLibrary
         {
             get;
             set;
+        }
+
+        public HierarchicalLibraryItem CurrentOrFirstNode
+        {
+            get
+            {
+                if (Current == null)
+                {
+                    Current = FirstNode;
+                }
+
+                return Current;
+            }
         }
 
         public HierarchicalLibraryItem Previous

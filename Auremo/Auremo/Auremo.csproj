@@ -121,7 +121,6 @@
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MusicLibrary\AlbumComparison.cs" />
-    <Compile Include="AlbumMetadataTreeViewNode.cs" />
     <Compile Include="GUI\ExtensionMethods.cs" />
     <Compile Include="LinkMetadata.cs" />
     <Compile Include="MainWindowOverlay.xaml.cs">
@@ -149,7 +148,6 @@
     <Compile Include="CurrentSong.cs" />
     <Compile Include="DataGridItem.cs" />
     <Compile Include="GlobalEnums.cs" />
-    <Compile Include="ArtistTreeViewNode.cs" />
     <Compile Include="MusicLibrary\AudioStream.cs" />
     <Compile Include="QuickSearch.cs" />
     <Compile Include="Crypto.cs" />
@@ -157,8 +155,6 @@
     <Compile Include="DataModel.cs" />
     <Compile Include="DateNormalizer.cs" />
     <Compile Include="DateTemplate.cs" />
-    <Compile Include="DirectoryTreeViewNode.cs" />
-    <Compile Include="GenreTreeViewNode.cs" />
     <Compile Include="M3UParser.cs" />
     <Compile Include="MPDCommand.cs" />
     <Compile Include="MPDResponseLine.cs" />
@@ -177,7 +173,6 @@
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SongMetadata.cs" />
-    <Compile Include="SongMetadataTreeViewNode.cs" />
     <Compile Include="PLSParser.cs" />
     <Compile Include="AdvancedSearch.cs" />
     <Compile Include="StickyButton.cs" />
@@ -185,8 +180,6 @@
     <Compile Include="TextWindow.xaml.cs">
       <DependentUpon>TextWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MusicLibrary\TreeViewController.cs" />
-    <Compile Include="TreeViewNode.cs" />
     <Compile Include="Utils.cs" />
     <Page Include="AboutWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

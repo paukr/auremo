@@ -176,28 +176,6 @@ namespace Auremo
 
          }
          */
-        
-        private TreeViewNode FindDirectoryNode(string path, IDictionary<string, TreeViewNode> lookup, TreeViewNode rootNode)
-        {
-            if (path == "")
-            {
-                return rootNode;
-            }
-            else if (lookup.ContainsKey(path))
-            {
-                return lookup[path];
-            }
-            else
-            {
-                Tuple<string, string> parentAndSelf = Utils.SplitPath(path);
-                TreeViewNode parent = FindDirectoryNode(parentAndSelf.Item1, lookup, rootNode);
-                //TreeViewNode self = new DirectoryTreeViewNode(parentAndSelf.Item2, parent, DirectoryTreeController);
-                //parent.AddChild(self);
-                //lookup[path] = self;
-                //return self;
-                return null; 
-            }
-        }
 
         #endregion
 
@@ -509,28 +487,9 @@ namespace Auremo
 
         #region Old artist/album/song tree view
 
-        public IList<TreeViewNode> OldArtistTree
-        {
-            get;
-            private set;
-        }
-
-        public TreeViewController OldArtistTreeController
-        {
-            get;
-            private set;
-        }
-
-        public ISet<SongMetadataTreeViewNode> OldArtistTreeSelectedSongs
-        {
-            get
-            {
-                return OldArtistTreeController.Songs;
-            }
-        }
-        
         public void ShowSongsInArtistTree(IEnumerable<SongMetadata> selectedSongs)
         {
+            /*
             ISet<string> selectedArtists = new SortedSet<string>();
             ISet<AlbumMetadata> selectedAlbums = new SortedSet<AlbumMetadata>();
             ISet<string> selectedSongPaths = new SortedSet<string>(StringComparer.Ordinal);
@@ -578,34 +537,18 @@ namespace Auremo
                     }
                 }
             }
+            */ 
         }
 
         #endregion
 
         #region Genre/album/song tree view
 
-        public IList<TreeViewNode> OldGenreTree
-        {
-            get;
-            private set;
-        }
-
-        public TreeViewController OldGenreTreeController
-        {
-            get;
-            private set;
-        }
-
-        public ISet<SongMetadataTreeViewNode> OldGenreTreeSelectedSongs
-        {
-            get
-            {
-                return OldGenreTreeController.Songs;
-            }
-        }
+        
 
         public void ShowSongsInGenreTree(IEnumerable<SongMetadata> selectedSongs)
         {
+            /*
             ISet<string> selectedGenres = new SortedSet<string>();
             ISet<AlbumMetadata> selectedAlbums = new SortedSet<AlbumMetadata>();
             ISet<string> selectedSongPaths = new SortedSet<string>(StringComparer.Ordinal);
@@ -653,34 +596,16 @@ namespace Auremo
                     }
                 }
             }
+            */ 
         }
 
         #endregion
         
         #region Directory tree view
-        /*
-        public IList<TreeViewNode> DirectoryTree
-        {
-            get;
-            private set;
-        }
-
-        public TreeViewController DirectoryTreeController
-        {
-            get;
-            private set;
-        }
-
-        public ISet<SongMetadataTreeViewNode> DirectoryTreeSelectedSongs
-        {
-            get
-            {
-                return DirectoryTreeController.Songs;
-            }
-        }
 
         public void ShowSongsInDirectoryTree(IEnumerable<SongMetadata> selectedSongs)
         {
+            /*
             DirectoryTreeController.ClearMultiSelection();
 
             // This looks more complex than necessary because it is trying to
@@ -702,11 +627,13 @@ namespace Auremo
                     }
                 }
             }
+            */ 
         }
-        */
+        
         // Expand/multiselect node if the path is found under it.
-        private bool SearchAndSelectPath(TreeViewNode node, string path)
+        private bool SearchAndSelectPath(HierarchicalLibraryItem node, string path)
         {
+            /*
             if (node is DirectoryTreeViewNode)
             {
                 DirectoryTreeViewNode directory = node as DirectoryTreeViewNode;
@@ -735,27 +662,8 @@ namespace Auremo
                     return true;
                 }
             }
-
+            */
             return false;
-        }
-
-        #endregion
-
-        #region Utility
-
-        private ISet<T> CollectSelectedElements<T>(IEnumerable<OldMusicCollectionItem> collection) where T : class
-        {
-            ISet<T> result = new SortedSet<T>();
-
-            foreach (OldMusicCollectionItem item in collection)
-            {
-                if (item.IsSelected)
-                {
-                    result.Add(item.Content as T);
-                }
-            }
-
-            return result;
         }
 
         #endregion

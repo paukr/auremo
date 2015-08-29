@@ -108,9 +108,9 @@ namespace Auremo
 
         private void SetUpTreeViewControllers()
         {
+            m_ArtistTree.Tag = DataModel.DatabaseView.ArtistTreeController;
+            m_GenreTree.Tag = DataModel.DatabaseView.GenreTreeController;
             m_DirectoryTree.Tag = DataModel.DatabaseView.DirectoryTreeController;
-            m_ArtistTree.Tag = DataModel.DatabaseView.OldArtistTreeController;
-            m_GenreTree.Tag = DataModel.DatabaseView.OldGenreTreeController;
         }
 
         private void CreateTimer(int interval)
@@ -269,7 +269,7 @@ namespace Auremo
                     Back();
                     e.Handled = true;
                 }
-                else if (e.Key == Key.Space && !m_QuickSearchBox.IsKeyboardFocused && !m_AdvancedSearchBox.IsKeyboardFocused && !AutoSearchInProgrss)
+                else if (e.Key == Key.Space && !m_QuickSearchBox.IsKeyboardFocused && !m_AdvancedSearchBox.IsKeyboardFocused && !AutoSearchInProgress)
                 {
                     TogglePlayPause();
                     e.Handled = true;
@@ -540,16 +540,8 @@ namespace Auremo
             }
             else if (senderView is TreeView)
             {
-                TreeViewController controller = TreeViewControllerOf(senderView as TreeView);
-                ISet<SongMetadataTreeViewNode> selection = controller.Songs;
-
-                if (selection != null)
-                {
-                    foreach (SongMetadataTreeViewNode node in selection)
-                    {
-                        position = AddPlayableToPlaylist(node.Song, position);
-                    }
-                }
+                HierarchyController controller = (senderView as TreeView).Tag as HierarchyController;
+                AddItemsToPlaylist(controller.SelectedLeaves, insertPosition);
             }
 
             Update();
@@ -895,13 +887,13 @@ namespace Auremo
             {
                 if (ViewBackgroundWasClicked(tree, e))
                 {
-                    (tree.Tag as TreeViewController).ClearMultiSelection();
+                    (tree.Tag as HierarchyController).ClearMultiSelection();
                     e.Handled = true;
                 }
             }
-            else if (item.Header is TreeViewNode)
+            else if (item.Header is HierarchicalLibraryItem)
             {
-                TreeViewNode node = item.Header as TreeViewNode;
+                HierarchicalLibraryItem node = item.Header as HierarchicalLibraryItem;
 
                 if (Keyboard.Modifiers == ModifierKeys.None)
                 {
@@ -920,18 +912,7 @@ namespace Auremo
                     }
                     else
                     {
-                        // TODO: sort this out
-                        /*
-                        IList<object> items = new List<object>();
-
-                        foreach (SongMetadataTreeViewNode leaf in node.Controller.Songs)
-                        {
-                            items.Add(leaf.Song);
-                        }
-
-                        // TODO: is all this really necessary?
-                        SendItemsToPlaylist(sender, items);
-                        */
+                        SendItemsToPlaylist(node.LeafItems);
                     }
                 }
                 else if (Keyboard.Modifiers == ModifierKeys.Control)
@@ -972,9 +953,9 @@ namespace Auremo
             {
                 TreeViewItem item = TreeViewItemBeingClicked(sender as TreeView, e);
 
-                if (item != null && item.Header is TreeViewNode)
+                if (item != null && item.Header is HierarchicalLibraryItem)
                 {
-                    TreeViewNode node = item.Header as TreeViewNode;
+                    HierarchicalLibraryItem node = item.Header as HierarchicalLibraryItem;
                     node.Controller.ClearMultiSelection();
                     node.IsMultiSelected = true;
                     node.Controller.Pivot = node;
@@ -987,25 +968,25 @@ namespace Auremo
             if (!e.Handled)
             {
                 TreeView tree = sender as TreeView;
-                TreeViewController controller = tree.Tag as TreeViewController;
+                HierarchyController controller = tree.Tag as HierarchyController;
 
                 if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
                 {
                     bool currentChanged = false;
 
-                    if (e.Key == Key.Up && EnsureTreeViewHasCurrentNode(controller))
+                    if (e.Key == Key.Up && controller.CurrentOrFirstNode != null)
                     {
                         controller.Current = controller.Previous;
                         currentChanged = true;
                         e.Handled = true;
                     }
-                    else if (e.Key == Key.Down && EnsureTreeViewHasCurrentNode(controller))
+                    else if (e.Key == Key.Down && controller.CurrentOrFirstNode != null)
                     {
                         controller.Current = controller.Next;
                         currentChanged = true;
                         e.Handled = true;
                     }
-                    else if (e.Key == Key.Left && EnsureTreeViewHasCurrentNode(controller))
+                    else if (e.Key == Key.Left && controller.CurrentOrFirstNode != null)
                     {
                         if (controller.Current.Parent != null)
                         {
@@ -1015,30 +996,21 @@ namespace Auremo
 
                         e.Handled = true;
                     }
-                    else if (e.Key == Key.Right && EnsureTreeViewHasCurrentNode(controller))
+                    else if (e.Key == Key.Right && controller.CurrentOrFirstNode != null)
                     {
                         if (controller.Current.Children.Count > 0)
                         {
                             controller.Current.IsExpanded = true;
                             controller.Current = controller.Current.Children[0];
                             currentChanged = true;
-                            e.Handled = true;
                         }
+
+                        e.Handled = true;
                     }
                     else if (e.Key == Key.Enter)
                     {
-                        // TODO: sort this out
-                        /*
-                        IList<object> items = new List<object>();
-
-                        foreach (SongMetadataTreeViewNode leaf in controller.Songs)
-                        {
-                            items.Add(leaf.Song);
-                        }
-
-                        SendItemsToPlaylist(items);
+                        SendItemsToPlaylist(controller.SelectedLeaves);
                         e.Handled = true;
-                        */
                     }
 
                     if (currentChanged)
@@ -1078,7 +1050,7 @@ namespace Auremo
         private void OnTreeViewSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             // Cancel the selection. Use the controller multiselection system instead.
-            TreeViewNode node = e.NewValue as TreeViewNode;
+            HierarchicalLibraryItem node = e.NewValue as HierarchicalLibraryItem;
 
             if (node != null)
             {
@@ -1454,7 +1426,7 @@ namespace Auremo
 
         #region Autosearch
 
-        private bool AutoSearchInProgrss
+        private bool AutoSearchInProgress
         {
             get
             {
@@ -1473,7 +1445,7 @@ namespace Auremo
             }
             else if (sender is TreeView)
             {
-                TreeViewController controller = (sender as TreeView).Tag as TreeViewController;
+                HierarchyController controller = (sender as TreeView).Tag as HierarchyController;
                 selectionUnchanged = controller.MultiSelection.Count == 1 && controller.MultiSelection[0] == m_LastLastAutoSearchHit;
             }
 
@@ -1530,7 +1502,7 @@ namespace Auremo
                 else if (sender is TreeView)
                 {
                     TreeView tree = sender as TreeView;
-                    TreeViewNode item = CollectionAutoSearchTreeViewRecursively(Utils.ToTypedList<TreeViewNode>(tree.Items));
+                    HierarchicalLibraryItem item = CollectionAutoSearchTreeViewRecursively(tree.Items.Cast<HierarchicalLibraryItem>());
 
                     if (item != null)
                     {
@@ -1549,9 +1521,9 @@ namespace Auremo
             return false;
         }
 
-        private TreeViewNode CollectionAutoSearchTreeViewRecursively(IEnumerable<TreeViewNode> nodes)
+        private HierarchicalLibraryItem CollectionAutoSearchTreeViewRecursively(IEnumerable<HierarchicalLibraryItem> nodes)
         {
-            foreach (TreeViewNode node in nodes)
+            foreach (HierarchicalLibraryItem node in nodes)
             {
                 if (node.DisplayString.ToLowerInvariant().StartsWith(m_AutoSearchString))
                 {
@@ -1559,7 +1531,7 @@ namespace Auremo
                 }
                 else if (node.IsExpanded)
                 {
-                    TreeViewNode result = CollectionAutoSearchTreeViewRecursively(Utils.ToTypedList<TreeViewNode>(node.Children));
+                    HierarchicalLibraryItem result = CollectionAutoSearchTreeViewRecursively(node.Children);
 
                     if (result != null)
                     {
@@ -1569,192 +1541,6 @@ namespace Auremo
             }
 
             return null;
-        }
-
-        #endregion
-
-        #region Helpers for adding items to the playlist
-
-        private void AddObjectsToPlaylist(IEnumerable<object> items, bool stringsAreArtists)
-        {
-            foreach (object item in items)
-            {
-                AddObjectToPlaylist(item, stringsAreArtists);
-            }
-        }
-
-        private void AddObjectsToPlaylist(IEnumerable<object> items, bool stringsAreArtists, int firstPosition)
-        {
-            int position = firstPosition;
-
-            foreach (object item in items)
-            {
-                position = AddObjectToPlaylist(item, stringsAreArtists, position);
-            }
-        }
-
-        private void AddObjectToPlaylist(object o, bool stringsAreArtists)
-        {
-            if (o is OldMusicCollectionItem)
-            {
-                AddObjectToPlaylist((o as OldMusicCollectionItem).Content, stringsAreArtists);
-            }
-            else if (o is string)
-            {
-                if (stringsAreArtists)
-                {
-                    AddArtistToPlaylist(o as string);
-                }
-                else
-                {
-                    AddGenreToPlaylist(o as string);
-                }
-            }
-            else if (o is AlbumMetadata)
-            {
-                AddAlbumToPlaylist(o as AlbumMetadata);
-            }
-            else if (o is OldPlayable)
-            {
-                AddPlayableToPlaylist(o as OldPlayable);
-            }
-        }
-
-        // Template: firstPosition is the position on the playlist to which
-        // the first item is pushed. The return value is the position after
-        // the last item.
-        private int AddObjectToPlaylist(object o, bool stringsAreArtists, int firstPosition)
-        {
-            if (o is OldMusicCollectionItem)
-            {
-                AddObjectToPlaylist((o as OldMusicCollectionItem).Content, stringsAreArtists, firstPosition);
-            }
-            else if (o is string)
-            {
-                if (stringsAreArtists)
-                {
-                    return AddArtistToPlaylist(o as string, firstPosition);
-                }
-                else
-                {
-                    return AddGenreToPlaylist(o as string, firstPosition);
-                }
-            }
-            else if (o is AlbumMetadata)
-            {
-                return AddAlbumToPlaylist(o as AlbumMetadata, firstPosition);
-            }
-            else if (o is OldPlayable)
-            {
-                return AddPlayableToPlaylist(o as OldPlayable, firstPosition);
-            }
-
-            return firstPosition;
-        }
-
-        private void AddArtistToPlaylist(string artist)
-        {
-            /*
-            foreach (AlbumMetadata album in DataModel.Database.AlbumsByArtist(artist))
-            {
-                AddAlbumToPlaylist(album);
-            }
-             */ 
-        }
-
-        private int AddArtistToPlaylist(string artist, int firstPosition)
-        {
-            /*
-            int position = firstPosition;
-
-            foreach (AlbumMetadata album in DataModel.Database.AlbumsByArtist(artist))
-            {
-                position = AddAlbumToPlaylist(album, position);
-            }
-
-            return position;*/
-
-            return 0;
-        }
-
-        private void AddGenreToPlaylist(string genre)
-        {
-            /*
-            foreach (AlbumMetadata album in DataModel.Database.AlbumsByGenre(genre))
-            {
-                AddGenreFilteredAlbumToPlaylist(album, genre);
-            }
-            */ 
-        }
-
-        private int AddGenreToPlaylist(string genre, int firstPosition)
-        {
-            int position = firstPosition;
-            /*
-            foreach (AlbumMetadata album in DataModel.Database.AlbumsByGenre(genre))
-            {
-                position = AddGenreFilteredAlbumToPlaylist(album, genre, position);
-            }
-            */
-            return position;
-        }
-
-        private void AddAlbumToPlaylist(AlbumMetadata album)
-        {
-            /*
-            foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
-            {
-                AddPlayableToPlaylist(song);
-            }*/
-        }
-
-        private int AddAlbumToPlaylist(AlbumMetadata album, int firstPosition)
-        {
-            int position = firstPosition;
-            /*
-            foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
-            {
-                position = AddPlayableToPlaylist(song, position);
-            }
-            */
-            return position;
-        }
-
-        private void AddGenreFilteredAlbumToPlaylist(AlbumMetadata album, string genre)
-        {/*
-            foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
-            {
-                if (song.Genre == genre)
-                {
-                    AddPlayableToPlaylist(song);
-                }
-            }*/
-        }
-
-        private int AddGenreFilteredAlbumToPlaylist(AlbumMetadata album, string genre, int firstPosition)
-        {
-            int position = firstPosition;
-            /*
-            foreach (SongMetadata song in DataModel.Database.SongsByAlbum(album))
-            {
-                if (song.Genre == genre)
-                {
-                    position = AddPlayableToPlaylist(song, position);
-                }
-            }
-            */
-            return position;
-        }
-
-        private void AddPlayableToPlaylist(OldPlayable playable)
-        {
-            DataModel.ServerSession.Add(playable.Path);
-        }
-
-        private int AddPlayableToPlaylist(OldPlayable playable, int position)
-        {
-            DataModel.ServerSession.AddId(playable.Path, position);
-            return position + 1;
         }
 
         #endregion
@@ -2340,25 +2126,6 @@ namespace Auremo
             return false;
         }
 
-        private TreeViewController TreeViewControllerOf(TreeView tree)
-        {
-            if (tree == m_ArtistTree)
-            {
-                return DataModel.DatabaseView.OldArtistTreeController;
-            }
-            else if (tree == m_GenreTree)
-            {
-                return DataModel.DatabaseView.OldGenreTreeController;
-            }
-            else if (tree == m_DirectoryTree)
-            {
-                //return DataModel.DatabaseView.DirectoryTreeController;
-                return null;
-            }
-
-            throw new Exception("Tried to find the controller of an unknown TreeView.");
-        }
-
         private int DropTargetRowIndex(DragEventArgs e)
         {
             for (int i = 0; i < m_PlaylistView.Items.Count; ++i)
@@ -2423,19 +2190,8 @@ namespace Auremo
             throw new Exception("GetDragDropDataString: unknown drag source.");
         }
 
-        private bool EnsureTreeViewHasCurrentNode(TreeViewController controller)
-        {
-            if (controller.Current == null)
-            {
-                controller.Current = controller.FirstNode;
-                return controller.Current != null;
-            }
-
-            return true;
-        }
-
-        // nodeContainer must be either a TreeView or a TreeViewItem.
-        private TreeViewItem GetTreeViewItem(ItemsControl nodeContainer, TreeViewNode node)
+        // Return the TreeViewItem that contains item. nodeContainer must be either a TreeView or a TreeViewItem.
+        private TreeViewItem GetTreeViewItem(ItemsControl nodeContainer, HierarchicalLibraryItem node)
         {
             if (nodeContainer == null || node == null)
             {
@@ -2443,23 +2199,23 @@ namespace Auremo
             }
             else
             {
-                TreeViewItem nodeWithHighestLowerID = null;
+                TreeViewItem nodeWithHighestLowerId = null;
                 TreeViewItem item = null;
                 int i = 0;
 
                 do
                 {
-                    nodeWithHighestLowerID = item;
+                    nodeWithHighestLowerId = item;
                     item = nodeContainer.ItemContainerGenerator.ContainerFromIndex(i++) as TreeViewItem;
-                } while (item != null && ((TreeViewNode)item.Header).ID < node.ID);
+                } while (item != null && ((HierarchicalLibraryItem)item.Header).Id < node.Id);
 
-                if (item != null && ((TreeViewNode)item.Header).ID == node.ID)
+                if (item != null && ((HierarchicalLibraryItem)item.Header).Id == node.Id)
                 {
                     return item;
                 }
                 else
                 {
-                    return GetTreeViewItem(nodeWithHighestLowerID, node);
+                    return GetTreeViewItem(nodeWithHighestLowerId, node);
                 }
             }
         }

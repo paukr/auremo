@@ -221,46 +221,6 @@ namespace Auremo
             private set;
         }
 
-        /*
-        public IEnumerable<Artist> SelectedArtists
-        {
-            get
-            {
-                return CollectSelectedElements<string>(ArtistsTODO);
-            }
-        }
-        
-        public IEnumerable<AlbumMetadata> SelectedAlbumsBySelectedArtists
-        {
-            get
-            {
-                return CollectSelectedElements<AlbumMetadata>(AlbumsBySelectedArtistsTODO);
-            }
-        }
-
-        public IEnumerable<SongMetadata> SelectedSongsOnSelectedAlbumsBySelectedArtists
-        {
-            get
-            {
-                return CollectSelectedElements<SongMetadata>(SongsOnSelectedAlbumsBySelectedArtists);
-            }
-        }
-        */
-
-        /*
-        public void OnSelectedGenresChanged()
-        {
-            AlbumsOfSelectedGenres.CreateFrom(m_DataModel.Database.Expand(Genres.SelectedItems()));
-            NotifyPropertyChanged("AlbumsOfSelectedGenres");
-        }
-
-        public void OnSelectedAlbumsOfSelectedGenresChanged()
-        {
-            SongsOnSelectedAlbumsOfSelectedGenres.CreateFrom(m_DataModel.Database.Expand(AlbumsOfSelectedGenres.SelectedItems()));
-            NotifyPropertyChanged("SongsOnSelectedAlbumsOfSelectedGenres");
-        }
-        */
-
         public void OnSelectedArtistsChanged()
         {
             AlbumsBySelectedArtists.CreateFrom(m_DataModel.Database.Expand(Artists.SelectedItems()));
@@ -272,13 +232,6 @@ namespace Auremo
             SongsOnSelectedAlbumsBySelectedArtists.CreateFrom(m_DataModel.Database.Expand(AlbumsBySelectedArtists.SelectedItems()));
             NotifyPropertyChanged("SongsOnSelectedAlbumsBySelectedArtists");
         }
-
-        /*
-        public void OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged()
-        {
-            NotifyPropertyChanged("SelectedSongsOnSelectedAlbumsBySelectedArtists");
-        }
-        */ 
 
         public void ShowSongsInArtistList(IEnumerable<SongMetadata> selectedSongs)
         {

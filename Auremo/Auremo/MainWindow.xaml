@@ -548,7 +548,6 @@
                                   Grid.Row="1"
                                   Margin="0,-1,0,0"
                                   ItemsSource="{Binding Path=SavedPlaylists.ItemsOnSelectedPlaylist}"
-                                  SelectionChanged="OnSelectedItemsOnSelectedSavedPlaylistChanged"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   TextInput="OnCollectionTextInput"
                                   PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"

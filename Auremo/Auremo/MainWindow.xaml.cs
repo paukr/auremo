@@ -117,7 +117,7 @@ namespace Auremo
         {
             m_Timer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher);
             m_Timer.Tick += new EventHandler(OnTimerTick);
-            SetTimerInterval(interval);
+            m_Timer.Interval = new TimeSpan(0, 0, 0, 0, interval);
             m_Timer.Start();
         }
         
@@ -162,11 +162,6 @@ namespace Auremo
         #endregion
 
         #region Updating logic and helpers
-
-        private void SetTimerInterval(int interval)
-        {
-            m_Timer.Interval = new TimeSpan(0, 0, 0, 0, interval);
-        }
 
         private void OnTimerTick(Object sender, EventArgs e)
         {
@@ -260,16 +255,6 @@ namespace Auremo
         {
             DataModel.SavedPlaylists.OnSelectedSavedPlaylistChanged();
         }
-
-        private void OnSelectedItemsOnSelectedSavedPlaylistChanged(object sender, SelectionChangedEventArgs e)
-        {
-            //DataModel.SavedPlaylists.SelectedItemsOnSelectedPlaylist = Utils.ToTypedList<OldMusicCollectionItem>(m_ItemsOnSelectedSavedPlaylistView.SelectedItems);
-        }
-
-        /*private void OnSelectedPlaylistItemsChanged(object sender, SelectionChangedEventArgs e)
-        {
-            DataModel.Playlist.OnSelectedItemsChanged(Utils.ToTypedList<OldPlaylistItem>(m_PlaylistView.SelectedItems));
-        }*/
 
         #endregion
 
@@ -436,23 +421,6 @@ namespace Auremo
 
         #region Key, mouse and menu events common to multiple controls
 
-        /*
-        private void OnAlbumsOfSelectedGenresViewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                if (e.Key == Key.Enter)
-                {
-                    DataGrid grid = sender as DataGrid;
-                    // TODO: these albums appear to be alphabetized in the view despite settings
-                    // but get appended in chronoligical order anyway!
-                    SendItemsToPlaylist(sender, Utils.GetSortedSelection(m_SongsOnSelectedGenreAlbumsView));
-                    e.Handled = true;
-                }
-            }
-        }
-        */ 
-        
         private void OnMusicCollectionDataGridKeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Handled)
@@ -523,28 +491,7 @@ namespace Auremo
 
             return position;
         }
-        /*        
-        private void SendItemsToPlaylist(IEnumerable<LibraryItem> items)
-        {
-            SendItemsToPlaylistRecursively(items);
-            Update();
-        }
 
-        private void SendItemsToPlaylistRecursively(IEnumerable<LibraryItem> items)
-        {
-            foreach (LibraryItem item in items)
-            {
-                if (item is Song)
-                {
-                    DataModel.ServerSession.Add((item as Song).Path);
-                }
-                else
-                {
-                    SendItemsToPlaylistRecursively(DataModel.Database.Expand(item));
-                }
-            }
-        }
-        */
         private void OnCollectionTextInput(object sender, TextCompositionEventArgs e)
         {
             if (!e.Handled && e.Text != null && e.Text.Length == 1)
@@ -552,24 +499,6 @@ namespace Auremo
                 CollectionAutoSearch(sender, e.Text[0]);
             }
         }
-
-        /*
-        private void OnAlbumsOfSelectedGenresViewDoubleClicked(object sender, MouseButtonEventArgs e)
-        {
-            // Filter album contents by selected genres.
-            if (!e.Handled)
-            {
-                DataGridRow row = DataGridRowBeingClicked(m_AlbumsOfSelectedGenresView, e);
-
-                if (row != null)
-                {
-                    // TODO: this is a kind of kludge as well.
-                    SendItemsToPlaylist(Utils.ToTypedList<SongMetadata>(m_SongsOnSelectedGenreAlbumsView.Items));
-                    e.Handled = true;
-                }
-            }
-        }
-        */ 
 
         private void OnMusicCollectionDataGridDoubleClicked(object sender, MouseButtonEventArgs e)
         {
@@ -604,16 +533,10 @@ namespace Auremo
             UIElement senderView = menu.PlacementTarget;
             int position = insertPosition;
 
-            if (senderView == m_AlbumsOfSelectedGenresView)
-            {
-                // Filter album contents by selected genres.
-                AddObjectsToPlaylist(Utils.ToTypedList<object>(m_SongsOnSelectedGenreAlbumsView.Items), false, position);
-            }
-            else if (senderView is DataGrid)
+            if (senderView is DataGrid)
             {
                 DataGrid list = senderView as DataGrid;
-                bool stringsAreArtists = list == m_ArtistsView;
-                AddObjectsToPlaylist(Utils.ToTypedList<object>(list.SelectedItems), stringsAreArtists, position);
+                AddItemsToPlaylist(list.Selection(), insertPosition);
             }
             else if (senderView is TreeView)
             {
@@ -2060,7 +1983,7 @@ namespace Auremo
         {
             ApplyTabVisibilitySettings();
             m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
-            SetTimerInterval(Settings.Default.ViewUpdateInterval);
+            m_Timer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Default.ViewUpdateInterval);
 
             StringCollection formatCollection = Settings.Default.AlbumDateFormats;
             IList<string> formatList = new List<string>();

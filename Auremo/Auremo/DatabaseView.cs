@@ -211,54 +211,32 @@ namespace Auremo
             NotifyPropertyChanged("SongsOnSelectedAlbumsBySelectedArtists");
         }
 
-        public void ShowSongsInArtistList(IEnumerable<SongMetadata> selectedSongs)
+        public void ShowInArtistList(IEnumerable<Playable> playables)
         {
-            /*
-            foreach (MusicCollectionItem artistItem in ArtistsTODO)
-            {
-                artistItem.IsSelected = false;
+            ISet<Path> paths = new SortedSet<Path>(playables.Select(e => e.Path));
+            ISet<Song> songs = new SortedSet<Song>(paths.Where(e => m_DataModel.Database.Songs.ContainsKey(e)).Select(e => m_DataModel.Database.Songs[e]));
+            ISet<Album> albums = new SortedSet<Album>(songs.Where(e => e.Album != null).Select(e => e.Album));
+            ISet<Artist> artists = new SortedSet<Artist>(albums.Where(e => e.Artist != null).Select(e => e.Artist));
 
-                foreach (SongMetadata selectedSong in selectedSongs)
-                {
-                    if (artistItem.Content as string == selectedSong.Artist)
-                    {
-                        artistItem.IsSelected = true;
-                    }
-                }
+            foreach (IndexedLibraryItem row in Artists)
+            {
+                row.IsSelected = artists.Contains(row.Item as Artist);
             }
 
             OnSelectedArtistsChanged();
-
-            foreach (MusicCollectionItem albumItem in AlbumsBySelectedArtistsTODO)
+            
+            foreach (IndexedLibraryItem row in AlbumsBySelectedArtists)
             {
-                albumItem.IsSelected = false;
-                AlbumMetadata album = albumItem.Content as AlbumMetadata;
-
-                foreach (SongMetadata selectedSong in selectedSongs)
-                {
-                    if (album.Artist == selectedSong.Artist && album.Title == selectedSong.Album)
-                    {
-                        albumItem.IsSelected = true;
-                    }
-                }
+                row.IsSelected = albums.Contains(row.Item as Album);
             }
 
             OnSelectedAlbumsBySelectedArtistsChanged();
+            int foo = 0;
 
-            foreach (MusicCollectionItem songItem in SongsOnSelectedAlbumsBySelectedArtists)
+            foreach (IndexedLibraryItem row in SongsOnSelectedAlbumsBySelectedArtists)
             {
-                songItem.IsSelected = false;
-                SongMetadata songInView = songItem.Content as SongMetadata;
-
-                foreach (SongMetadata selectedSong in selectedSongs)
-                {
-                    if (songInView.Path == selectedSong.Path)
-                    {
-                        songItem.IsSelected = true;
-                    }
-                }
+                row.IsSelected = songs.Contains(row.Item as Song);
             }
-            */ 
         }
 
         #endregion

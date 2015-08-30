@@ -573,6 +573,7 @@
             <DataGrid Name="m_PlaylistView"
                       Style="{StaticResource PlaylistStyle}"
                       ItemsSource="{Binding Path=Playlist.Items}"
+                      SelectionChanged="OnSelectedPlaylistItemsChanged"
                       AllowDrop="True"
                       PreviewKeyDown="OnPlaylistViewKeyDown"
                       TextInput="OnCollectionTextInput"

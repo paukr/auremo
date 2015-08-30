@@ -256,6 +256,11 @@ namespace Auremo
             DataModel.SavedPlaylists.OnSelectedSavedPlaylistChanged();
         }
 
+        private void OnSelectedPlaylistItemsChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataModel.Playlist.OnSelectedItemsChanged();
+        }
+
         #endregion
 
         #region Whole window operations
@@ -1349,15 +1354,8 @@ namespace Auremo
         
         private void OnShowInArtistsListClicked(object sender, RoutedEventArgs e)
         {
-            /*
-            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
-
-            if (selection.Count > 0)
-            {
-                DataModel.DatabaseView.ShowSongsInArtistList(selection);
-                m_ArtistListTab.IsSelected = true;
-            }
-            */ 
+            m_ArtistListTab.IsSelected = true;
+            DataModel.DatabaseView.ShowInArtistList(DataModel.Playlist.Items.SelectedItems().Cast<Playable>());
         }
 
         private void OnShowInArtistsTreeClicked(object sender, RoutedEventArgs e)

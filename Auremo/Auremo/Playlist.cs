@@ -44,14 +44,21 @@ namespace Auremo
         DataModel m_DataModel = null;
         IndexedLibraryItem m_ItemMarkedAsCurrent = null;
         int m_NumberOfSelectedLocalSongs = 0;
-        int m_NumberOfSelectedSpotifySongs = 0;
         int m_NumberOfSelectedStreams = 0;
 
         public Playlist(DataModel dataModel)
         {
             m_DataModel = dataModel;
             Items = new ObservableCollection<IndexedLibraryItem>();
+            SelectedItems = new ObservableCollection<IndexedLibraryItem>();
             m_DataModel.ServerStatus.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerStatusPropertyChanged);
+        }
+
+        public void OnSelectedItemsChanged()
+        {
+            SelectedItems.CreateFrom(Items.SelectedItems());
+            NumberOfSelectedLocalSongs = SelectedItems.Count(e => (e.Item as PlaylistItem).Path.CanBeLocal);
+            NumberOfSelectedStreams = SelectedItems.Count(e => (e.Item as PlaylistItem).Path.IsStream);
         }
 
         public ObservableCollection<IndexedLibraryItem> Items
@@ -63,6 +70,12 @@ namespace Auremo
         public string PlayStatusDescription
         {
             get; 
+            private set;
+        }
+
+        public ObservableCollection<IndexedLibraryItem> SelectedItems
+        {
+            get;
             private set;
         }
 
@@ -78,22 +91,6 @@ namespace Auremo
                 {
                     m_NumberOfSelectedLocalSongs = value;
                     NotifyPropertyChanged("NumberOfSelectedLocalSongs");
-                }
-            }
-        }
-
-        public int NumberOfSelectedSpotifySongs
-        {
-            get
-            {
-                return m_NumberOfSelectedSpotifySongs;
-            }
-            private set
-            {
-                if (m_NumberOfSelectedSpotifySongs != value)
-                {
-                    m_NumberOfSelectedSpotifySongs = value;
-                    NotifyPropertyChanged("NumberOfSelectedSpotifySongs");
                 }
             }
         }

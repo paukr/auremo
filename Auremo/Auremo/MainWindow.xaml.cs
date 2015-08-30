@@ -20,7 +20,6 @@ using Auremo.MusicLibrary;
 using Auremo.Properties;
 using Microsoft.Win32;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -33,8 +32,6 @@ using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -1351,7 +1348,7 @@ namespace Auremo
         {
             DataModel.ServerSession.Shuffle();
         }
-        
+
         private void OnShowInArtistsListClicked(object sender, RoutedEventArgs e)
         {
             m_ArtistListTab.IsSelected = true;

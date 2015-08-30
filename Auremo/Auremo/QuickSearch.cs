@@ -143,7 +143,7 @@ namespace Auremo
             char[] delimiters = { ' ', '\t' };
             string[] fragments = search.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
 
-            if (!Utils.CollectionsAreEqual(m_SearchStringFragments, fragments))
+            if (!m_SearchStringFragments.SequenceEqual(fragments))
             {
                 m_SearchStringFragments = fragments;
                 return true;

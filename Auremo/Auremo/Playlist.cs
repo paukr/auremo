@@ -114,42 +114,6 @@ namespace Auremo
             }
         }
 
-        /*
-        public void OnSelectedItemsChanged(IEnumerable<OldPlaylistItem> selection)
-        {
-            int localSongs = 0;
-            int spotifySongs = 0;
-            int streams = 0;
-
-            foreach (OldPlaylistItem item in selection)
-            {
-                SelectedItems.Add(item);
-
-                if (item.Content is SongMetadata)
-                {
-                    SongMetadata song = item.Content as SongMetadata;
-
-                    if (song.IsLocal)
-                    {
-                        localSongs += 1;
-                    }
-                    else if (song.IsSpotify)
-                    {
-                        spotifySongs += 1;
-                    }
-                }
-                else if (item.Content is StreamMetadata)
-                {
-                    streams += 1;
-                }
-            }
-
-            NumberOfSelectedLocalSongs = localSongs;
-            NumberOfSelectedSpotifySongs = spotifySongs;
-            NumberOfSelectedStreams = streams;
-        }
-        */ 
-
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "PlaylistVersion")
@@ -210,27 +174,6 @@ namespace Auremo
                 m_ItemMarkedAsCurrent.ItemAs<PlaylistItem>().IsPlaying = m_DataModel.ServerStatus.IsPlaying;
                 m_ItemMarkedAsCurrent.ItemAs<PlaylistItem>().IsPaused = m_DataModel.ServerStatus.IsPaused;
             }
-        }
-
-        private OldPlayable PlayableByPath(string path)
-        {
-            /*
-            Playable result = m_DataModel.Database.SongByPath(path);
-
-            if (result == null)
-            {
-                result = m_DataModel.StreamsCollection.StreamByPath(path);
-            }
-
-            if (result == null)
-            {
-                result = new UnknownPlayable(path);
-            }
-
-            return result;
-             */
-
-            return null;
         }
     }
 }

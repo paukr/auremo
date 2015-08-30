@@ -100,70 +100,6 @@ namespace Auremo
             return min < value ? (max > value ? value : max) : min;
         }
 
-        /// <summary>
-        /// Convert an untyped IEnumerable to a typed IList, usually IList -> IList<something>
-        /// </summary>
-        public static IList<T> ToTypedList<T>(IEnumerable source)
-        {
-            IList<T> result = new List<T>();
-
-            foreach (object o in source)
-            {
-                try
-                {
-                    result.Add((T)o);
-                }
-                catch (Exception)
-                {
-                    throw new Exception("ToTypedList: attempted to cast " + o.GetType().ToString() + " to " + typeof(T).ToString() + ".");
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Take an untyped collection of MusicCollectionItems, extract the content objects and
-        /// return them in a typed IList.
-        /// </summary>
-        public static IList<T> ToContentList<T>(IEnumerable source)
-        {
-            IList<OldMusicCollectionItem> collectionItems = ToTypedList<OldMusicCollectionItem>(source);
-            IList<T> result = new List<T>();
-
-            foreach (OldMusicCollectionItem item in collectionItems)
-            {
-                try
-                {
-                    result.Add((T)item.Content);
-                }
-                catch (Exception)
-                {
-                    throw new Exception("ToContentist: attempted to cast " + item.Content.GetType().ToString() + " to " + typeof(T).ToString() + ".");
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Return a DataGrid's selection, with the MusicCollectionItem wrappers removed and sorted by position on screen.
-        /// </summary>
-        public static IList<object> GetSortedSelection(DataGrid container)
-        {
-            return ToTypedList<OldMusicCollectionItem>(container.SelectedItems).OrderBy(o => o.Position).Select(o => o.Content).ToList();
-        }
-
-        /*
-        /// <summary>
-        /// Return a music playlist's selection sorted by position on screen.
-        /// </summary>
-        public static IList<object> GetPlaylistSortedSelection(DataGrid playlist)
-        {
-            return ToTypedList<OldPlaylistItem>(playlist.SelectedItems).OrderBy(e => e.Position).ToList<object>();
-        }
-        */ 
-
         public static string ExtractYearFromDateString(string date)
         {
             if (date == null)
@@ -174,21 +110,6 @@ namespace Auremo
             {
                 return date.Substring(0, 4);
             }
-        }
-
-        public static bool CollectionsAreEqual<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) where T : IComparable
-        {
-            IEnumerator<T> left = lhs.GetEnumerator();
-            IEnumerator<T> right = rhs.GetEnumerator();
-            bool equal = lhs.Count() == rhs.Count();
-
-            while (equal && left.MoveNext())
-            {
-                right.MoveNext();
-                equal = left.Current.CompareTo(right.Current) == 0;
-            }
-
-            return equal;
         }
     }
 }

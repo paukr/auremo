@@ -122,7 +122,6 @@
     </Compile>
     <Compile Include="MusicLibrary\AlbumComparison.cs" />
     <Compile Include="GUI\ExtensionMethods.cs" />
-    <Compile Include="LinkMetadata.cs" />
     <Compile Include="MainWindowOverlay.xaml.cs">
       <DependentUpon>MainWindowOverlay.xaml</DependentUpon>
     </Compile>
@@ -189,7 +188,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="AlbumMetadata.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>

@@ -1482,13 +1482,9 @@ namespace Auremo
                 {
                     DataGrid grid = sender as DataGrid;
 
-                    foreach (DataGridItem item in Utils.ToTypedList<DataGridItem>(grid.Items))
+                    foreach (IndexedLibraryItem item in grid.Items.Cast<IndexedLibraryItem>())
                     {
-                        object o = item.Content;
-
-                        if (o is string && (o as string).ToLowerInvariant().StartsWith(m_AutoSearchString) ||
-                           o is AlbumMetadata && (o as AlbumMetadata).Title.ToLowerInvariant().StartsWith(m_AutoSearchString) ||
-                           o is OldPlayable && (o as OldPlayable).Title != null && (o as OldPlayable).Title.ToLowerInvariant().StartsWith(m_AutoSearchString))
+                        if (item.Item.DisplayString.ToLowerInvariant().StartsWith(m_AutoSearchString))
                         {
                             grid.CurrentItem = item;
                             grid.SelectedItem = item;

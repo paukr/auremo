@@ -16,10 +16,7 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 
 namespace Auremo.MusicLibrary
 {
@@ -104,7 +101,7 @@ namespace Auremo.MusicLibrary
             }
             else
             {
-                throw new Exception("MusicCollectionListItem: attempt to compare to an incompatible object");
+                throw new Exception("IndexedLibraryItem: attempt to compare to an incompatible object");
             }
         }
 

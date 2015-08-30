@@ -264,29 +264,13 @@ namespace Auremo
         public void ShowInArtistTree(IEnumerable<Playable> playables)
         {
             ISet<Path> paths = new SortedSet<Path>(playables.Select(e => e.Path));
-            ISet<Song> songs = new SortedSet<Song>(paths.Where(e => m_DataModel.Database.Songs.ContainsKey(e)).Select(e => m_DataModel.Database.Songs[e]));
-            ISet<Album> albums = new SortedSet<Album>(songs.Where(e => e.Album != null).Select(e => e.Album));
-            ISet<Artist> artists = new SortedSet<Artist>(albums.Where(e => e.Artist != null).Select(e => e.Artist));
+            ArtistTreeController.ClearMultiSelection();
 
-            foreach (HierarchicalLibraryItem artistNode in ArtistTree)
+            foreach (HierarchicalLibraryItem item in ArtistTreeController.LeafNodes)
             {
-                artistNode.IsExpanded = false;
-
-                if (artists.Contains(artistNode.Item))
+                if (paths.Contains((item.Item as Playable).Path))
                 {
-                    foreach (HierarchicalLibraryItem albumNode in artistNode.Children)
-                    {
-                        if (albums.Contains(albumNode.Item))
-                        {
-                            foreach (HierarchicalLibraryItem songNode in albumNode.Children)
-                            {
-                                if (songs.Contains(songNode.Item))
-                                {
-                                    songNode.IsMultiSelected = true;
-                                }
-                            }
-                        }
-                    }
+                    item.IsMultiSelected = true;
                 }
             }
         }
@@ -334,29 +318,13 @@ namespace Auremo
         public void ShowInGenreTree(IEnumerable<Playable> playables)
         {
             ISet<Path> paths = new SortedSet<Path>(playables.Select(e => e.Path));
-            ISet<Song> songs = new SortedSet<Song>(paths.Where(e => m_DataModel.Database.Songs.ContainsKey(e)).Select(e => m_DataModel.Database.Songs[e]));
-            ISet<GenreFilteredAlbum> albums = new SortedSet<GenreFilteredAlbum>(songs.Where(e => e.GenreFilteredAlbum != null).Select(e => e.GenreFilteredAlbum));
-            ISet<Genre> genres = new SortedSet<Genre>(albums.Where(e => e.Genre != null).Select(e => e.Genre));
+            GenreTreeController.ClearMultiSelection();
 
-            foreach (HierarchicalLibraryItem genreNode in GenreTree)
+            foreach (HierarchicalLibraryItem item in GenreTreeController.LeafNodes)
             {
-                genreNode.IsExpanded = false;
-
-                if (genres.Contains(genreNode.Item))
+                if (paths.Contains((item.Item as Playable).Path))
                 {
-                    foreach (HierarchicalLibraryItem albumNode in genreNode.Children)
-                    {
-                        if (albums.Contains(albumNode.Item))
-                        {
-                            foreach (HierarchicalLibraryItem songNode in albumNode.Children)
-                            {
-                                if (songs.Contains(songNode.Item))
-                                {
-                                    songNode.IsMultiSelected = true;
-                                }
-                            }
-                        }
-                    }
+                    item.IsMultiSelected = true;
                 }
             }
         }
@@ -421,65 +389,16 @@ namespace Auremo
 
         public void ShowInDirectoryTree(IEnumerable<Playable> playables)
         {
-            /*
+            ISet<Path> paths = new SortedSet<Path>(playables.Select(e => e.Path));
             DirectoryTreeController.ClearMultiSelection();
 
-            // This looks more complex than necessary because it is trying to
-            // support multiple roots.
-            foreach (TreeViewNode root in DirectoryTreeController.RootLevelNodes)
+            foreach (HierarchicalLibraryItem item in DirectoryTreeController.LeafNodes)
             {
-                if (root is DirectoryTreeViewNode)
+                if (paths.Contains((item.Item as Playable).Path))
                 {
-                    DirectoryTreeViewNode rootDirectory = root as DirectoryTreeViewNode;
-                    
-                    foreach (TreeViewNode node in rootDirectory.Children)
-                    {
-                        node.IsExpanded = false;
-
-                        foreach (SongMetadata song in selectedSongs)
-                        {
-                            SearchAndSelectPath(node, song.Path);
-                        }
-                    }
+                    item.IsMultiSelected = true;
                 }
             }
-            */
-        }
-
-        // Expand/multiselect node if the path is found under it.
-        private bool SearchAndSelectPath(HierarchicalLibraryItem node, string path)
-        {
-            /*
-            if (node is DirectoryTreeViewNode)
-            {
-                DirectoryTreeViewNode directory = node as DirectoryTreeViewNode;
-
-                if (path.StartsWith(directory.FullPath + "/"))
-                {
-                    foreach (TreeViewNode child in directory.Children)
-                    {
-                        bool found = SearchAndSelectPath(child, path);
-
-                        if (found)
-                        {
-                            directory.IsExpanded = true;
-                            return true;
-                        }
-                    }
-                }
-            }
-            else if (node is SongMetadataTreeViewNode)
-            {
-                SongMetadataTreeViewNode song = node as SongMetadataTreeViewNode;
-
-                if (song.Song.Path == path)
-                {
-                    song.IsMultiSelected = true;
-                    return true;
-                }
-            }
-            */
-            return false;
         }
 
         #endregion

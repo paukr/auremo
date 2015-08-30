@@ -142,7 +142,6 @@
     <Compile Include="MusicLibrary\PlaylistItem.cs" />
     <Compile Include="MusicLibrary\SavedPlaylist.cs" />
     <Compile Include="MusicLibrary\Song.cs" />
-    <Compile Include="MusicCollectionItem.cs" />
     <Compile Include="ConverterClasses.cs" />
     <Compile Include="CurrentSong.cs" />
     <Compile Include="DataGridItem.cs" />

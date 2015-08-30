@@ -238,6 +238,11 @@ namespace Auremo
             DataModel.DatabaseView.OnSelectedAlbumsBySelectedArtistsChanged();
         }
 
+        private void OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DataModel.DatabaseView.OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged();
+        }
+
         private void OnSelectedGenresChanged(object sender, SelectionChangedEventArgs e)
         {
             DataModel.DatabaseView.OnSelectedGenresChanged();
@@ -1357,54 +1362,26 @@ namespace Auremo
 
         private void OnShowInArtistsTreeClicked(object sender, RoutedEventArgs e)
         {
-            /*
-            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
-
-            if (selection.Count > 0)
-            {
-                DataModel.DatabaseView.ShowSongsInArtistTree(selection);
-                m_ArtistTreeTab.IsSelected = true;
-            }
-            */ 
+            m_ArtistTreeTab.IsSelected = true;
+            DataModel.DatabaseView.ShowInArtistTree(DataModel.Playlist.Items.SelectedItems().Cast<Playable>());
         }
 
         private void OnShowInGenreListClicked(object sender, RoutedEventArgs e)
         {
-            /*
-            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
-
-            if (selection.Count > 0)
-            {
-                DataModel.DatabaseView.ShowSongsInGenreList(selection);
-                m_GenreListTab.IsSelected = true;
-            }
-            */ 
+            m_GenreListTab.IsSelected = true;
+            DataModel.DatabaseView.ShowInGenreList(DataModel.Playlist.Items.SelectedItems().Cast<Playable>());
         }
 
         private void OnShowInGenreTreeClicked(object sender, RoutedEventArgs e)
         {
-            /*
-            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
-
-            if (selection.Count > 0)
-            {
-                DataModel.DatabaseView.ShowSongsInGenreTree(selection);
-                m_GenreTreeTab.IsSelected = true;
-            }
-            */
+            m_GenreTreeTab.IsSelected = true;
+            DataModel.DatabaseView.ShowInGenreTree(DataModel.Playlist.Items.SelectedItems().Cast<Playable>());
         }
 
         private void OnShowInFilesystemTreeClicked(object sender, RoutedEventArgs e)
         {
-            /*
-            IList<SongMetadata> selection = SelectedLocalSongsOnPlaylist();
-
-            if (selection.Count > 0)
-            {
-                DataModel.DatabaseView.ShowSongsInDirectoryTree(selection);
-                m_FilesystemTab.IsSelected = true;
-            }
-            */ 
+            m_FilesystemTab.IsSelected = true;
+            DataModel.DatabaseView.ShowInDirectoryTree(DataModel.Playlist.Items.SelectedItems().Cast<Playable>());
         }
 
         private void DeleteSelectedItemsFromPlaylist()

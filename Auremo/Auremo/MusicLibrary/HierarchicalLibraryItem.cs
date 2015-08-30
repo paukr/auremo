@@ -197,6 +197,11 @@ namespace Auremo.MusicLibrary
                     if (value)
                     {
                         Controller.MultiSelection.Add(this);
+
+                        if (Parent != null)
+                        {
+                            Parent.IsExpanded = true;
+                        }
                     }
                     else
                     {

@@ -283,6 +283,7 @@
                                   Grid.Row="2"
                                   Margin="0,-1,0,0"
                                   ItemsSource="{Binding Path=DatabaseView.SongsOnSelectedAlbumsBySelectedArtists}"
+                                  SelectionChanged="OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged"
                                   PreviewKeyDown="OnMusicCollectionDataGridKeyDown"
                                   TextInput="OnCollectionTextInput"
                                   PreviewMouseLeftButtonDown="OnDataGridRowMouseDown"

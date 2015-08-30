@@ -171,7 +171,6 @@
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SongMetadata.cs" />
     <Compile Include="PLSParser.cs" />
     <Compile Include="AdvancedSearch.cs" />
     <Compile Include="StickyButton.cs" />

@@ -10,6 +10,8 @@
         <Setter Property="CanUserReorderColumns" Value="False"/>
         <Setter Property="CanUserResizeRows" Value="False"/>
         <Setter Property="CanUserSortColumns" Value="False"/>
+        <Setter Property="EnableColumnVirtualization" Value="False"/>
+        <Setter Property="EnableRowVirtualization" Value="False"/>
         <Setter Property="HorizontalGridLinesBrush" Value="Transparent"/>
         <Setter Property="IsReadOnly" Value="True"/>
         <Setter Property="RowHeaderWidth" Value="0"/>

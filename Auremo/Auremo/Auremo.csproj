@@ -159,7 +159,6 @@
     <Compile Include="MPDSongResponseBlock.cs" />
     <Compile Include="Output.cs" />
     <Compile Include="OutputCollection.cs" />
-    <Compile Include="OldPlayable.cs" />
     <Compile Include="PlaylistFileParserBase.cs" />
     <Compile Include="PlaylistWriter.cs" />
     <Compile Include="QuickSearchThread.cs" />

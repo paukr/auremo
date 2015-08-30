@@ -17,12 +17,11 @@
 
 using Auremo.MusicLibrary;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
+using System.Windows.Threading;
 
 namespace Auremo
 {
@@ -123,9 +122,6 @@ namespace Auremo
 
         public void ShowInArtistList(IEnumerable<Playable> playables)
         {
-            // TODO: this probably doesn't work properly because OnSelectedXXXChanged
-            // get called multiple times and made changes get overwritten.
-
             ISet<Path> paths = new SortedSet<Path>(playables.Select(e => e.Path));
             ISet<Song> songs = new SortedSet<Song>(paths.Where(e => m_DataModel.Database.Songs.ContainsKey(e)).Select(e => m_DataModel.Database.Songs[e]));
             ISet<Album> albums = new SortedSet<Album>(songs.Where(e => e.Album != null).Select(e => e.Album));
@@ -136,21 +132,23 @@ namespace Auremo
                 row.IsSelected = artists.Contains(row.ItemAs<Artist>());
             }
 
-            OnSelectedArtistsChanged();
-
-            foreach (IndexedLibraryItem row in AlbumsBySelectedArtists)
+            m_DataModel.MainWindow.Dispatcher.BeginInvoke(new Action(() =>
             {
-                row.IsSelected = albums.Contains(row.ItemAs<Album>());
-            }
+                foreach (IndexedLibraryItem row in AlbumsBySelectedArtists)
+                {
+                    row.IsSelected = albums.Contains(row.ItemAs<Album>());
+                }
 
-            OnSelectedAlbumsBySelectedArtistsChanged();
+                m_DataModel.MainWindow.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    foreach (IndexedLibraryItem row in SongsOnSelectedAlbumsBySelectedArtists)
+                    {
+                        row.IsSelected = songs.Contains(row.ItemAs<Song>());
+                    }
 
-            foreach (IndexedLibraryItem row in SongsOnSelectedAlbumsBySelectedArtists)
-            {
-                row.IsSelected = songs.Contains(row.ItemAs<Song>());
-            }
-
-            OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged();
+                    OnSelectedSongsOnSelectedAlbumsBySelectedArtistsChanged();
+                }), DispatcherPriority.Loaded);
+            }), DispatcherPriority.Loaded);
         }
 
         #endregion
@@ -204,23 +202,25 @@ namespace Auremo
                 row.IsSelected = genres.Contains(row.ItemAs<Genre>());
             }
 
-            OnSelectedGenresChanged();
-
-            foreach (IndexedLibraryItem row in AlbumsOfSelectedGenres)
+            m_DataModel.MainWindow.Dispatcher.BeginInvoke(new Action(() =>
             {
-                row.IsSelected = albums.Contains(row.ItemAs<GenreFilteredAlbum>());
-            }
+                foreach (IndexedLibraryItem row in AlbumsOfSelectedGenres)
+                {
+                    row.IsSelected = albums.Contains(row.ItemAs<GenreFilteredAlbum>());
+                }
+                
+                m_DataModel.MainWindow.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    foreach (IndexedLibraryItem row in SongsOnSelectedAlbumsOfSelectedGenres)
+                    {
+                        row.IsSelected = songs.Contains(row.ItemAs<Song>());
+                    }
 
-            OnSelectedAlbumsOfSelectedGenresChanged();
-
-            foreach (IndexedLibraryItem row in SongsOnSelectedAlbumsOfSelectedGenres)
-            {
-                row.IsSelected = songs.Contains(row.ItemAs<Song>());
-            }
-
-            OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged();
+                    OnSelectedSongsOnSelectedAlbumsOfSelectedGenresChanged();
+                }), DispatcherPriority.Loaded);
+            }), DispatcherPriority.Loaded);
         }
-
+        
         #endregion
 
         #region Artist/album/song tree view

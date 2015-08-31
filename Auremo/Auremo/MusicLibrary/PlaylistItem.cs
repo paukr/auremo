@@ -26,7 +26,7 @@ namespace Auremo.MusicLibrary
     /// <summary>
     /// A playable that is currently on the playlist.
     /// </summary>
-    public class PlaylistItem : LibraryItem, Playable
+    public class PlaylistItem : LibraryItem, Playable, INotifyPropertyChanged
     {
         #region INotifyPropertyChanged
 

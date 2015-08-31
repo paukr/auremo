@@ -47,7 +47,7 @@ namespace Auremo
         private DispatcherTimer m_Timer = null;
         private object m_DragSource = null;
         private IList<LibraryItem> m_DragDropPayload = null;
-        private Nullable<Point> m_DragStartPosition = null;
+        private Point? m_DragStartPosition = null;
         private bool m_PropertyUpdateInProgress = false;
         private bool m_OnlineMode = true;
         private string m_AutoSearchString = "";

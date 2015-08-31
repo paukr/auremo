@@ -95,10 +95,12 @@ namespace Auremo
 
         private void SetUpTreeViewControllers()
         {
-            m_ArtistTree.Tag = DataModel.DatabaseView.ArtistTreeController;
-            m_GenreTree.Tag = DataModel.DatabaseView.GenreTreeController;
-            m_DirectoryTree.Tag = DataModel.DatabaseView.DirectoryTreeController;
+            AssociateTreeAndController(m_ArtistTree, DataModel.DatabaseView.ArtistTreeController);
+            AssociateTreeAndController(m_GenreTree, DataModel.DatabaseView.GenreTreeController);
+            AssociateTreeAndController(m_DirectoryTree, DataModel.DatabaseView.DirectoryTreeController);
         }
+
+
 
         private void CreateTimer(int interval)
         {
@@ -537,7 +539,7 @@ namespace Auremo
             }
             else if (senderView is TreeView)
             {
-                HierarchyController controller = (senderView as TreeView).Tag as HierarchyController;
+                HierarchyController controller = GetControllerOf(senderView as TreeView);
                 AddItemsToPlaylist(controller.SelectedLeaves, insertPosition);
             }
 
@@ -694,7 +696,7 @@ namespace Auremo
                     }
                     else if (m_DragSource is TreeView)
                     {
-                        HierarchyController controller = (m_DragSource as TreeView).Tag as HierarchyController;
+                        HierarchyController controller = GetControllerOf(m_DragSource as TreeView);
                         m_DragDropPayload = controller.SelectedLeaves.ToList();
                     }
 
@@ -838,7 +840,7 @@ namespace Auremo
             {
                 if (ViewBackgroundWasClicked(tree, e))
                 {
-                    (tree.Tag as HierarchyController).ClearMultiSelection();
+                    GetControllerOf(tree).ClearMultiSelection();
                     e.Handled = true;
                 }
             }
@@ -919,7 +921,7 @@ namespace Auremo
             if (!e.Handled)
             {
                 TreeView tree = sender as TreeView;
-                HierarchyController controller = tree.Tag as HierarchyController;
+                HierarchyController controller = GetControllerOf(tree);
 
                 if (Keyboard.Modifiers == ModifierKeys.None || Keyboard.Modifiers == ModifierKeys.Shift)
                 {
@@ -1361,7 +1363,7 @@ namespace Auremo
             }
             else if (sender is TreeView)
             {
-                HierarchyController controller = (sender as TreeView).Tag as HierarchyController;
+                HierarchyController controller = GetControllerOf(sender as TreeView);
                 selectionUnchanged = controller.MultiSelection.Count == 1 && controller.MultiSelection[0] == m_LastLastAutoSearchHit;
             }
 
@@ -2088,6 +2090,16 @@ namespace Auremo
                     return GetTreeViewItem(nodeWithHighestLowerId, node);
                 }
             }
+        }
+
+        private void AssociateTreeAndController(TreeView tree, HierarchyController controller)
+        {
+            tree.Tag = controller;
+        }
+
+        private HierarchyController GetControllerOf(TreeView tree)
+        {
+            return tree.Tag as HierarchyController;
         }
 
         #endregion

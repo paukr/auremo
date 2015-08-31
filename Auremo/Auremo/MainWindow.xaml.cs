@@ -47,7 +47,6 @@ namespace Auremo
         private DispatcherTimer m_Timer = null;
         private object m_DragSource = null;
         private IList<LibraryItem> m_DragDropPayload = null;
-        private string m_DragDropData = null;
         private Nullable<Point> m_DragStartPosition = null;
         private bool m_PropertyUpdateInProgress = false;
         private bool m_OnlineMode = true;
@@ -57,15 +56,6 @@ namespace Auremo
         private object m_LastLastAutoSearchHit = null;
 
         private const int m_AutoSearchMaxKeystrokeGap = 2500;
-
-        private const string AddArtists = "add_artists";
-        private const string AddGenres = "add_genres";
-        private const string AddAlbums = "add_albums";
-        private const string AddSongs = "add_songs";
-        private const string AddStreams = "add_streams";
-        private const string LoadPlaylist = "load_playlist";
-        private const string AddPlaylistItems = "add_playlist_items";
-        private const string MovePlaylistItems = "move_playlist_items";
 
         #region Start-up, construction and destruction
 
@@ -695,36 +685,28 @@ namespace Auremo
                     (Math.Abs(dragDistance.X) > SystemParameters.MinimumHorizontalDragDistance ||
                      Math.Abs(dragDistance.Y) > SystemParameters.MinimumVerticalDragDistance))
                 {
-                    // Using an internal m_DragDropPayload is cheating, but the
-                    // the standard (through clipboard?) system is pure evil and
-                    // since we don't need drag & drop across application borders,
-                    // this will do for now.
-                    //IList<object> payload = new List<object>();
-                    IList<LibraryItem> payload = null;
+                    // Commence drag+drop.
+                    m_DragDropPayload = null;
 
-                    if (m_DragSource == m_SavedPlaylistsView)
+                    if (m_DragSource is DataGrid)
                     {
-                        payload = DataModel.SavedPlaylists.Items.SelectedItems();
-                    }
-                    else if (m_DragSource is DataGrid)
-                    {
-                        payload = (m_DragSource as DataGrid).Selection();
+                        m_DragDropPayload = (m_DragSource as DataGrid).Selection();
                     }
                     else if (m_DragSource is TreeView)
                     {
-                        /*
-                        TreeViewController controller = TreeViewControllerOf(m_DragSource as TreeView);
-                        payload = controller.Songs == null ? new List<object>() : controller.Songs.Select(el => el.Song).ToList<object>();
-                        */ 
+                        HierarchyController controller = (m_DragSource as TreeView).Tag as HierarchyController;
+                        m_DragDropPayload = controller.SelectedLeaves.ToList();
                     }
 
-                    if (payload != null && payload.Count() > 0)
+                    if (m_DragDropPayload != null && m_DragDropPayload.Count() > 0)
                     {
                         DragDropEffects mode = sender == m_PlaylistView ? DragDropEffects.Move : DragDropEffects.Copy;
-                        m_DragDropPayload = payload;
-                        m_DragDropData = GetDragDropDataString(m_DragSource);
                         m_MousePointerHint.Content = DragDropPayloadDescription();
-                        DragDrop.DoDragDrop((DependencyObject)sender, m_DragDropData, mode);
+                        DragDrop.DoDragDrop((DependencyObject)sender, m_DragDropPayload, mode);
+                    }
+                    else
+                    {
+                        m_DragDropPayload = null;
                     }
 
                     m_DragStartPosition = null;
@@ -758,58 +740,46 @@ namespace Auremo
 
         private void OnPlaylistViewDragOver(object sender, DragEventArgs e)
         {
-            if (m_DragDropPayload != null)
-            {
-                m_MousePointerHint.IsOpen = true;
-                m_MousePointerHint.Visibility = Visibility.Visible;
+            m_MousePointerHint.IsOpen = true;
+            m_MousePointerHint.Visibility = Visibility.Visible;
 
-                if (!m_PlaylistView.Items.IsEmpty)
+            if (!m_PlaylistView.Items.IsEmpty)
+            {
+                Point mousePosition = e.GetPosition(m_PlaylistView);
+
+                m_MousePointerHint.Placement = PlacementMode.Relative;
+                m_MousePointerHint.PlacementTarget = m_PlaylistView;
+                m_MousePointerHint.HorizontalOffset = mousePosition.X + 10;
+                m_MousePointerHint.VerticalOffset = mousePosition.Y - 6;
+
+                int targetRow = DropTargetRowIndex(e);
+                DataGridRow row = null;
+
+                if (targetRow >= 0)
                 {
-                    if (m_DragDropData != LoadPlaylist)
-                    {
-                        Point mousePosition = e.GetPosition(m_PlaylistView);
-
-                        m_MousePointerHint.Placement = PlacementMode.Relative;
-                        m_MousePointerHint.PlacementTarget = m_PlaylistView;
-                        m_MousePointerHint.HorizontalOffset = mousePosition.X + 10;
-                        m_MousePointerHint.VerticalOffset = mousePosition.Y - 6;
-
-                        int targetRow = DropTargetRowIndex(e);
-                        DataGridRow row = null;
-
-                        if (targetRow >= 0)
-                        {
-                            row = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(targetRow) as DataGridRow;
-                        }
-
-                        if (row == null)
-                        {
-                            DataGridRow lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as DataGridRow;
-                            Rect bounds = VisualTreeHelper.GetDescendantBounds(lastItem);
-                            GeneralTransform transform = lastItem.TransformToAncestor(m_PlaylistView);
-                            Point bottomOfItem = transform.Transform(bounds.BottomLeft);
-                            m_DropPositionIndicator.Y1 = bottomOfItem.Y;
-                        }
-                        else
-                        {
-                            Rect bounds = VisualTreeHelper.GetDescendantBounds(row);
-                            GeneralTransform transform = row.TransformToAncestor(m_PlaylistView);
-                            Point topOfItem = transform.Transform(bounds.TopLeft);
-                            m_DropPositionIndicator.Y1 = topOfItem.Y;
-                        }
-
-                        m_DropPositionIndicator.X1 = 0;
-                        m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth;
-                        m_DropPositionIndicator.Y2 = m_DropPositionIndicator.Y1;
-                        m_DropPositionIndicator.Visibility = Visibility.Visible;
-                    }
+                    row = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(targetRow) as DataGridRow;
                 }
-            }
-            else
-            {
-                m_MousePointerHint.IsOpen = false;
-                m_MousePointerHint.Visibility = Visibility.Hidden;
-                m_DropPositionIndicator.Visibility = Visibility.Hidden;
+
+                if (row == null)
+                {
+                    DataGridRow lastItem = m_PlaylistView.ItemContainerGenerator.ContainerFromIndex(m_PlaylistView.Items.Count - 1) as DataGridRow;
+                    Rect bounds = VisualTreeHelper.GetDescendantBounds(lastItem);
+                    GeneralTransform transform = lastItem.TransformToAncestor(m_PlaylistView);
+                    Point bottomOfItem = transform.Transform(bounds.BottomLeft);
+                    m_DropPositionIndicator.Y1 = bottomOfItem.Y;
+                }
+                else
+                {
+                    Rect bounds = VisualTreeHelper.GetDescendantBounds(row);
+                    GeneralTransform transform = row.TransformToAncestor(m_PlaylistView);
+                    Point topOfItem = transform.Transform(bounds.TopLeft);
+                    m_DropPositionIndicator.Y1 = topOfItem.Y;
+                }
+
+                m_DropPositionIndicator.X1 = 0;
+                m_DropPositionIndicator.X2 = m_PlaylistView.ActualWidth;
+                m_DropPositionIndicator.Y2 = m_DropPositionIndicator.Y1;
+                m_DropPositionIndicator.Visibility = Visibility.Visible;
             }
         }
 
@@ -822,58 +792,32 @@ namespace Auremo
 
         private void OnPlaylistViewDrop(object sender, DragEventArgs e)
         {
-            if (m_DragDropPayload != null)
+            int targetRow = DropTargetRowIndex(e);
+
+            if (m_DragDropPayload[0] is SavedPlaylist)
             {
-                int targetRow = DropTargetRowIndex(e);
-
-                if (m_DragDropPayload[0] is SavedPlaylist)
-                {
-                    LoadSavedPlaylist((m_DragDropPayload[0] as SavedPlaylist).Title);
-                }
-                else if (m_DragDropPayload[0] is PlaylistItem)
-                {
-                    foreach (PlaylistItem item in m_DragDropPayload.Cast<PlaylistItem>())
-                    {
-                        if (item.Position < targetRow)
-                        {
-                            DataModel.ServerSession.MoveId(item.Id, targetRow - 1);
-                        }
-                        else
-                        {
-                            DataModel.ServerSession.MoveId(item.Id, targetRow++);
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (LibraryItem item in m_DragDropPayload)
-                    {
-
-                    }
-                }
-
-
-                /*
-                else if (data == AddGenres)
-                {
-                    foreach (object o in m_DragDropPayload)
-                    {
-                        targetRow = AddObjectToPlaylist(o, false, targetRow);
-                    }
-                }
-                else if (data == AddArtists || data == AddAlbums || data == AddSongs || data == AddStreams || data == AddPlaylistItems)
-                {
-                    foreach (object o in m_DragDropPayload)
-                    {
-                        targetRow = AddObjectToPlaylist(o, true, targetRow);
-                    }
-                }
-                */
-
-                m_DragDropPayload = null;
-                m_DragDropData = null;
-                Update();
+                LoadSavedPlaylist((m_DragDropPayload[0] as SavedPlaylist).Title);
             }
+            else if (m_DragDropPayload[0] is PlaylistItem)
+            {
+                foreach (PlaylistItem item in m_DragDropPayload)
+                {
+                    if (item.Position < targetRow)
+                    {
+                        DataModel.ServerSession.MoveId(item.Id, targetRow - 1);
+                    }
+                    else
+                    {
+                        DataModel.ServerSession.MoveId(item.Id, targetRow++);
+                    }
+                }
+            }
+            else
+            {
+                AddItemsToPlaylist(m_DragDropPayload, targetRow);
+            }
+
+            Update();
 
             m_MousePointerHint.IsOpen = false;
             m_MousePointerHint.Visibility = Visibility.Hidden;
@@ -2114,48 +2058,6 @@ namespace Auremo
             }
 
             return m_PlaylistView.Items.Count;
-        }
-
-        private string GetDragDropDataString(object dragSource)
-        {
-            if (dragSource == m_ArtistsView)
-            {
-                return AddArtists;
-            }
-            else if (dragSource == m_GenresView)
-            {
-                return AddGenres;
-            }
-            else if (dragSource == m_AlbumsBySelectedArtistsView || dragSource == m_AlbumsOfSelectedGenresView)
-            {
-                return AddAlbums;
-            }
-            else if (dragSource == m_QuickSearchResultsView || dragSource == m_AdvancedSearchResultsView || dragSource == m_SongsOnSelectedAlbumsView || dragSource == m_SongsOnSelectedGenreAlbumsView)
-            {
-                return AddSongs;
-            }
-            else if (dragSource == m_SavedPlaylistsView)
-            {
-                return LoadPlaylist;
-            }
-            else if (dragSource is TreeView)
-            {
-                return AddSongs;
-            }
-            else if (dragSource == m_StreamsView)
-            {
-                return AddStreams;
-            }
-            else if (dragSource == m_ItemsOnSelectedSavedPlaylistView)
-            {
-                return AddPlaylistItems;
-            }
-            else if (dragSource == m_PlaylistView)
-            {
-                return MovePlaylistItems;
-            }
-
-            throw new Exception("GetDragDropDataString: unknown drag source.");
         }
 
         // Return the TreeViewItem that contains item. nodeContainer must be either a TreeView or a TreeViewItem.

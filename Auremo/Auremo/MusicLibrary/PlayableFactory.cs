@@ -30,13 +30,9 @@ namespace Auremo.MusicLibrary
 
             if (path.IsStream)
             {
-                return CreateAudioStream(path, "", block);
+                return CreateAudioStream(path, null, block);
             }
-            else if (dataModel == null)
-            {
-                return CreateLink(path, block);
-            }
-            else if (!path.CanBeLocal)
+            else if (dataModel == null || !path.CanBeLocal)
             {
                 return CreateLink(path, block);
             }
@@ -72,6 +68,7 @@ namespace Auremo.MusicLibrary
             result.Title = block.Title;
             result.Artist = block.Artist;
             result.Album = block.Album;
+            result.Date = block.Date;
             return result;
         }
     }

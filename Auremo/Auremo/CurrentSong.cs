@@ -42,15 +42,12 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
         private Playable m_Playable = null;
-        //private string m_DisplayString = "";
-        //private Playable m_CurrentPlayable = null;
 
         public CurrentSong(DataModel dataModel)
         {
             m_DataModel = dataModel;
             m_DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
             Update();
-            //BuildDisplayString();
         }
 
         public void Update()

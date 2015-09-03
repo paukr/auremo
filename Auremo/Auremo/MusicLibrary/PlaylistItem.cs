@@ -45,23 +45,58 @@ namespace Auremo.MusicLibrary
         private bool m_IsPlaying = false;
         private bool m_IsPaused = false;
 
-        public PlaylistItem(int id, int position, Path path, string title, string artist, string album)
+        // TODO: this if anything belongs into PlayableFactory.
+        public PlaylistItem(Playable content, int id, int position)
         {
             Id = id;
             Position = position;
-            Path = path;
-            Title = title;
-            Artist = artist;
-            Album = album;
+            Path = content.Path;
+
+            if (content is Song)
+            {
+                Song song = content as Song;
+                Title = song.Title;
+                Artist = song.Artist.ToString();
+                Album = song.Album.ToString();
+            }
+            else if (content is AudioStream)
+            {
+                AudioStream stream = content as AudioStream;
+                Title = stream.Label ?? stream.Name ?? Path.ToString();
+                Artist = null;
+                Album = null;
+            }
+            else if (content is Link)
+            {
+                Link link = content as Link;
+                Title = link.Title;
+                Artist = link.Artist.ToString();
+                Album = link.Album.ToString();
+            }
+            else
+            {
+                throw new Exception("PlaylistItem: attempted to construct from an unexpected type: " + content.GetType().ToString());
+            }
         }
 
-        public PlaylistItem(int id, Song song)
+        public PlaylistItem(Path path, MPDSongResponseBlock block)
         {
-            Id = id;
-            Path = song.Path;
-            Title = song.Title;
-            Artist = song.Artist.DisplayString;
-            Album = song.Album.DisplayString;
+            Id = block.Id;
+            Position = block.Pos;
+            Path = path;
+
+            if (Path.IsStream)
+            {
+                Title = block.Name ?? Path.ToString();
+                Artist = null;
+                Album = null;
+            }
+            else
+            {
+                Title = block.Title;
+                Artist = block.Artist;
+                Album = block.Album;
+            }
         }
 
         public int Id

@@ -143,13 +143,17 @@ namespace Auremo
 
             foreach (MPDSongResponseBlock block in response)
             {
-                int id = block.Id;
-                int position = block.Pos;
                 Path path = new Path(block.File);
-                string title = block.Title ?? block.File;
-                string artist = block.Artist ?? "";
-                string album = block.Album ?? "";
-                Items.Add(new IndexedLibraryItem(new PlaylistItem(id, position, path, title, artist, album), Items.Count));
+                AudioStream stream = path.IsStream ? m_DataModel.StreamsCollection.StreamByPath(path) : null;
+
+                if (stream != null)
+                {
+                    Items.Add(new IndexedLibraryItem(new PlaylistItem(stream, block.Id, block.Pos), Items.Count));
+                }
+                else
+                {
+                    Items.Add(new IndexedLibraryItem(new PlaylistItem(path, block), Items.Count));
+                }
             }
 
             UpdateCurrentSong();

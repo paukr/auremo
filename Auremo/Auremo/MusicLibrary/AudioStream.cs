@@ -56,8 +56,10 @@ namespace Auremo.MusicLibrary
             set;
         }
 
-        /// The stream descriptor exctracted from the M3U/PLS file or
-        /// given by the user otherwise.
+        /// <summary>
+        /// The stream description (e.g., name of the radio station) specified
+        /// by the user and/or saved in a M3U/PLS playlist file.
+        /// </summary>
         public string Label
         {
             get
@@ -75,7 +77,10 @@ namespace Auremo.MusicLibrary
             }
         }
 
-        /// The stream descriptor of the stream as given in a MPD resonse.
+        /// <summary>
+        /// The stream description (e.g., name of the radio station) as given
+        /// in a MPD resonse.
+        /// </summary>
         public string Name
         {
             get
@@ -93,7 +98,10 @@ namespace Auremo.MusicLibrary
             }
         }
 
-        /// The track description of the stream as given in a MPD resonse.
+        /// <summary>
+        /// The track description (e.g., name of the song currently playing)
+        /// as given in a MPD resonse.
+        /// </summary>
         public string Title
         {
             get

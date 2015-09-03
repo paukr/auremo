@@ -15,6 +15,10 @@ namespace Auremo.MusicLibrary
         public Link(Path path)
         {
             Path = path;
+            Title = null;
+            Artist = null;
+            Album = null;
+            Date = null;
         }
 
         public Path Path
@@ -36,6 +40,12 @@ namespace Auremo.MusicLibrary
         }
 
         public string Album
+        {
+            get;
+            set;
+        }
+
+        public string Date
         {
             get;
             set;

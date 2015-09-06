@@ -359,7 +359,14 @@ namespace Auremo
 
             foreach (Song song in m_DataModel.Database.Songs.Values)
             {
-                new HierarchicalLibraryItem(song, directoryLookup[song.Directory]);
+                if (song.Directory == null)
+                {
+                    DirectoryTree.Add(new HierarchicalLibraryItem(song, DirectoryTreeController));
+                }
+                else
+                {
+                    new HierarchicalLibraryItem(song, directoryLookup[song.Directory]);
+                }
             }
 
             DirectoryTreeController.ResetNodeIds();

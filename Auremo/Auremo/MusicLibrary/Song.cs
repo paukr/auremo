@@ -138,7 +138,7 @@ namespace Auremo.MusicLibrary
         {
             get
             {
-                return Title;
+                return Title ?? Filename;
             }
         }
 

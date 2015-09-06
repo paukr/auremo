@@ -55,7 +55,7 @@ namespace Auremo.MusicLibrary
             if (content is Song)
             {
                 Song song = content as Song;
-                Title = song.Title;
+                Title = song.Title ?? song.Path.ToString();
                 Artist = song.Artist.ToString();
                 Album = song.Album.ToString();
             }
@@ -69,7 +69,7 @@ namespace Auremo.MusicLibrary
             else if (content is Link)
             {
                 Link link = content as Link;
-                Title = link.Title;
+                Title = link.Title ?? link.Path.ToString();
                 Artist = link.Artist.ToString();
                 Album = link.Album.ToString();
             }
@@ -93,7 +93,7 @@ namespace Auremo.MusicLibrary
             }
             else
             {
-                Title = block.Title;
+                Title = block.Title ?? Path.ToString();
                 Artist = block.Artist;
                 Album = block.Album;
             }

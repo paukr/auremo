@@ -292,7 +292,7 @@
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Track#" MinWidth="60" Width="Auto" Binding="{Binding Item.Track}"/>
-                                <DataGridTextColumn Header="Title" MinWidth="60" Width="*" Binding="{Binding Item.Title}"/>
+                                <DataGridTextColumn Header="Title" MinWidth="60" Width="*" Binding="{Binding Item.DisplayString}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SongsOnSelectedAlbumsViewContextMenu">
@@ -407,7 +407,7 @@
                                   MouseDoubleClick="OnMusicCollectionDataGridDoubleClicked">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Track#" MinWidth="60" Width="Auto" Binding="{Binding Item.Track}"/>
-                                <DataGridTextColumn Header="Title" MinWidth="60" Width="*" Binding="{Binding Item.Title}"/>
+                                <DataGridTextColumn Header="Title" MinWidth="60" Width="*" Binding="{Binding Item.DisplayString}"/>
                             </DataGrid.Columns>
                             <DataGrid.ContextMenu>
                                 <ContextMenu Name="m_SongsOnSelectedGenreAlbumsViewContextMenu">

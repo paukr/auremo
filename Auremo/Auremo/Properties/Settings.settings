@@ -2,23 +2,11 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Auremo.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="EnableVolumeControl" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="Port" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">6600</Value>
-    </Setting>
     <Setting Name="ReconnectInterval" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">10</Value>
     </Setting>
-    <Setting Name="Server" Type="System.String" Scope="User">
-      <Value Profile="(Default)">localhost</Value>
-    </Setting>
     <Setting Name="ViewUpdateInterval" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">500</Value>
-    </Setting>
-    <Setting Name="Password" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="VolumeAdjustmentStep" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">5</Value>
@@ -94,6 +82,12 @@
     </Setting>
     <Setting Name="WindowH" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">590</Value>
+    </Setting>
+    <Setting Name="Servers" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="EnableVolumeControl" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

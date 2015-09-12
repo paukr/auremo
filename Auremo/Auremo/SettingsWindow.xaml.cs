@@ -15,35 +15,29 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Auremo.Properties;
 
 namespace Auremo
 {
     public partial class SettingsWindow : Window
     {
-        MainWindow m_Parent = null;
+        DataModel m_DataModel = null;
         const char m_StringCollectionSeparator = ';';
+        bool m_ReconnectNeeded = false;
 
-        public SettingsWindow(MainWindow parent)
+        public SettingsWindow(DataModel dataModel)
         {
             InitializeComponent();
 
-            m_Parent = parent;
+            m_DataModel = dataModel;
             LoadSettings();
+
+            DataContext = m_DataModel;
         }
 
         private void OnNumericOptionPreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -93,9 +87,10 @@ namespace Auremo
 
         private void LoadSettings()
         {
-            m_ServerEntry.Text = Settings.Default.Server;
-            m_PortEntry.Text = Settings.Default.Port.ToString();
-            m_PasswordEntry.Password = Crypto.DecryptPassword(Settings.Default.Password);
+            // TODO: tell Servers to load from settings.
+            m_ServerEntry.Text = m_DataModel.Servers.SelectedServer.Hostname;
+            m_PortEntry.Text = m_DataModel.Servers.SelectedServer.Port.ToString();
+            m_PasswordEntry.Password = Crypto.DecryptPassword(m_DataModel.Servers.SelectedServer.EncryptedPassword);
             m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
             m_NetworkTimeoutEntry.Text = Settings.Default.NetworkTimeout.ToString();
             m_ReconnectIntervalEntry.Text = Settings.Default.ReconnectInterval.ToString();
@@ -144,17 +139,12 @@ namespace Auremo
             string password = Crypto.EncryptPassword(m_PasswordEntry.Password);
             AlbumSortingMode albumSortingMode = m_SortAlbumsByDate.IsChecked.Value ? AlbumSortingMode.ByDate : AlbumSortingMode.ByName;
 
-            bool reconnectNeeded =
-                m_ServerEntry.Text != Settings.Default.Server ||
-                port != Settings.Default.Port ||
-                password != Settings.Default.Password ||
+            m_ReconnectNeeded =
                 m_UseAlbumArtist.IsChecked != Settings.Default.UseAlbumArtist ||
                 albumSortingMode.ToString() != Settings.Default.AlbumSortingMode ||
                 m_DateFormatsEntry.Text != StringCollectionAsString(Settings.Default.AlbumDateFormats);
 
-            Settings.Default.Server = m_ServerEntry.Text;
-            Settings.Default.Port = port;
-            Settings.Default.Password = password;
+            // TODO: tell Servers to save.
             Settings.Default.ViewUpdateInterval = Utils.StringToInt(m_UpdateIntervalEntry.Text, 500);
             Settings.Default.NetworkTimeout = Utils.StringToInt(m_NetworkTimeoutEntry.Text, 10);
             Settings.Default.ReconnectInterval = Utils.StringToInt(m_ReconnectIntervalEntry.Text, 10);
@@ -192,7 +182,7 @@ namespace Auremo
 
             Settings.Default.InitialSetupDone = true;
             Settings.Default.Save();
-            m_Parent.SettingsChanged(reconnectNeeded);
+            m_DataModel.MainWindow.SettingsChanged(m_ReconnectNeeded);
         }
 
         private string StringCollectionAsString(StringCollection strings)
@@ -249,7 +239,7 @@ namespace Auremo
 
         private void OnClose(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            m_Parent.OnChildWindowClosing(this);
+            m_DataModel.MainWindow.OnChildWindowClosing(this);
         }
 
         private MusicCollectionTab SelectedDefaultMusicCollectionTab()

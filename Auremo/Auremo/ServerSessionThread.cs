@@ -579,7 +579,7 @@ namespace Auremo
 
         private void SendPassword()
         {
-            string password = Crypto.DecryptPassword(Settings.Default.Password);
+            string password = Crypto.DecryptPassword(m_DataModel.Servers.SelectedServer.EncryptedPassword);
 
             if (password.Length > 0)
             {

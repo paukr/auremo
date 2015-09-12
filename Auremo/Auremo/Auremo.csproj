@@ -122,6 +122,7 @@
     </Compile>
     <Compile Include="AlbumComparison.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
+    <Compile Include="Servers.cs" />
     <Compile Include="LinkMetadata.cs" />
     <Compile Include="MainWindowOverlay.xaml.cs">
       <DependentUpon>MainWindowOverlay.xaml</DependentUpon>
@@ -258,6 +259,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="WPFResources\ScrollViewerStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WPFResources\SettingsDataGridStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

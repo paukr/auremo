@@ -391,6 +391,16 @@ namespace Auremo
             }
         }
 
+        private void Reconnect()
+        {
+            DataModel.ServerSession.Disconnect();
+
+            if (m_OnlineMode)
+            {
+                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+            }
+        }
+
         private void OnEnableDisbaleOutput(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = sender as CheckBox;
@@ -617,6 +627,14 @@ namespace Auremo
         public void OnRescanPlaylistsCollectionClicked(object sender, RoutedEventArgs e)
         {
             DataModel.SavedPlaylists.Refresh();
+        }
+
+        public void OnServerClicked(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            Server server = menuItem.Header as Server;
+            // Update index
+            Reconnect();
         }
 
         private IList<SongMetadata> SelectedLocalSongsOnPlaylist()
@@ -2061,12 +2079,7 @@ namespace Auremo
 
             if (reconnect)
             {
-                DataModel.ServerSession.Disconnect();
-
-                if (m_OnlineMode)
-                {
-                    DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
-                }
+                Reconnect();
             }
         }
 
@@ -2255,7 +2268,7 @@ namespace Auremo
         {
             if (m_SettingsWindow == null)
             {
-                m_SettingsWindow = new SettingsWindow(this);
+                m_SettingsWindow = new SettingsWindow(DataModel);
             }
             else
             {

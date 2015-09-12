@@ -139,29 +139,24 @@ namespace Auremo
 
         public IEnumerable<LibraryItem> Expand(LibraryItem parent)
         {
-            // TODO: throw exceptions instead of returning safe but useless values.
-            if (parent is Playable)
+            if (parent is Artist && m_ArtistExpansion.ContainsKey(parent))
             {
-                return new List<LibraryItem>() { parent };
+                return m_ArtistExpansion[parent].ToList();
             }
-            if (parent is Artist)
+            else if (parent is Album && m_AlbumExpansion.ContainsKey(parent))
             {
-                return m_ArtistExpansion.ContainsKey(parent) ? m_ArtistExpansion[parent].ToList<LibraryItem>() : new List<LibraryItem>();
+                return m_AlbumExpansion[parent].ToList();
             }
-            else if (parent is Album)
+            else if (parent is Genre && m_GenreExpansion.ContainsKey(parent))
             {
-                return m_AlbumExpansion.ContainsKey(parent) ? m_AlbumExpansion[parent].ToList<LibraryItem>() : new List<LibraryItem>();
+                return m_GenreExpansion[parent].ToList();
             }
-            else if (parent is Genre)
+            else if (parent is GenreFilteredAlbum && m_GenreFilteredAlbumExpansion.ContainsKey(parent))
             {
-                return m_GenreExpansion.ContainsKey(parent) ? m_GenreExpansion[parent].ToList<LibraryItem>() : new List<LibraryItem>();
-            }
-            else if (parent is GenreFilteredAlbum)
-            {
-                return m_GenreFilteredAlbumExpansion.ContainsKey(parent) ? m_GenreFilteredAlbumExpansion[parent].ToList<LibraryItem>() : new List<LibraryItem>();
+                return m_GenreFilteredAlbumExpansion[parent].ToList();
             }
 
-            throw new Exception("Database.Expand(): unexpected argument type.");
+            throw new Exception("Database.Expand(): cannot expand object: " + parent.ToString());
         }
 
         public IEnumerable<LibraryItem> Expand(IEnumerable<LibraryItem> parents)

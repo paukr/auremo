@@ -75,8 +75,8 @@
                 <MenuItem Header="View license (GPL2)..." Click="OnViewLicenseClicked"/>
                 <MenuItem Header="About..." Click="OnAboutClicked"/>
                 <Separator/>
-                <Hyperlink NavigateUri="https://code.google.com/p/auremo/" RequestNavigate="OnNavigate">Project home page</Hyperlink>
-                <Hyperlink NavigateUri="https://drive.google.com/folderview?id=0Bzt-AN6S9mTEa2JHSUl6SXRpOW8" RequestNavigate="OnNavigate">Download site</Hyperlink>
+                <Hyperlink NavigateUri="http://auremo.codeplex.com/" RequestNavigate="OnNavigate">Project home page</Hyperlink>
+                <Hyperlink NavigateUri="http://auremo.codeplex.com/releases/" RequestNavigate="OnNavigate">Download page</Hyperlink>
             </MenuItem>
         </Menu>
         <Image Source="Graphics/Auremo_icon.png" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.RowSpan="5" Grid.ColumnSpan="2" Margin="32"/>

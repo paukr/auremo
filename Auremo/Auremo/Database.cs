@@ -65,8 +65,6 @@ namespace Auremo
 
             Artists = new SortedDictionary<string, Artist>();
             Genres = new SortedDictionary<string, Genre>();
-            Albums = new SortedSet<Album>();
-            GenreFilteredAlbums = new SortedSet<GenreFilteredAlbum>();
             Directories = new SortedDictionary<string, Directory>();
             Songs = new SortedDictionary<Path, Song>();
 
@@ -78,8 +76,6 @@ namespace Auremo
         {
             Artists.Clear();
             Genres.Clear();
-            Albums.Clear();
-            GenreFilteredAlbums.Clear();
             Directories.Clear();
             Songs.Clear();
 
@@ -120,20 +116,6 @@ namespace Auremo
         {
             get;
             private set;
-        }
-
-        // TODO: verify that this is actually used somewhere.
-        public ISet<Album> Albums
-        {
-            get;
-            private set;
-        }
-
-        // TODO: verify that this is actually used somewhere.
-        public ISet<GenreFilteredAlbum> GenreFilteredAlbums
-        {
-            get;
-            set;
         }
 
         public IDictionary<string, Directory> Directories
@@ -271,7 +253,6 @@ namespace Auremo
             if (!albumList.ContainsKey(albumKey))
             {
                 Album album = new Album(artist, albumKey, null);
-                Albums.Add(album);
                 albumList[albumKey] = album;
                 AddExpansion(artist, album);
             }
@@ -291,7 +272,6 @@ namespace Auremo
             if (!albumList.ContainsKey(album))
             {
                 GenreFilteredAlbum genreFilteredAlbum = new GenreFilteredAlbum(genre, album.Artist, album.Title, album.Date);
-                GenreFilteredAlbums.Add(genreFilteredAlbum);
                 m_GenreFilteredAlbumLookup[genre][album] = genreFilteredAlbum;
                 AddExpansion(genre, genreFilteredAlbum);
             }

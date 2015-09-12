@@ -108,21 +108,20 @@ namespace Auremo.MusicLibrary
             }
         }
 
-        private void SelectVisibleWithinRange(HierarchicalLibraryItem node, int minID, int maxID)
+        private void SelectVisibleWithinRange(HierarchicalLibraryItem node, int minId, int maxId)
         {
-            // TODO: optimize more.
-            if (minID <= node.Id && node.Id <= maxID)
+            if (minId <= node.Id && node.Id <= maxId)
             {
                 node.IsMultiSelected = true;
             }
 
-            if (node.IsExpanded && node.Id <= maxID && node.HighestChildId >= minID)
+            if (node.IsExpanded && node.Id < maxId && node.HighestChildId >= minId)
             {
                 foreach (HierarchicalLibraryItem child in node.Children)
                 {
-                    SelectVisibleWithinRange(child, minID, maxID);
+                    SelectVisibleWithinRange(child, minId, maxId);
 
-                    if (child.Id > maxID)
+                    if (child.Id >= maxId)
                     {
                         return;
                     }

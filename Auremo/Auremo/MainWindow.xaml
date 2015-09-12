@@ -67,9 +67,12 @@
                     </DataTemplate>
                 </MenuItem.ItemTemplate>
             </MenuItem>
-            <MenuItem Name="m_ServerMenu" Header="Server">
-                <CheckBox Content="Single mode" IsEnabled="{Binding Path=ServerSession.IsConnected}" IsChecked="{Binding Path=ServerStatus.IsOnSingle, Mode=OneWay}" Click="OnToggleSingleMode"/>
-                <CheckBox Content="Consume mode" IsEnabled="{Binding Path=ServerSession.IsConnected}" IsChecked="{Binding Path=ServerStatus.IsOnConsume, Mode=OneWay}" Click="OnToggleConsumeMode"/>
+            <MenuItem Name="m_ServerMenu" Header="Server" IsEnabled="{Binding Path=ServerSession.IsConnected}">
+                <CheckBox Content="Single mode" IsChecked="{Binding Path=ServerStatus.IsOnSingle, Mode=OneWay}" Click="OnToggleSingleMode"/>
+                <CheckBox Content="Consume mode" IsChecked="{Binding Path=ServerStatus.IsOnConsume, Mode=OneWay}" Click="OnToggleConsumeMode"/>
+                <MenuItem Header="{Binding Path=ServerStatus.CrossfadeDisplayString}" Click="OnCrossfadeClick"/>
+                <MenuItem Header="{Binding Path=ServerStatus.MixRampdbDisplayString}" Visibility="{Binding Path=ServerStatus.IsMixRampingEnabled, Converter={StaticResource BoolToVisibilityConverter}}" Click="OnMixRampdbClick"/>
+                <MenuItem Header="{Binding Path=ServerStatus.MixRampDelayDisplayString}" Click="OnMixRampDelayClick"/>
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="View license (GPL2)..." Click="OnViewLicenseClicked"/>

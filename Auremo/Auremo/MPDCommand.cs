@@ -15,10 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Globalization;
 
 namespace Auremo
 {
@@ -52,6 +49,14 @@ namespace Auremo
         {
             Op = op;
             Argument1 = argument1 ? "1" : "0";
+            Argument2 = null;
+            FullSyntax = op + " " + Quote(Argument1);
+        }
+
+        public MPDCommand(string op, double argument)
+        {
+            Op = op;
+            Argument1 = double.IsNaN(argument) ? "nan" : argument.ToString(NumberFormatInfo.InvariantInfo);
             Argument2 = null;
             FullSyntax = op + " " + Quote(Argument1);
         }

@@ -15,13 +15,9 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using Auremo.Properties;
+using System.ComponentModel;
+using System.Globalization;
 
 namespace Auremo
 {
@@ -437,6 +433,21 @@ namespace Auremo
         public void Consume(bool on)
         {
             Send(new MPDCommand("consume", on ? "1" : "0"));
+        }
+
+        public void Crossfade(int duration)
+        {
+            Send(new MPDCommand("crossfade", duration));
+        }
+
+        public void MixRampdb(double threshold)
+        {
+            Send(new MPDCommand("mixrampdb", threshold));
+        }
+
+        public void MixRampDelay(double duration)
+        {
+            Send(new MPDCommand("mixrampdelay", duration));
         }
 
         public void Single(bool on)

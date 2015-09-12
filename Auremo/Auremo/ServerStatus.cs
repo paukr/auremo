@@ -18,8 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
+using System.Globalization;
 
 namespace Auremo
 {
@@ -153,6 +152,18 @@ namespace Auremo
                             AudioQuality = "";
                         }
                     }
+                }
+                else if (line.Key == MPDResponseLine.Keyword.Xfade)
+                {
+                    Crossfade = line.IntValue;
+                }
+                else if (line.Key == MPDResponseLine.Keyword.MixRampdb)
+                {
+                    MixRampdb = line.DoubleValue;
+                }
+                else if (line.Key == MPDResponseLine.Keyword.MixRampDelay)
+                {
+                    MixRampDelay = line.DoubleValue;
                 }
                 else if (line.Key == MPDResponseLine.Keyword.Error)
                 {
@@ -447,6 +458,80 @@ namespace Auremo
             }
         }
 
+        private int m_Crossfade = 0;
+
+        public int Crossfade
+        {
+            get
+            {
+                return m_Crossfade;
+            }
+            private set
+            {
+                if (value != m_Crossfade)
+                {
+                    m_Crossfade = value;
+                    NotifyPropertyChanged("Crossfade");
+                    NotifyPropertyChanged("CrossfadeDisplayString");
+                }
+            }
+        }
+
+        public string CrossfadeDisplayString
+        {
+            get
+            {
+                return "Crossfade: " + Crossfade + " seconds";
+            }
+        }
+
+        private double m_MixRampdb = 0;
+
+        public double MixRampdb
+        {
+            get
+            {
+                return m_MixRampdb;
+            }
+            private set
+            {
+                if (value != m_MixRampdb)
+                {
+                    m_MixRampdb = value;
+                    NotifyPropertyChanged("MixRampdb");
+                    NotifyPropertyChanged("MixRampdbDisplayString");
+                }
+            }
+        }
+
+        public string MixRampdbDisplayString => "Mix ramp threshold: " + MixRampdb.ToString(NumberFormatInfo.InvariantInfo) + " dB";
+
+        private double m_MixRampDelay = double.NaN;
+
+        public double MixRampDelay
+        {
+            get
+            {
+                return m_MixRampDelay;
+            }
+            private set
+            {
+                if (value != m_MixRampDelay)
+                {
+                    m_MixRampDelay = value;
+                    NotifyPropertyChanged("MixRampDelay");
+                    NotifyPropertyChanged("MixRampDelayDisplayString");
+                    NotifyPropertyChanged("IsMixRampingEnabled");
+                }
+            }
+        }
+
+        public string MixRampDelayDisplayString => double.IsNaN(MixRampDelay) ?
+            "Mix ramping is disabled." :
+            "Mix ramp delay: " + MixRampDelay.ToString(NumberFormatInfo.InvariantInfo) + " seconds";
+
+        public bool IsMixRampingEnabled => !double.IsNaN(MixRampDelay);
+
         private string m_ErrorMessage = "";
         public string ErrorMessage
         {
@@ -492,6 +577,9 @@ namespace Auremo
             State = "stop";
             DatabaseUpdateTime = 0;
             AudioQuality = "";
+            Crossfade = 0;
+            MixRampdb = double.NaN;
+            MixRampDelay = double.NaN;
             ErrorMessage = "";
         }
     }

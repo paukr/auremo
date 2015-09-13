@@ -192,17 +192,16 @@ namespace Auremo
         {
             foreach (MPDSongResponseBlock block in response)
             {
-                Song song = new Song(new Path(block.File));
+                Song song = new Song(block);
                 song.Artist = GetOrCreateArtist(Settings.Default.UseAlbumArtist && block.AlbumArtist != null ? block.AlbumArtist : block.Artist);
                 song.Genre = GetOrCreateGenre(block.Genre);
                 song.Album = GetOrCreateAlbum(song.Artist, block.Album);
                 song.GenreFilteredAlbum = GetOrCreateGenreFilteredAlbum(song.Genre, song.Album);
                 song.Directory = GetOrCreateDirectory(song.Path);
 
-                song.Title = block.Title;
-                song.Length = block.Time;
-                song.Track = block.Track;
-                song.Date = m_DataModel.YearNormalizer.Normalize(block.Date);
+                song.Date = song.IsSpotify ?
+                    m_DataModel.YearNormalizer.Normalize(block.Date) :
+                    m_DataModel.CustomDateNormalizer.Normalize(block.Date);
 
                 Songs[song.Path] = song;
                 AddExpansion(song.Album, song);

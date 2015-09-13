@@ -30,30 +30,33 @@ namespace Auremo.MusicLibrary
     {
         private string m_PathTypePrefix = null; // This appears to be Mopidy-specific.
 
-        public Song(Path path)
+        public Song(MPDSongResponseBlock block)
         {
-            Path = path;
+            Path = new Path(block.File);
+            Title = block.Title;
+            Length = block.Time;
+            Track = block.Track;
+            Length = block.Time;
+            Filename = Path.Directories.Last();
 
+            // These need to be set by the caller as they require external external objects.
             Artist = null;
             Album = null;
             Genre = null;
-            Length = null;
-            Track = null;
             Date = null;
             Directory = null;
-            Filename = Path.Directories.Last();
         }
 
         public Path Path
         {
             get;
-            set;
+            private set;
         }
 
         public string Title
         {
             get;
-            set;
+            private set;
         }
 
         public Directory Directory
@@ -95,13 +98,13 @@ namespace Auremo.MusicLibrary
         public int? Length
         {
             get;
-            set;
+            private set;
         }
 
         public int? Track
         {
             get;
-            set;
+            private set;
         }
 
         public string Date

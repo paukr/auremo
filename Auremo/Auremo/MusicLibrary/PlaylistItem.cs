@@ -15,11 +15,9 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.Properties;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 
 namespace Auremo.MusicLibrary
 {
@@ -45,57 +43,38 @@ namespace Auremo.MusicLibrary
         private bool m_IsPlaying = false;
         private bool m_IsPaused = false;
 
-        // TODO: this if anything belongs into PlayableFactory.
-        public PlaylistItem(Playable content, int id, int position)
+        public PlaylistItem(MPDSongResponseBlock block, StreamsCollection streams)
         {
-            Id = id;
-            Position = position;
-            Path = content.Path;
-
-            if (content is Song)
-            {
-                Song song = content as Song;
-                Title = song.Title ?? song.Path.ToString();
-                Artist = song.Artist.ToString();
-                Album = song.Album.ToString();
-            }
-            else if (content is AudioStream)
-            {
-                AudioStream stream = content as AudioStream;
-                Title = stream.Label ?? stream.Name ?? Path.ToString();
-                Artist = null;
-                Album = null;
-            }
-            else if (content is Link)
-            {
-                Link link = content as Link;
-                Title = link.Title ?? link.Path.ToString();
-                Artist = link.Artist.ToString();
-                Album = link.Album.ToString();
-            }
-            else
-            {
-                throw new Exception("PlaylistItem: attempted to construct from an unexpected type: " + content.GetType().ToString());
-            }
-        }
-
-        public PlaylistItem(Path path, MPDSongResponseBlock block)
-        {
-            Id = block.Id;
+            Path = new Path(block.File);
             Position = block.Pos;
-            Path = path;
+            Id = block.Id;
 
             if (Path.IsStream)
             {
-                Title = block.Name ?? Path.ToString();
                 Artist = null;
                 Album = null;
+                AudioStream stream = streams.StreamByPath(Path);
+
+                if (stream != null)
+                {
+                    Title = stream.Label;
+                }
+                else
+                {
+                    Title = block.Name ?? Path.ToString();
+                }
             }
             else
             {
-                Title = block.Title ?? Path.ToString();
-                Artist = block.Artist;
+                Title = block.Title;
                 Album = block.Album;
+
+                if (Settings.Default.UseAlbumArtist)
+                {
+                    Artist = block.AlbumArtist ?? block.Artist;
+                }
+
+                Artist = block.Artist;
             }
         }
 

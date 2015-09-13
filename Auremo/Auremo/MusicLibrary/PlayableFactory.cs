@@ -16,13 +16,9 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Auremo.MusicLibrary
 {
-    // TODO: add PlaylistItem, consolidate object creation here.
     public static class PlayableFactory
     {
         public static Playable CreatePlayable(MPDSongResponseBlock block, DataModel dataModel = null)

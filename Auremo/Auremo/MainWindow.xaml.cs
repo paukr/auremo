@@ -1798,12 +1798,12 @@ namespace Auremo
 
         private void OnAddStreamNameOverlayReturned(bool ok, string input)
         {
-            string name = input.Trim();
+            string label = input.Trim();
 
-            if (ok && name.Length > 0)
+            if (ok && label.Length > 0)
             {
                 string pathString = m_Overlay.Data as string;
-                AudioStream stream = new AudioStream(new Path(pathString), name);
+                AudioStream stream = new AudioStream(new Path(pathString), label);
                 DataModel.StreamsCollection.Add(stream);
             }
             

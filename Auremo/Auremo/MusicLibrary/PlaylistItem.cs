@@ -43,7 +43,7 @@ namespace Auremo.MusicLibrary
         private bool m_IsPlaying = false;
         private bool m_IsPaused = false;
 
-        public PlaylistItem(MPDSongResponseBlock block, StreamsCollection streams)
+        public PlaylistItem(MPDSongResponseBlock block, DataModel dataModel)
         {
             Path = new Path(block.File);
             Position = block.Pos;
@@ -53,7 +53,7 @@ namespace Auremo.MusicLibrary
             {
                 Artist = null;
                 Album = null;
-                AudioStream stream = streams.StreamByPath(Path);
+                AudioStream stream = dataModel.StreamsCollection.StreamByPath(Path);
 
                 if (stream != null)
                 {

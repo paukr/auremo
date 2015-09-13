@@ -143,7 +143,7 @@ namespace Auremo
 
             foreach (MPDSongResponseBlock block in response)
             {
-                Items.Add(new IndexedLibraryItem(new PlaylistItem(block, m_DataModel.StreamsCollection), Items.Count));
+                Items.Add(new IndexedLibraryItem(new PlaylistItem(block, m_DataModel), Items.Count));
             }
 
             UpdateCurrentSong();

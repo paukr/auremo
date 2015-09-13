@@ -195,7 +195,7 @@ namespace Auremo
         {
             foreach (AudioStream stream in m_StreamsByLabel.Values)
             {
-                if (stream.Path == path)
+                if (stream.Path.CompareTo(path) == 0)
                 {
                     return stream;
                 }

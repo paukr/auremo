@@ -75,7 +75,7 @@ namespace Auremo
 
             m_Host = host;
             m_Port = port;
-            m_SessionThread = new ServerSessionThread(this, m_DataModel, host, port, 1000 * Settings.Default.NetworkTimeout, Settings.Default.ReconnectInterval);
+            m_SessionThread = new ServerSessionThread(this, m_DataModel, 1000 * Settings.Default.NetworkTimeout, Settings.Default.ReconnectInterval);
             m_SessionThread.Start();
             return true;
         }

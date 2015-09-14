@@ -176,7 +176,7 @@ namespace Auremo
 
             if (m_OnlineMode && DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
             {
-                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+                DataModel.ServerSession.Connect(DataModel.Servers.SelectedServer.Hostname, DataModel.Servers.SelectedServer.Port);
             }
         }
 
@@ -370,7 +370,7 @@ namespace Auremo
 
             if (DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
             {
-                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+                DataModel.ServerSession.Connect(DataModel.Servers.SelectedServer.Hostname, DataModel.Servers.SelectedServer.Port);
             }
         }
 
@@ -387,7 +387,7 @@ namespace Auremo
 
             if (DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
             {
-                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+                DataModel.ServerSession.Connect(DataModel.Servers.SelectedServer.Hostname, DataModel.Servers.SelectedServer.Port);
             }
         }
 
@@ -397,7 +397,7 @@ namespace Auremo
 
             if (m_OnlineMode)
             {
-                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+                DataModel.ServerSession.Connect(DataModel.Servers.SelectedServer.Hostname, DataModel.Servers.SelectedServer.Port);
             }
         }
 
@@ -631,10 +631,18 @@ namespace Auremo
 
         public void OnServerClicked(object sender, RoutedEventArgs e)
         {
-            MenuItem menuItem = sender as MenuItem;
+            DependencyObject dep = sender as DependencyObject;
+
+            while (dep != null && !(dep is MenuItem))
+            {
+                dep = VisualTreeHelper.GetParent(dep);
+            }
+
+            MenuItem menuItem = dep as MenuItem;
             Server server = menuItem.Header as Server;
-            // Update index
-            Reconnect();
+            DataModel.Servers.SetSelectedItem(server.ItemIndex);
+            
+            //Reconnect();
         }
 
         private IList<SongMetadata> SelectedLocalSongsOnPlaylist()
@@ -2086,7 +2094,7 @@ namespace Auremo
         private void ApplyInitialSettings()
         {
             ApplyTabVisibilitySettings();
-            DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+            DataModel.ServerSession.Connect(DataModel.Servers.SelectedServer.Hostname, DataModel.Servers.SelectedServer.Port);
         }
 
         private void ApplyTabVisibilitySettings()

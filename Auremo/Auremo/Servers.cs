@@ -47,26 +47,25 @@ namespace Auremo
         public Servers()
         {
             Items = new ObservableCollection<Server>();
-            Items.Add(new Server("localhost", 6600, null));
-            Items[0].IsSelected = true;
+            Items.Add(new Server("192.168.0.15", 6601, "", 0, true));
+            Items.Add(new Server("192.168.0.15", 6600, "", 1, false));
         }
 
         public void SetItems(IEnumerable<Server> items, int selectedIndex)
         {
             Items.Clear();
 
-            foreach (Server item in items)
+            if (items.Count() == 0)
             {
-                Server server = new Server(item.Hostname, item.Port, item.EncryptedPassword);
-                server.IsSelected = Items.Count == selectedIndex;
-                Items.Add(server);
+                // Have something by default
+                Items.Add(new Server("localhost", 6600, "", 0, true));
             }
-
-            // Have something by default
-            if (Items.Count == 0)
+            else
             {
-                Items.Add(new Server("localhost", 6600, null));
-                Items[0].IsSelected = true;
+                foreach (Server item in items)
+                {
+                    Items.Add(new Server(item.Hostname, item.Port, item.EncryptedPassword, Items.Count, Items.Count == selectedIndex));
+                }
             }
         }
 
@@ -160,15 +159,17 @@ namespace Auremo
             Hostname = "localhost";
             Port = 6600;
             EncryptedPassword = "";
+            ItemIndex = -1;
             IsSelected = false;
         }
 
-        public Server(string hostname, int port, string encryptedPassword)
+        public Server(string hostname, int port, string encryptedPassword, int index = -1, bool selected = false)
         {
             Hostname = hostname;
             Port = port;
             EncryptedPassword = encryptedPassword;
-            IsSelected = false;
+            ItemIndex = index;
+            IsSelected = selected;
         }
 
         [XmlElement("Hostname")]
@@ -179,6 +180,13 @@ namespace Auremo
 
         [XmlElement("Password")]
         public string EncryptedPassword { get; set; }
+
+        [XmlIgnore]
+        public int ItemIndex
+        {
+            get;
+            set;
+        }
 
         [XmlIgnore]
         public bool IsSelected

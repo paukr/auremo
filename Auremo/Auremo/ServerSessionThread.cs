@@ -335,6 +335,8 @@ namespace Auremo
 
         private void ReceiveResponse(MPDCommand command)
         {
+            // TODO: if the server is really slow (Mopidy on an RPI for
+            // example), we can get stuck here during shutdown.
             MPDResponseLine statusLine = GetResponseLine();
 
             while (statusLine != null && !statusLine.IsStatus)

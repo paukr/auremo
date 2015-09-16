@@ -182,7 +182,9 @@ namespace Auremo
 
             Settings.Default.InitialSetupDone = true;
             Settings.Default.Save();
+
             m_DataModel.MainWindow.SettingsChanged(m_ReconnectNeeded);
+            m_ReconnectNeeded = false;
         }
 
         private string StringCollectionAsString(StringCollection strings)

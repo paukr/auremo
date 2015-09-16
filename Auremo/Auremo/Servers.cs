@@ -48,7 +48,7 @@ namespace Auremo
         {
             Items = new ObservableCollection<Server>();
             Items.Add(new Server("192.168.0.15", 6601, "", 0, true));
-            Items.Add(new Server("192.168.0.15", 6600, "", 1, false));
+            Items.Add(new Server("localhost", 6600, "", 1, false));
         }
 
         public void SetItems(IEnumerable<Server> items, int selectedIndex)
@@ -67,13 +67,19 @@ namespace Auremo
                     Items.Add(new Server(item.Hostname, item.Port, item.EncryptedPassword, Items.Count, Items.Count == selectedIndex));
                 }
             }
+
+            NotifyPropertyChanged("SelectedServer");
         }
 
         public void SetSelectedItem(int index)
         {
-            Items[m_SelectedServerIndex].IsSelected = false;
-            m_SelectedServerIndex = Utils.Clamp(0, index, Items.Count - 1);
-            Items[m_SelectedServerIndex].IsSelected = true;
+            if (m_SelectedServerIndex != index)
+            {
+                Items[m_SelectedServerIndex].IsSelected = false;
+                m_SelectedServerIndex = Utils.Clamp(0, index, Items.Count - 1);
+                Items[m_SelectedServerIndex].IsSelected = true;
+                NotifyPropertyChanged("SelectedServer");
+            }
         }
 
         public ObservableCollection<Server> Items

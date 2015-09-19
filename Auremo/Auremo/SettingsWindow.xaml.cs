@@ -15,7 +15,11 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,20 +28,32 @@ using Auremo.Properties;
 
 namespace Auremo
 {
-    public partial class SettingsWindow : Window
+    public partial class SettingsWindow : Window, INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
+
         DataModel m_DataModel = null;
         const char m_StringCollectionSeparator = ';';
-        bool m_ReconnectNeeded = false;
 
         public SettingsWindow(DataModel dataModel)
         {
             InitializeComponent();
-
+            ServerList = new ObservableCollection<Server>();
+            DataContext = this;
             m_DataModel = dataModel;
             LoadSettings();
-
-            DataContext = m_DataModel;
         }
 
         private void OnNumericOptionPreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -87,10 +103,8 @@ namespace Auremo
 
         private void LoadSettings()
         {
-            // TODO: tell Servers to load from settings.
-            m_ServerEntry.Text = m_DataModel.Servers.SelectedServer.Hostname;
-            m_PortEntry.Text = m_DataModel.Servers.SelectedServer.Port.ToString();
-            m_PasswordEntry.Password = Crypto.DecryptPassword(m_DataModel.Servers.SelectedServer.EncryptedPassword);
+            ServerList.Clear();
+
             m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
             m_NetworkTimeoutEntry.Text = Settings.Default.NetworkTimeout.ToString();
             m_ReconnectIntervalEntry.Text = Settings.Default.ReconnectInterval.ToString();
@@ -114,6 +128,15 @@ namespace Auremo
             m_PlaylistsTabIsVisible.IsChecked = Settings.Default.PlaylistsTabIsVisible;
             SelectDefaultMusicCollectionTab(Settings.Default.DefaultMusicCollectionTab);
 
+            ServerList.Clear();
+
+            foreach (Server server in Servers.ReadFromXml(Settings.Default.Servers))
+            {
+                ServerList.Add(server);
+            }
+
+            ServerList[0].IsSelected = true;
+                        
             m_SendToPlaylistMethodAddAsNext.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.AddAsNext.ToString();
             m_SendToPlaylistMethodReplaceAndPlay.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString();
             m_SendToPlaylistMethodAppend.IsChecked = !m_SendToPlaylistMethodAddAsNext.IsChecked.Value && !m_SendToPlaylistMethodReplaceAndPlay.IsChecked.Value;
@@ -135,16 +158,15 @@ namespace Auremo
 
         private void SaveSettings()
         {
-            int port = Utils.StringToInt(m_PortEntry.Text, 6600);
-            string password = Crypto.EncryptPassword(m_PasswordEntry.Password);
             AlbumSortingMode albumSortingMode = m_SortAlbumsByDate.IsChecked.Value ? AlbumSortingMode.ByDate : AlbumSortingMode.ByName;
-
-            m_ReconnectNeeded =
+            string servers = Servers.WriteToXml(ServerList);
+            bool reconnectNeeded =
                 m_UseAlbumArtist.IsChecked != Settings.Default.UseAlbumArtist ||
                 albumSortingMode.ToString() != Settings.Default.AlbumSortingMode ||
-                m_DateFormatsEntry.Text != StringCollectionAsString(Settings.Default.AlbumDateFormats);
+                m_DateFormatsEntry.Text != StringCollectionAsString(Settings.Default.AlbumDateFormats) ||
+                servers != Settings.Default.Servers;
 
-            // TODO: tell Servers to save.
+            Settings.Default.Servers = servers;
             Settings.Default.ViewUpdateInterval = Utils.StringToInt(m_UpdateIntervalEntry.Text, 500);
             Settings.Default.NetworkTimeout = Utils.StringToInt(m_NetworkTimeoutEntry.Text, 10);
             Settings.Default.ReconnectInterval = Utils.StringToInt(m_ReconnectIntervalEntry.Text, 10);
@@ -183,8 +205,7 @@ namespace Auremo
             Settings.Default.InitialSetupDone = true;
             Settings.Default.Save();
 
-            m_DataModel.MainWindow.SettingsChanged(m_ReconnectNeeded);
-            m_ReconnectNeeded = false;
+            m_DataModel.MainWindow.SettingsChanged(reconnectNeeded);
         }
 
         private string StringCollectionAsString(StringCollection strings)
@@ -279,6 +300,38 @@ namespace Auremo
             m_FilesystemTabIsDefault.IsChecked = tab == MusicCollectionTab.FilesystemTab.ToString();
             m_StreamsTabIsDefault.IsChecked = tab == MusicCollectionTab.StreamsTab.ToString();
             m_PlaylistsTabIsDefault.IsChecked = tab == MusicCollectionTab.PlaylistsTab.ToString();
+        }
+
+        public ObservableCollection<Server> ServerList
+        {
+            get;
+            private set;
+        }
+
+        private void AddServerClicked(object sender, RoutedEventArgs e)
+        {
+            ServerList.Add(new Server("localhost", 6600, "", ServerList.Count, false));
+            m_ServerSettings.SelectedIndex = ServerList.Count - 1;
+
+        }
+
+        private void DeleteServerClicked(object sender, RoutedEventArgs e)
+        {
+            int oldSelection = m_ServerSettings.SelectedIndex;
+
+            if (oldSelection >= 0 && oldSelection < ServerList.Count)
+            {
+                ServerList.RemoveAt(oldSelection);
+
+                if (ServerList.Count == 0)
+                {
+                    ServerList.Add(new Server("localhost", 6600, "", 0, true));
+                }
+                else
+                {
+                    ServerList[Math.Max(0, oldSelection - 1)].IsSelected = true;
+                }
+            }
         }
     }
 }

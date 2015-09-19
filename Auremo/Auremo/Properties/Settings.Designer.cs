@@ -360,5 +360,17 @@ namespace Auremo.Properties {
                 this["EnableVolumeControl"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int SelectedServerIndex {
+            get {
+                return ((int)(this["SelectedServerIndex"]));
+            }
+            set {
+                this["SelectedServerIndex"] = value;
+            }
+        }
     }
 }

@@ -613,7 +613,7 @@ namespace Auremo
 
             MenuItem menuItem = dep as MenuItem;
             Server server = menuItem.Header as Server;
-            DataModel.Servers.SetSelectedItem(server.ItemIndex);
+            DataModel.Servers.SelectedServerIndex = server.ItemIndex;
         }
 
         private IList<SongMetadata> SelectedLocalSongsOnPlaylist()
@@ -2043,6 +2043,7 @@ namespace Auremo
         public void SettingsChanged(bool reconnectNeeded)
         {
             ApplyTabVisibilitySettings();
+            DataModel.Servers.SetItems(Servers.ReadFromXml(Settings.Default.Servers), Settings.Default.SelectedServerIndex);
             m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             SetTimerInterval(Settings.Default.ViewUpdateInterval);
 
@@ -2065,6 +2066,7 @@ namespace Auremo
         private void ApplyInitialSettings()
         {
             ApplyTabVisibilitySettings();
+            DataModel.Servers.SetItems(Servers.ReadFromXml(Settings.Default.Servers), Settings.Default.SelectedServerIndex);
         }
 
         private void ApplyTabVisibilitySettings()

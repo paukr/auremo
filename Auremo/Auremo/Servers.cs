@@ -46,9 +46,7 @@ namespace Auremo
 
         public Servers()
         {
-            Items = new ObservableCollection<Server>();
-            Items.Add(new Server("192.168.0.15", 6601, "", 0, true));
-            Items.Add(new Server("localhost", 6600, "", 1, false));
+            Items = new ObservableCollection<Server> { new Server("localhost", 6600, "", 1, true) };
         }
 
         public void SetItems(IEnumerable<Server> items, int selectedIndex)
@@ -71,14 +69,24 @@ namespace Auremo
             NotifyPropertyChanged("SelectedServer");
         }
 
-        public void SetSelectedItem(int index)
+        public int SelectedServerIndex
         {
-            if (m_SelectedServerIndex != index)
+            get
             {
-                Items[m_SelectedServerIndex].IsSelected = false;
-                m_SelectedServerIndex = Utils.Clamp(0, index, Items.Count - 1);
-                Items[m_SelectedServerIndex].IsSelected = true;
-                NotifyPropertyChanged("SelectedServer");
+                return m_SelectedServerIndex;
+            }
+            set
+            {
+                int normalized = Utils.Clamp(0, value, Items.Count - 1);
+
+                if (m_SelectedServerIndex != normalized)
+                {
+                    Items[m_SelectedServerIndex].IsSelected = false;
+                    m_SelectedServerIndex = normalized;
+                    Items[m_SelectedServerIndex].IsSelected = true;
+                    NotifyPropertyChanged("SelectedServerIndex");
+                    NotifyPropertyChanged("SelectedServer");
+                }
             }
         }
 
@@ -96,48 +104,45 @@ namespace Auremo
             }
         }
 
-        public string ExportToXml()
+        public static IEnumerable<Server> ReadFromXml(string xml)
         {
-            Server[] items = new Server[Items.Count];
-            Items.CopyTo(items, 0);
+            Server[] results = null;
 
-            XmlSerializer serializer = new XmlSerializer(typeof(Server[]));
-            TextWriter writer = new StringWriter();
-            serializer.Serialize(writer, items);
-            return writer.ToString();
-        }
-
-        public void ImportFromXml(string xml)
-        {
-            XmlSerializer serializer = new XmlSerializer(typeof(Server[]));
-            TextReader reader = new StringReader(xml);
-            Server[] items = serializer.Deserialize(reader) as Server[];
-            bool selectedItemFound = false;
-
-            if (items.Length == 0)
+            if (xml != null && xml != "")
             {
-                Items.Clear();
-                Server server = new Server("localhost", 6600, "");
-                server.IsSelected = true;
-                Items.Add(server);
+                try
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(Server[]));
+                    TextReader reader = new StringReader(xml);
+                    results = serializer.Deserialize(reader) as Server[];
+                }
+                catch
+                {
+                }
+            }
+
+            if (results == null || results.Length == 0)
+            {
+                results = new Server[] { new Server("localhost", 6600, "", 0, false) };
             }
             else
             {
-
-                foreach (Server server in items)
+                for (int i = 0; i < results.Length; ++i)
                 {
-                    if (selectedItemFound)
-                    {
-                        server.IsSelected = false;
-                    }
-                    else
-                    {
-                        selectedItemFound = server.IsSelected;
-                    }
+                    results[i].ItemIndex = i;
+                    results[i].IsSelected = false;
                 }
-
-                //if () ;
             }
+
+            return results;
+        }
+
+        public static string WriteToXml(IEnumerable<Server> items)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(Server[]));
+            TextWriter writer = new StringWriter();
+            serializer.Serialize(writer, items.ToArray());
+            return writer.ToString();
         }
     }
 
@@ -174,6 +179,18 @@ namespace Auremo
             Hostname = hostname;
             Port = port;
             EncryptedPassword = encryptedPassword;
+            ItemIndex = index;
+            IsSelected = selected;
+        }
+
+        /// <summary>
+        /// Make of a copy of the model.
+        /// </summary>
+        public Server(Server model, int index = -1, bool selected = false)
+        {
+            Hostname = model.Hostname;
+            Port = model.Port;
+            EncryptedPassword = model.EncryptedPassword;
             ItemIndex = index;
             IsSelected = selected;
         }

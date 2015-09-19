@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:l="clr-namespace:Auremo"
-        Title="Settings - Auremo" MinWidth="700" Width="700" MaxWidth="700" MinHeight="480" Height="1480" MaxHeight="1840"
+        Title="Settings - Auremo" MinWidth="700" Width="700" MaxWidth="700" MinHeight="480" Height="880" MaxHeight="1840"
         ResizeMode="CanResize"
         Background="{StaticResource WindowBackgroundBrush}"
         Closing="OnClose">
@@ -62,19 +62,16 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <DataGrid Name="m_ServerSettings" Style="{StaticResource MusicCollectionDataGridStyle}"
-                              ItemsSource="{Binding Path=Servers.Items}"
+                              ItemsSource="{Binding Path=ServerList}"
                               Grid.RowSpan="3">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Server name or address" Width="*" Binding="{Binding Path=Hostname}"/>
                             <DataGridTextColumn Header="Port" Width="Auto" Binding="{Binding Path=Port}"/>
-                            <DataGridCheckBoxColumn Header="Password protected?" Width="Auto" Binding="{Binding Path=Password.Length, Converter={StaticResource IntToBoolConverter}}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <Button Content="New" Style="{StaticResource ActionButtonStyle}" Grid.Column="1" Grid.Row="1" Margin="5,0,5,0"/>
-                        <Button Content="Delete" Style="{StaticResource ActionButtonStyle}" Grid.Column="1" Grid.Row="2" Margin="5,5,5,0"/>
-                        
+                    <Button Content="New" Style="{StaticResource ActionButtonStyle}" Grid.Column="1" Grid.Row="1" Margin="5,0,5,0" Click="AddServerClicked"/>
+                    <Button Content="Delete" Style="{StaticResource ActionButtonStyle}" Grid.Column="1" Grid.Row="2" Margin="5,5,5,0" Click="DeleteServerClicked"/>
                 </Grid>
-                
                 <Grid Margin="0,0,5,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

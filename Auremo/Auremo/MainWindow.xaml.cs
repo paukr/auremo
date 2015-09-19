@@ -614,6 +614,8 @@ namespace Auremo
             MenuItem menuItem = dep as MenuItem;
             Server server = menuItem.Header as Server;
             DataModel.Servers.SelectedServerIndex = server.ItemIndex;
+            Settings.Default.SelectedServerIndex = server.ItemIndex;
+            Settings.Default.Save();
         }
 
         private IList<SongMetadata> SelectedLocalSongsOnPlaylist()

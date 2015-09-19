@@ -63,6 +63,11 @@ namespace Auremo
 
         private void ValidateOptions(object sender, RoutedEventArgs e)
         {
+            ValidateOptions();
+        }
+
+        private void ValidateOptions()
+        {
             ClampTextBoxContent(m_PortEntry, 1, 6600, 65536);
             ClampTextBoxContent(m_UpdateIntervalEntry, 100, 500, 5000);
             ClampTextBoxContent(m_NetworkTimeoutEntry, 1, 10, 600);
@@ -302,20 +307,14 @@ namespace Auremo
             m_PlaylistsTabIsDefault.IsChecked = tab == MusicCollectionTab.PlaylistsTab.ToString();
         }
 
-        public ObservableCollection<Server> ServerList
-        {
-            get;
-            private set;
-        }
-
-        private void AddServerClicked(object sender, RoutedEventArgs e)
+        private void OnAddServerClicked(object sender, RoutedEventArgs e)
         {
             ServerList.Add(new Server("localhost", 6600, "", ServerList.Count, false));
             m_ServerSettings.SelectedIndex = ServerList.Count - 1;
 
         }
 
-        private void DeleteServerClicked(object sender, RoutedEventArgs e)
+        private void OnDeleteServerClicked(object sender, RoutedEventArgs e)
         {
             int oldSelection = m_ServerSettings.SelectedIndex;
 
@@ -331,6 +330,54 @@ namespace Auremo
                 {
                     ServerList[Math.Max(0, oldSelection - 1)].IsSelected = true;
                 }
+            }
+        }
+
+        public ObservableCollection<Server> ServerList
+        {
+            get;
+            private set;
+        }
+
+        private void OnServerSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (m_ServerSettings.SelectedIndex == -1)
+            {
+                m_HostnameEntry.Text = "";
+                m_PortEntry.Text = "";
+                m_PasswordEntry.Password = "";
+            }
+            else
+            {
+                m_HostnameEntry.Text = ServerList[m_ServerSettings.SelectedIndex].Hostname;
+                m_PortEntry.Text = ServerList[m_ServerSettings.SelectedIndex].Port.ToString();
+                m_PasswordEntry.Password = Crypto.DecryptPassword(ServerList[m_ServerSettings.SelectedIndex].EncryptedPassword);
+            }
+        }
+
+        private void ServerEntryUpdated(object sender, RoutedEventArgs e)
+        {
+            ServerEntryUpdated();
+        }
+
+        private void ServerEntryUpdated()
+        {
+            ValidateOptions();
+
+            if (m_ServerSettings.SelectedIndex != -1)
+            {
+                ServerList[m_ServerSettings.SelectedIndex].Hostname = m_HostnameEntry.Text;
+                ServerList[m_ServerSettings.SelectedIndex].Port = Utils.StringToInt(m_PortEntry.Text) ?? 6600;
+                ServerList[m_ServerSettings.SelectedIndex].EncryptedPassword = Crypto.EncryptPassword(m_PasswordEntry.Password);
+            }
+        }
+
+        private void OnServerEntryKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                ServerEntryUpdated();
+                e.Handled = true;
             }
         }
     }

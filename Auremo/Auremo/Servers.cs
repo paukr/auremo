@@ -163,15 +163,14 @@ namespace Auremo
 
         #endregion
 
+        private string m_Hostname = "localhost";
+        private int m_Port = 6600;
+        private string m_EncryptedPassword = "";
         private bool m_IsSelected = false;
 
         public Server()
         {
-            Hostname = "localhost";
-            Port = 6600;
-            EncryptedPassword = "";
             ItemIndex = -1;
-            IsSelected = false;
         }
 
         public Server(string hostname, int port, string encryptedPassword, int index = -1, bool selected = false)
@@ -196,13 +195,55 @@ namespace Auremo
         }
 
         [XmlElement("Hostname")]
-        public string Hostname { get; set; }
+        public string Hostname
+        {
+            get
+            {
+                return m_Hostname;
+            }
+            set
+            {
+                if (value != m_Hostname)
+                {
+                    m_Hostname = value;
+                    NotifyPropertyChanged("Hostname");
+                }
+            }
+        }
 
         [XmlElement("Port")]
-        public int Port { get; set; }
+        public int Port
+        {
+            get
+            {
+                return m_Port;
+            }
+            set
+            {
+                if (value != m_Port)
+                {
+                    m_Port = value;
+                    NotifyPropertyChanged("Port");
+                }
+            }
+        }
 
         [XmlElement("Password")]
-        public string EncryptedPassword { get; set; }
+        public string EncryptedPassword
+        {
+            get
+            {
+                return m_EncryptedPassword;
+            }
+            set
+            {
+                if (value != m_EncryptedPassword)
+                {
+                    m_EncryptedPassword = value;
+                    NotifyPropertyChanged("EncryptedPassword");
+                }
+            }
+        }
 
         [XmlIgnore]
         public int ItemIndex

@@ -17,11 +17,11 @@
 
 using Microsoft.Win32;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -30,8 +30,6 @@ using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using Auremo.Properties;
@@ -418,6 +416,23 @@ namespace Auremo
         {
             DataModel.ServerSession.Consume(!DataModel.ServerStatus.IsOnConsume);
             Update();
+        }
+
+        private void OnCrossfadeClick(object sender, RoutedEventArgs e)
+        {
+            m_Overlay.Activate("Crossfade duration (seconds):", DataModel.ServerStatus.Crossfade.ToString(), OnCrossfadeOverlayReturned);
+        }
+
+        private void OnMixRampdbClick(object sender, RoutedEventArgs e)
+        {
+            m_Overlay.Activate("Mix ramp threshold (dB):", DataModel.ServerStatus.MixRampdb.ToString(), OnMixRampdbOverlayReturned);
+        }
+
+        private void OnMixRampDelayClick(object sender, RoutedEventArgs e)
+        {
+            double oldValue = DataModel.ServerStatus.MixRampDelay;
+            string parameter = double.IsNaN(oldValue) ? "" : oldValue.ToString(NumberFormatInfo.InvariantInfo);
+            m_Overlay.Activate("Mix ramp delay (seconds), empty to disable:", parameter, OnMixRampDelayOverlayReturned);
         }
 
         private void OnViewLicenseClicked(object sender, RoutedEventArgs e)
@@ -2240,6 +2255,65 @@ namespace Auremo
                 DataModel.ServerSession.Rename(m_Overlay.Data as string, trimmedName);
                 DataModel.SavedPlaylists.CurrentPlaylistName = trimmedName;
                 DataModel.SavedPlaylists.Refresh();
+            }
+
+            m_Overlay.Deactivate();
+        }
+
+        #endregion
+
+        #region Crossfade/mix ramp queries
+
+        private void OnCrossfadeOverlayReturned(bool ok, string input)
+        {
+            if (ok)
+            {
+                int? newValue = Utils.StringToInt(input);
+
+                if (newValue.HasValue)
+                {
+                    DataModel.ServerSession.Crossfade(newValue.Value);
+                    Update();
+                }
+            }
+
+            m_Overlay.Deactivate();
+        }
+
+        private void OnMixRampdbOverlayReturned(bool ok, string input)
+        {
+            if (ok)
+            {
+                double? newValue = Utils.StringToDouble(input);
+
+                if (newValue.HasValue)
+                {
+                    DataModel.ServerSession.MixRampdb(newValue.Value);
+                    Update();
+                }
+            }
+
+            m_Overlay.Deactivate();
+        }
+
+        private void OnMixRampDelayOverlayReturned(bool ok, string input)
+        {
+            if (ok)
+            {
+                if (input.Length == 0)
+                {
+                    DataModel.ServerSession.MixRampDelay(double.NaN);
+                }
+                else
+                {
+                    int? newValue = Utils.StringToInt(input);
+
+                    if (newValue.HasValue)
+                    {
+                        DataModel.ServerSession.MixRampDelay(newValue.Value);
+                        Update();
+                    }
+                }
             }
 
             m_Overlay.Deactivate();

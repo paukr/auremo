@@ -81,6 +81,34 @@ namespace Auremo
             return result;
         }
 
+        public static double? StringToDouble(string s)
+        {
+            double result = 0;
+
+            if (double.TryParse(s, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static double StringToDouble(string s, double dfault)
+        {
+            double result = dfault;
+
+            if (double.TryParse(s, System.Globalization.NumberStyles.Float, System.Globalization.NumberFormatInfo.InvariantInfo,  out result))
+            {
+                return result;
+            }
+            else
+            {
+                return dfault;
+            }
+        }
+
         public static Tuple<string, string> SplitPath(string path)
         {
             int limit = path.LastIndexOf('/');

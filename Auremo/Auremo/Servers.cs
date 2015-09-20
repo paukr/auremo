@@ -46,7 +46,7 @@ namespace Auremo
 
         public Servers()
         {
-            Items = new ObservableCollection<Server> { new Server("localhost", 6600, "", 1, true) };
+            Items = new ObservableCollection<Server> { new Server("localhost", 6600, "", 0, true) };
         }
 
         public void SetItems(IEnumerable<Server> items, int selectedIndex)
@@ -57,6 +57,7 @@ namespace Auremo
             {
                 // Have something by default
                 Items.Add(new Server("localhost", 6600, "", 0, true));
+                SelectedServerIndex = 0;
             }
             else
             {
@@ -64,8 +65,11 @@ namespace Auremo
                 {
                     Items.Add(new Server(item.Hostname, item.Port, item.EncryptedPassword, Items.Count, Items.Count == selectedIndex));
                 }
+
+                SelectedServerIndex = selectedIndex;
             }
 
+            NotifyPropertyChanged("SelectedServerIndex");
             NotifyPropertyChanged("SelectedServer");
         }
 

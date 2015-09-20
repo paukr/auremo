@@ -15,13 +15,11 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace Auremo
@@ -147,138 +145,6 @@ namespace Auremo
             TextWriter writer = new StringWriter();
             serializer.Serialize(writer, items.ToArray());
             return writer.ToString();
-        }
-    }
-
-    [Serializable()]
-    public class Server : INotifyPropertyChanged
-    {
-        #region INotifyPropertyChanged implementation
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChanged(string info)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
-        }
-
-        #endregion
-
-        private string m_Hostname = "localhost";
-        private int m_Port = 6600;
-        private string m_EncryptedPassword = "";
-        private bool m_IsSelected = false;
-
-        public Server()
-        {
-            ItemIndex = -1;
-        }
-
-        public Server(string hostname, int port, string encryptedPassword, int index = -1, bool selected = false)
-        {
-            Hostname = hostname;
-            Port = port;
-            EncryptedPassword = encryptedPassword;
-            ItemIndex = index;
-            IsSelected = selected;
-        }
-
-        /// <summary>
-        /// Make of a copy of the model.
-        /// </summary>
-        public Server(Server model, int index = -1, bool selected = false)
-        {
-            Hostname = model.Hostname;
-            Port = model.Port;
-            EncryptedPassword = model.EncryptedPassword;
-            ItemIndex = index;
-            IsSelected = selected;
-        }
-
-        [XmlElement("Hostname")]
-        public string Hostname
-        {
-            get
-            {
-                return m_Hostname;
-            }
-            set
-            {
-                if (value != m_Hostname)
-                {
-                    m_Hostname = value;
-                    NotifyPropertyChanged("Hostname");
-                }
-            }
-        }
-
-        [XmlElement("Port")]
-        public int Port
-        {
-            get
-            {
-                return m_Port;
-            }
-            set
-            {
-                if (value != m_Port)
-                {
-                    m_Port = value;
-                    NotifyPropertyChanged("Port");
-                }
-            }
-        }
-
-        [XmlElement("Password")]
-        public string EncryptedPassword
-        {
-            get
-            {
-                return m_EncryptedPassword;
-            }
-            set
-            {
-                if (value != m_EncryptedPassword)
-                {
-                    m_EncryptedPassword = value;
-                    NotifyPropertyChanged("EncryptedPassword");
-                }
-            }
-        }
-
-        [XmlIgnore]
-        public int ItemIndex
-        {
-            get;
-            set;
-        }
-
-        [XmlIgnore]
-        public bool IsSelected
-        {
-            get
-            {
-                return m_IsSelected;
-            }
-            set
-            {
-                if (value != m_IsSelected)
-                {
-                    m_IsSelected = value;
-                    NotifyPropertyChanged("IsSelected");
-                }
-            }
-        }
-
-        public string DisplayString
-        {
-            get
-            {
-                return Hostname + ":" + Port;
-            }
         }
     }
 }

@@ -122,6 +122,7 @@
     </Compile>
     <Compile Include="AlbumComparison.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
+    <Compile Include="Server.cs" />
     <Compile Include="Servers.cs" />
     <Compile Include="LinkMetadata.cs" />
     <Compile Include="MainWindowOverlay.xaml.cs">

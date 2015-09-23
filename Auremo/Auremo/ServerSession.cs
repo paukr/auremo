@@ -60,7 +60,7 @@ namespace Auremo
         public ServerSession(DataModel dataModel)
         {
             m_DataModel = dataModel;
-            m_DataModel.Servers.PropertyChanged += new PropertyChangedEventHandler(OnServersPropertyChanged);
+            m_DataModel.ServerList.PropertyChanged += new PropertyChangedEventHandler(OnServersPropertyChanged);
         }
 
         public void UpdateConnection()
@@ -80,8 +80,8 @@ namespace Auremo
                 return false;
             }
 
-            m_Host = m_DataModel.Servers.SelectedServer.Hostname;
-            m_Port = m_DataModel.Servers.SelectedServer.Port;
+            m_Host = m_DataModel.ServerList.SelectedServer.Hostname;
+            m_Port = m_DataModel.ServerList.SelectedServer.Port;
             m_SessionThread = new ServerSessionThread(this, m_DataModel, 1000 * Settings.Default.NetworkTimeout, Settings.Default.ReconnectInterval);
             m_SessionThread.Start();
             return true;

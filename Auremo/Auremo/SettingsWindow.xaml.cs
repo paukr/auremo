@@ -50,7 +50,7 @@ namespace Auremo
         public SettingsWindow(DataModel dataModel)
         {
             InitializeComponent();
-            ServerList = new ObservableCollection<Server>();
+            ServerList = new ServerList();
             DataContext = this;
             m_DataModel = dataModel;
             LoadSettings();
@@ -108,8 +108,6 @@ namespace Auremo
 
         private void LoadSettings()
         {
-            ServerList.Clear();
-
             m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
             m_NetworkTimeoutEntry.Text = Settings.Default.NetworkTimeout.ToString();
             m_ReconnectIntervalEntry.Text = Settings.Default.ReconnectInterval.ToString();
@@ -132,15 +130,7 @@ namespace Auremo
             m_StreamsTabIsVisible.IsChecked = Settings.Default.StreamsTabIsVisible;
             m_PlaylistsTabIsVisible.IsChecked = Settings.Default.PlaylistsTabIsVisible;
             SelectDefaultMusicCollectionTab(Settings.Default.DefaultMusicCollectionTab);
-
-            ServerList.Clear();
-
-            foreach (Server server in Servers.ReadFromXml(Settings.Default.Servers))
-            {
-                ServerList.Add(server);
-            }
-
-            ServerList[0].IsSelected = true;
+            ServerList.Deserialize(Settings.Default.Servers);
                         
             m_SendToPlaylistMethodAddAsNext.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.AddAsNext.ToString();
             m_SendToPlaylistMethodReplaceAndPlay.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString();
@@ -164,7 +154,7 @@ namespace Auremo
         private void SaveSettings()
         {
             AlbumSortingMode albumSortingMode = m_SortAlbumsByDate.IsChecked.Value ? AlbumSortingMode.ByDate : AlbumSortingMode.ByName;
-            string servers = Servers.WriteToXml(ServerList);
+            string servers = ServerList.Serialize();
             bool reconnectNeeded =
                 m_UseAlbumArtist.IsChecked != Settings.Default.UseAlbumArtist ||
                 albumSortingMode.ToString() != Settings.Default.AlbumSortingMode ||
@@ -309,31 +299,29 @@ namespace Auremo
 
         private void OnAddServerClicked(object sender, RoutedEventArgs e)
         {
-            ServerList.Add(new Server("localhost", 6600, "", ServerList.Count, false));
-            m_ServerSettings.SelectedIndex = ServerList.Count - 1;
-
+            ServerList.Set(ServerList.Items.Count, new ServerEntry("localhost", 6600, ""));
         }
 
         private void OnDeleteServerClicked(object sender, RoutedEventArgs e)
         {
             int oldSelection = m_ServerSettings.SelectedIndex;
 
-            if (oldSelection >= 0 && oldSelection < ServerList.Count)
+            if (oldSelection >= 0 && oldSelection < ServerList.Items.Count)
             {
-                ServerList.RemoveAt(oldSelection);
+                ServerList.Items.RemoveAt(oldSelection);
 
-                if (ServerList.Count == 0)
+                if (ServerList.Items.Count == 0)
                 {
-                    ServerList.Add(new Server("localhost", 6600, "", 0, true));
+                    ServerList.Set(ServerList.Items.Count, new ServerEntry("localhost", 6600, ""));
                 }
                 else
                 {
-                    ServerList[Math.Max(0, oldSelection - 1)].IsSelected = true;
+                    ServerList.SelectedServerIndex = Math.Max(0, oldSelection - 1);
                 }
             }
         }
 
-        public ObservableCollection<Server> ServerList
+        public ServerList ServerList
         {
             get;
             private set;
@@ -349,9 +337,10 @@ namespace Auremo
             }
             else
             {
-                m_HostnameEntry.Text = ServerList[m_ServerSettings.SelectedIndex].Hostname;
-                m_PortEntry.Text = ServerList[m_ServerSettings.SelectedIndex].Port.ToString();
-                m_PasswordEntry.Password = Crypto.DecryptPassword(ServerList[m_ServerSettings.SelectedIndex].EncryptedPassword);
+                // TODO: shouldn't SelectedServer work just fine?
+                m_HostnameEntry.Text = ServerList.Items[m_ServerSettings.SelectedIndex].Hostname;
+                m_PortEntry.Text = ServerList.Items[m_ServerSettings.SelectedIndex].Port.ToString();
+                m_PasswordEntry.Password = Crypto.DecryptPassword(ServerList.Items[m_ServerSettings.SelectedIndex].EncryptedPassword);
             }
         }
 
@@ -366,9 +355,10 @@ namespace Auremo
 
             if (m_ServerSettings.SelectedIndex != -1)
             {
-                ServerList[m_ServerSettings.SelectedIndex].Hostname = m_HostnameEntry.Text;
-                ServerList[m_ServerSettings.SelectedIndex].Port = Utils.StringToInt(m_PortEntry.Text) ?? 6600;
-                ServerList[m_ServerSettings.SelectedIndex].EncryptedPassword = Crypto.EncryptPassword(m_PasswordEntry.Password);
+                // TODO: shouldn't SelectedServer work just fine?
+                ServerList.Items[m_ServerSettings.SelectedIndex].Hostname = m_HostnameEntry.Text;
+                ServerList.Items[m_ServerSettings.SelectedIndex].Port = Utils.StringToInt(m_PortEntry.Text) ?? 6600;
+                ServerList.Items[m_ServerSettings.SelectedIndex].EncryptedPassword = Crypto.EncryptPassword(m_PasswordEntry.Password);
             }
         }
 

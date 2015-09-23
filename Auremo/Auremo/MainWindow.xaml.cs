@@ -609,9 +609,9 @@ namespace Auremo
             }
 
             MenuItem menuItem = dep as MenuItem;
-            Server server = menuItem.Header as Server;
-            DataModel.Servers.SelectedServerIndex = server.ItemIndex;
-            Settings.Default.SelectedServerIndex = server.ItemIndex;
+            ServerEntry server = menuItem.Header as ServerEntry;
+            DataModel.ServerList.SelectedServerIndex = server.ItemIndex;
+            Settings.Default.Servers = DataModel.ServerList.Serialize();
             Settings.Default.Save();
         }
 
@@ -2042,7 +2042,7 @@ namespace Auremo
         public void SettingsChanged(bool reconnectNeeded)
         {
             ApplyTabVisibilitySettings();
-            DataModel.Servers.SetItems(Servers.ReadFromXml(Settings.Default.Servers), Settings.Default.SelectedServerIndex);
+            DataModel.ServerList.Deserialize(Settings.Default.Servers);
             m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             SetTimerInterval(Settings.Default.ViewUpdateInterval);
 
@@ -2065,7 +2065,7 @@ namespace Auremo
         private void ApplyInitialSettings()
         {
             ApplyTabVisibilitySettings();
-            DataModel.Servers.SetItems(Servers.ReadFromXml(Settings.Default.Servers), Settings.Default.SelectedServerIndex);
+            DataModel.ServerList.Deserialize(Settings.Default.Servers);
         }
 
         private void ApplyTabVisibilitySettings()

@@ -28,7 +28,7 @@ namespace Auremo
         public DataModel(MainWindow mainWindow)
         {
             MainWindow = mainWindow;
-            Servers = new Servers();
+            ServerList = new ServerList();
             ServerSession = new ServerSession(this);
             ServerStatus = new ServerStatus(this);
             Database = new Database(this);
@@ -50,7 +50,7 @@ namespace Auremo
             private set;
         }
 
-        public Servers Servers
+        public ServerList ServerList
         {
             get;
             private set;

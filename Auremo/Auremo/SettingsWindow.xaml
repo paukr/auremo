@@ -62,7 +62,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <DataGrid Name="m_ServerSettings" Style="{StaticResource MusicCollectionDataGridStyle}"
-                              ItemsSource="{Binding Path=ServerList}"
+                              ItemsSource="{Binding Path=ServerList.Items}"
                               Grid.RowSpan="3"
                               SelectionChanged="OnServerSelectionChanged">
                         <DataGrid.Columns>

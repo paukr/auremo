@@ -65,9 +65,9 @@ namespace Auremo
             m_ReconnectInterval = reconnectInterval;
 
             // Stash settings before switching to a different thread context.
-            m_Host = m_DataModel.Servers.SelectedServer.Hostname;
-            m_Port = m_DataModel.Servers.SelectedServer.Port;
-            m_EncryptedPassword = m_DataModel.Servers.SelectedServer.EncryptedPassword;
+            m_Host = m_DataModel.ServerList.SelectedServer.Hostname;
+            m_Port = m_DataModel.ServerList.SelectedServer.Port;
+            m_EncryptedPassword = m_DataModel.ServerList.SelectedServer.EncryptedPassword;
 
             m_Thread = new Thread(Run);
             m_Thread.Name = "MPD connection thread";

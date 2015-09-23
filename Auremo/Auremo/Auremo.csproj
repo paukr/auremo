@@ -122,8 +122,8 @@
     </Compile>
     <Compile Include="AlbumComparison.cs" />
     <Compile Include="AlbumMetadataTreeViewNode.cs" />
-    <Compile Include="Server.cs" />
-    <Compile Include="Servers.cs" />
+    <Compile Include="ServerEntry.cs" />
+    <Compile Include="ServerList.cs" />
     <Compile Include="LinkMetadata.cs" />
     <Compile Include="MainWindowOverlay.xaml.cs">
       <DependentUpon>MainWindowOverlay.xaml</DependentUpon>

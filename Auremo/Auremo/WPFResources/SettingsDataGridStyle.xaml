@@ -63,10 +63,10 @@
             <Setter.Value>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="Background" Value="{StaticResource ListHeaderBackgroundBrush}"/>
-                    <Setter Property="BorderBrush" Value="{StaticResource HeaderBorderBrush}"/>
-                    <Setter Property="BorderThickness" Value="0,0,0.75,1"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource PassiveGenericBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="0,0,.75,1"/>
                     <Setter Property="Foreground" Value="{StaticResource PassiveTextBrush}"/>
-                    <Setter Property="Padding" Value="10"/>
+                    <Setter Property="Padding" Value="10,5"/>
                 </Style>
             </Setter.Value>
         </Setter>
@@ -74,6 +74,7 @@
             <Setter.Value>
                 <Style TargetType="{x:Type DataGridRow}">
                     <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="{StaticResource RowSelectionBackgroundBrush}"/>

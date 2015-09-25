@@ -86,7 +86,11 @@ namespace Auremo
 
                 if (index != m_SelectedServerIndex)
                 {
-                    Items[m_SelectedServerIndex].IsSelected = false;
+                    if (m_SelectedServerIndex == NormalizeIndex(m_SelectedServerIndex))
+                    {
+                        Items[m_SelectedServerIndex].IsSelected = false;
+                    }
+
                     m_SelectedServerIndex = index;
                     Items[m_SelectedServerIndex].IsSelected = true;
                     NotifyPropertyChanged("SelectedServerIndex");

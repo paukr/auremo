@@ -434,8 +434,19 @@ namespace Auremo
         {
             try
             {
-                m_BytesInBuffer += m_Stream.Read(m_ReceiveBuffer, m_ReceiveBufferPosition, m_ReceiveBuffer.Length - m_ReceiveBufferPosition);
-                SplitBufferIntoLines();
+                IAsyncResult result = m_Stream.BeginRead(m_ReceiveBuffer, m_ReceiveBufferPosition, m_ReceiveBuffer.Length - m_ReceiveBufferPosition, null, null);
+
+                while (!Terminating && !result.IsCompleted)
+                {
+                    Thread.Sleep(10);
+                }
+
+                if (!Terminating)
+                {
+                    m_BytesInBuffer += m_Stream.EndRead(result);
+                    SplitBufferIntoLines();
+                }
+
                 return true;
             }
             catch (Exception)

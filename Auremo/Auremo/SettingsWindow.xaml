@@ -38,19 +38,6 @@
         </Border>
         <ScrollViewer Style="{StaticResource ScrollViewerStyle}" Grid.Row="1">
             <StackPanel>
-                <!--
-                <StackPanel Orientation="Horizontal" Height="30">
-                    <Label Content="Server name or address:" Style="{StaticResource OptionLabelStyle}" Width="140"/>
-                    <TextBox Name="m_ServerEntry" Text="localhost" Style="{StaticResource OptionTextBoxStyle}" Width="173"/>
-                    <Label Content="Port:" Style="{StaticResource OptionLabelStyle}" Width="37"/>
-                    <TextBox Name="m_PortEntry" Text="6600" Style="{StaticResource OptionTextBoxStyle}" Width="50" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ValidateOptions"/>
-                    <Label Content="(1 - 65535, typically 6600)" Style="{StaticResource OptionLabelStyle}" Width="150"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Height="30">
-                    <Label Content="Server password (optional):" Style="{StaticResource OptionLabelStyle}" Width="350"/>
-                    <PasswordBox Name="m_PasswordEntry" Style="{StaticResource OptionPasswordBoxStyle}" Width="250"/>
-                </StackPanel>
-                -->
                 <Grid Height="110">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -61,7 +48,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <DataGrid Name="m_ServerSettings" Style="{StaticResource MusicCollectionDataGridStyle}"
+                    <DataGrid Name="m_ServerSettings" Style="{StaticResource SettingsDataGridStyle}"
                               ItemsSource="{Binding Path=ServerList.Items}"
                               Grid.RowSpan="3"
                               SelectionChanged="OnServerSelectionChanged">
@@ -81,7 +68,7 @@
                     </Grid.ColumnDefinitions>
                 </Grid>
                 <StackPanel Orientation="Horizontal" Height="30">
-                    <Label Content="Server:" Style="{StaticResource OptionLabelStyle}" Width="70"/>
+                    <Label Content="Server:" Style="{StaticResource OptionLabelStyle}" Width="50"/>
                     <TextBox Name="m_HostnameEntry" Style="{StaticResource OptionTextBoxStyle}" Width="140" LostFocus="ServerEntryUpdated" KeyDown="OnServerEntryKeyDown"/>
                     <Label Content="Port:" Style="{StaticResource OptionLabelStyle}" Width="35" Margin="10,0,0,0"/>
                     <TextBox Name="m_PortEntry" Style="{StaticResource OptionTextBoxStyle}" Width="60" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ServerEntryUpdated" KeyDown="OnServerEntryKeyDown"/>

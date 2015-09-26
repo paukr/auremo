@@ -25,11 +25,11 @@ namespace Auremo.MusicLibrary
         {
             Path path = new Path(block.File);
 
-            if (path.IsStream)
+            if (path.IsStream())
             {
                 return CreateAudioStream(path, null, block);
             }
-            else if (dataModel == null || !path.CanBeLocal)
+            else if (dataModel == null || !path.IsLocal())
             {
                 return CreateLink(path, block);
             }

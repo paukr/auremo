@@ -1702,16 +1702,7 @@ namespace Auremo
             ApplyTabVisibilitySettings();
             m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             m_Timer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Default.ViewUpdateInterval);
-
-            StringCollection formatCollection = Settings.Default.AlbumDateFormats;
-            IList<string> formatList = new List<string>();
-
-            foreach (string format in formatCollection)
-            {
-                formatList.Add(format);
-            }
-
-            DataModel.CustomDateNormalizer.SetFormats(formatList);
+            DataModel.CustomDateNormalizer.ReadFromSettings();
 
             if (reconnect)
             {

@@ -49,7 +49,7 @@ namespace Auremo.MusicLibrary
             Position = block.Pos;
             Id = block.Id;
 
-            if (Path.IsStream)
+            if (Path.IsStream())
             {
                 Artist = null;
                 Album = null;

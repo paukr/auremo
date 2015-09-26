@@ -57,8 +57,8 @@ namespace Auremo
         public void OnSelectedItemsChanged()
         {
             SelectedItems.CreateFrom(Items.SelectedItems());
-            NumberOfSelectedLocalSongs = SelectedItems.Count(e => (e.Item as PlaylistItem).Path.CanBeLocal);
-            NumberOfSelectedStreams = SelectedItems.Count(e => (e.Item as PlaylistItem).Path.IsStream);
+            NumberOfSelectedLocalSongs = SelectedItems.Count(e => (e.Item as PlaylistItem).Path.IsLocal());
+            NumberOfSelectedStreams = SelectedItems.Count(e => (e.Item as PlaylistItem).Path.IsStream());
         }
 
         public ObservableCollection<IndexedLibraryItem> Items

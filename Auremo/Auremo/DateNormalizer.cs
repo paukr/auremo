@@ -47,6 +47,19 @@ namespace Auremo
             }
         }
 
+        public void ReadFromSettings()
+        {
+            StringCollection formatCollection = Settings.Default.AlbumDateFormats;
+            IList<string> formatList = new List<string>();
+
+            foreach (string format in formatCollection)
+            {
+                formatList.Add(format);
+            }
+
+            SetFormats(formatList);
+        }
+
         public string Normalize(string date)
         {
             if (date != null)

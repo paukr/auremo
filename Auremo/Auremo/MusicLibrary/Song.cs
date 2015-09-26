@@ -28,8 +28,6 @@ namespace Auremo.MusicLibrary
     /// </summary>
     public class Song : LibraryItem, Playable
     {
-        private string m_PathTypePrefix = null; // This appears to be Mopidy-specific.
-
         public Song(MPDSongResponseBlock block)
         {
             Path = new Path(block.File);
@@ -125,7 +123,7 @@ namespace Auremo.MusicLibrary
         {
             get
             {
-                return m_PathTypePrefix == null || m_PathTypePrefix == "local:track:";
+                return Path.IsLocal();
             }
         }
 
@@ -133,7 +131,7 @@ namespace Auremo.MusicLibrary
         {
             get
             {
-                return m_PathTypePrefix == "spotify:track:";
+                return Path.IsSpotify();
             }
         }
 

@@ -40,6 +40,7 @@ namespace Auremo
             Playlist = new Playlist(this);
             OutputCollection = new OutputCollection(this);
             CustomDateNormalizer = new DateNormalizer();
+            CustomDateNormalizer.ReadFromSettings();
             YearNormalizer = new DateNormalizer(new string[] {"YYYY"});
         }
 

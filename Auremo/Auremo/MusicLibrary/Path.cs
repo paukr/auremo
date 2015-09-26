@@ -7,6 +7,11 @@ namespace Auremo.MusicLibrary
 {
     public class Path : IComparable
     {
+        public static readonly string MopidyLocalPrefix = "local:track:";
+        public static readonly string MopidySpotifyPrefix = "spotify:track:";
+        public static readonly string HttpPrefix = "http://";
+        public static readonly string HttpsPrefix = "http://";
+
         public Path(string path)
         {
             Full = path;
@@ -22,30 +27,12 @@ namespace Auremo.MusicLibrary
         {
             return Full;
         }
-
-        public bool IsStream
-        {
-            get
-            {
-                string lowercase = Full.ToLowerInvariant();
-                return lowercase.StartsWith("http://") || lowercase.StartsWith("https://");
-            }
-        }
-
-        public bool CanBeLocal
-        {
-            get
-            {
-                string lowercase = Full.ToLowerInvariant();
-                return !lowercase.StartsWith("spotify:track:") && !lowercase.StartsWith("http://") && !lowercase.StartsWith("https://");
-            }
-        }
-
+        
         public string[] Directories
         {
             get
             {
-                if (IsStream)
+                if (IsStream())
                 {
                     return new string[] { Full };
                 }
@@ -53,18 +40,50 @@ namespace Auremo.MusicLibrary
                 {
                     string pathSegment = Full;
 
-                    if (pathSegment.StartsWith("spotify:track:"))
+                    if (pathSegment.StartsWith(MopidySpotifyPrefix))
                     {
-                        pathSegment.Remove(0, 14);
+                        pathSegment.Remove(0, MopidySpotifyPrefix.Length);
                     }
-                    else if (pathSegment.StartsWith("local:track:"))
+                    else if (pathSegment.StartsWith(MopidyLocalPrefix))
                     {
-                        pathSegment.Remove(0, 12);
+                        pathSegment.Remove(0, MopidyLocalPrefix.Length);
                     }
 
                     return pathSegment.Split('/');
                 }
             }
+        }
+
+        public bool IsLocal()
+        {
+            return IsLocal(Full);
+        }
+
+        public static bool IsLocal(string path)
+        {
+            string lowercase = path.ToLowerInvariant();
+            return !lowercase.StartsWith(MopidySpotifyPrefix) && !lowercase.StartsWith(HttpPrefix) && !lowercase.StartsWith(HttpsPrefix);
+        }
+
+        public bool IsSpotify()
+        {
+            return IsSpotify(Full);
+        }
+
+        public static bool IsSpotify(string path)
+        {
+            return path.StartsWith("spotify:track:");
+        }
+
+        public bool IsStream()
+        {
+            return IsStream(Full);
+        }
+
+        public static bool IsStream(string path)
+        {
+            string lowercase = path.ToLowerInvariant();
+            return lowercase.StartsWith("http://") || lowercase.StartsWith("https://");
         }
 
         public int CompareTo(object o)

@@ -68,4 +68,54 @@ namespace Auremo.MusicLibrary
             }
         }
     }
+
+    public class GenreFilteredAlbumByDateComparer : IComparer<GenreFilteredAlbum>
+    {
+        public int Compare(GenreFilteredAlbum lhs, GenreFilteredAlbum rhs)
+        {
+            int genreComparison = lhs.Genre.CompareTo(rhs.Genre);
+
+            if (genreComparison != 0)
+            {
+                return genreComparison;
+            }
+            else if (lhs.Artist != rhs.Artist)
+            {
+                return lhs.Artist.CompareTo(rhs.Artist);
+            }
+            else if (lhs.Date == rhs.Date)
+            {
+                return lhs.Title.CompareTo(rhs.Title);
+            }
+            else if (lhs.Date == null)
+            {
+                return 1;
+            }
+            else if (rhs.Date == null)
+            {
+                return -1;
+            }
+            else
+            {
+                return lhs.Date.CompareTo(rhs.Date);
+            }
+        }
+    }
+
+    public class GenreFilteredAlbumByTitleComparer : IComparer<GenreFilteredAlbum>
+    {
+        public int Compare(GenreFilteredAlbum lhs, GenreFilteredAlbum rhs)
+        {
+            int genreComparison = lhs.Genre.CompareTo(rhs.Genre);
+
+            if (genreComparison != 0)
+            {
+                return genreComparison;
+            }
+            else
+            {
+                return lhs.Title.CompareTo(rhs.Title);
+            }
+        }
+    }
 }

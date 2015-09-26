@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,15 +41,13 @@ namespace Auremo
         #endregion
 
         private DataModel m_DataModel = null;
-        private string m_DisplayString = "";
-        private Playable m_CurrentPlayable = null;
+        private Playable m_Playable = null;
 
         public CurrentSong(DataModel dataModel)
         {
             m_DataModel = dataModel;
             m_DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
             Update();
-            BuildDisplayString();
         }
 
         public void Update()
@@ -60,24 +59,108 @@ namespace Auremo
         {
             if (response.Count() > 0)
             {
-                m_CurrentPlayable = response.First().ToPlayable(m_DataModel);
-                BuildDisplayString();
+                Playable = PlayableFactory.CreatePlayable(response.First());
             }
         }
 
+        public Playable Playable
+        {
+            get
+            {
+                return m_Playable;
+            }
+            private set
+            {
+                if (value != m_Playable)
+                {
+                    m_Playable = value;
+                    NotifyPropertyChanged("Playable");
+                    NotifyPropertyChanged("DisplayString");
+                }
+            }
+        }
+        
         public string DisplayString
         {
             get
             {
-                return m_DisplayString;
-            }
-            private set
-            {
-                if (value != m_DisplayString)
+                StringBuilder result = new StringBuilder();
+
+                if (m_DataModel.ServerStatus.IsPlaying)
                 {
-                    m_DisplayString = value;
-                    NotifyPropertyChanged("DisplayString");
+                    result.Append("Playing");
                 }
+                else if (m_DataModel.ServerStatus.IsPaused)
+                {
+                    result.Append("Paused");
+                }
+                else if (m_DataModel.ServerStatus.IsStopped)
+                {
+                    result.Append("Stopped");
+                }
+
+                if (Playable != null)
+                {
+                    result.Append(" - ");
+
+                    if (Playable is AudioStream)
+                    {
+                        //jatka tästä
+                        AudioStream stream = Playable as AudioStream;
+
+                        if (stream.Title != null)
+                        {
+                            result.Append(stream.Title);
+                            result.Append(" - ");
+                        }
+
+                        result.Append(stream.Name ?? stream.Label ?? stream.Path.ToString());
+                    }
+                    else if (Playable is Link)
+                    {
+                        Link link = Playable as Link;
+
+                        if (link.Artist != null)
+                        {
+                            result.Append(link.Artist);
+                            result.Append(": ");
+                        }
+
+                        result.Append(link.Title ?? link.Path.ToString());
+
+                        if (link.Album != null || link.Date != null)
+                        {
+                            result.Append(" (");
+
+                            if (link.Album != null)
+                            {
+                                result.Append(link.Album);
+
+                                if (link.Date != null)
+                                {
+                                    result.Append(", ");
+                                }
+                            }
+
+                            if (link.Date != null)
+                            {
+                                result.Append(link.Date);
+                            }
+
+                            result.Append(")");
+                        }
+                    }
+                    else
+                    {
+                        result.Append(Playable.Title);
+                    }
+                }
+
+                result.Append(". ");
+                result.Append(m_DataModel.ServerStatus.AudioQuality);
+                result.Append(".");
+
+                return result.ToString();
             }
         }
 
@@ -89,118 +172,8 @@ namespace Auremo
             }
             else if (e.PropertyName == "State")
             {
-                BuildDisplayString();
+                NotifyPropertyChanged("DisplayString");
             }
-        }
-
-        private void BuildDisplayString()
-        {
-            if (m_DataModel.ServerStatus.IsPlaying)
-            {
-                if (m_CurrentPlayable == null)
-                {
-                    DisplayString = "Playing. " + m_DataModel.ServerStatus.AudioQuality;
-                }
-                else
-                {
-                    DisplayString = "Playing " + CurrentPlayableToString() + ". " + m_DataModel.ServerStatus.AudioQuality;
-                }
-            }
-            else if (m_DataModel.ServerStatus.IsPaused)
-            {
-                if (m_CurrentPlayable == null)
-                {
-                    DisplayString = "Paused. " + m_DataModel.ServerStatus.AudioQuality;
-                }
-                else
-                {
-                    DisplayString = "Paused " + CurrentPlayableToString() + ". " + m_DataModel.ServerStatus.AudioQuality;
-                }
-            }
-            else if (m_DataModel.ServerStatus.IsStopped)
-            {
-                DisplayString = "Stopped.";
-            }
-        }
-
-        private string CurrentPlayableToString()
-        {
-            if (m_CurrentPlayable is SongMetadata)
-            {
-                return CurrentSongToString();
-            }
-            else if (m_CurrentPlayable is StreamMetadata)
-            {
-                return CurrentStreamToString();
-            }
-            else
-            {
-                return m_CurrentPlayable.Path;
-            }
-        }
-
-        private string CurrentSongToString()
-        {
-            SongMetadata song = m_CurrentPlayable as SongMetadata;
-            StringBuilder result = new StringBuilder(); 
-
-            result.Append(song.Artist);
-            result.Append(": ");
-            result.Append(song.Title);
-            result.Append(" (");
-            result.Append(song.Album);
-
-            if (song.Year != null)
-            {
-                result.Append(", ");
-                result.Append(song.Year);
-            }
-
-            result.Append(")");
-
-            return result.ToString();
-        }
-
-        private string CurrentStreamToString()
-        {
-            StreamMetadata stream = m_CurrentPlayable as StreamMetadata;
-            StringBuilder result = new StringBuilder();
-
-            if (stream.Title != null)
-            {
-                result.Append(stream.Title);
-                {
-                    if (stream.Name != null)
-                    {
-                        result.Append(" - ");
-                        result.Append(stream.Name);
-                    }
-                }
-
-                result.Append(" (");
-                result.Append(stream.Path);
-                result.Append(")");
-            }
-            else if (stream.Name != null)
-            {
-                result.Append(stream.Name);
-                result.Append(" (");
-                result.Append(stream.Path);
-                result.Append(")");
-            }
-            else if (stream.Label != null)
-            {
-                result.Append(stream.Label);
-                result.Append(" (");
-                result.Append(stream.Path);
-                result.Append(")");
-            }
-            else
-            {
-                result.Append(stream.Path);
-            }
-
-            return result.ToString();
         }
     }
 }

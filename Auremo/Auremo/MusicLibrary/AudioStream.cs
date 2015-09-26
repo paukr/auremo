@@ -21,9 +21,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public class StreamMetadata : Playable, IComparable, INotifyPropertyChanged
+    public class AudioStream : LibraryItem, Playable, INotifyPropertyChanged
     {
         #region INotifyPropertyChanged
 
@@ -39,36 +39,27 @@ namespace Auremo
 
         #endregion
 
-        private string m_Path = null;
         private string m_Label = null;
         private string m_Title = null;
         private string m_Name = null;
 
-        public StreamMetadata(string path, string label)
+        public AudioStream(Path path, string label)
         {
             Path = path;
             Label = label;
+            Title = null;
         }
 
-        public string Path
+        public Path Path
         {
-            get
-            {
-                return m_Path;
-            }
-            set
-            {
-                if (value != m_Path)
-                {
-                    m_Path = value;
-                    NotifyPropertyChanged("Path");
-                    NotifyPropertyChanged("DisplayName");
-                }
-            }
+            get;
+            set;
         }
 
-        /// The stream descriptor exctracted from the M3U/PLS file or
-        /// given by the user otherwise.
+        /// <summary>
+        /// The stream description (e.g., name of the radio station) specified
+        /// by the user and/or saved in a M3U/PLS playlist file.
+        /// </summary>
         public string Label
         {
             get
@@ -81,12 +72,15 @@ namespace Auremo
                 {
                     m_Label = value;
                     NotifyPropertyChanged("Label");
-                    NotifyPropertyChanged("DisplayName");
+                    NotifyPropertyChanged("DisplayString");
                 }
             }
         }
 
-        /// The stream descriptor of the stream as given in a MPD resonse.
+        /// <summary>
+        /// The stream description (e.g., name of the radio station) as given
+        /// in a MPD resonse.
+        /// </summary>
         public string Name
         {
             get
@@ -99,12 +93,15 @@ namespace Auremo
                 {
                     m_Name = value;
                     NotifyPropertyChanged("Name");
-                    NotifyPropertyChanged("DisplayName");
+                    NotifyPropertyChanged("DisplayString");
                 }
             }
         }
 
-        /// The track descriptor of the stream as given in a MPD resonse.
+        /// <summary>
+        /// The track description (e.g., name of the song currently playing)
+        /// as given in a MPD resonse.
+        /// </summary>
         public string Title
         {
             get
@@ -120,65 +117,30 @@ namespace Auremo
                 }
             }
         }
-  
-        public string Artist
+
+        public override string DisplayString
         {
             get
             {
-                return null;
+                return Label ?? Name ?? Path.Full;
             }
         }
 
-        public string Album
+        public override int CompareTo(object o)
         {
-            get
+            if (o is AudioStream)
             {
-                return null;
-            }
-        }
-
-        public int? Year
-        {
-            get
-            {
-                return null;
-            }
-        }
-
-        public string DisplayName
-        {
-            get
-            {
-                if (Label != null)
-                {
-                    return Label;
-                }
-                else if (Name != null)
-                {
-                    return Name;
-                }
-                else
-                {
-                    return Path;
-                }
-            }
-        }
-
-        public int CompareTo(object o)
-        {
-            if (o is StreamMetadata)
-            {
-                StreamMetadata rhs = (StreamMetadata)o;
-                return StringComparer.Ordinal.Compare(Title, rhs.Title);
-            }
-            else if (o is SongMetadata)
-            {
-                return 1;
+                return StringComparer.Ordinal.Compare(Path, (o as AudioStream).Path);
             }
             else
             {
-                throw new Exception("StreamMetadata: attempt to compare to an incompatible object");
+                throw new Exception("Stream: attempt to compare to an incompatible object");
             }
+        }
+
+        public override string ToString()
+        {
+            return DisplayString;
         }
     }
 }

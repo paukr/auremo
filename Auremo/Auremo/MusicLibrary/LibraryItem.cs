@@ -20,32 +20,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public class GenreTreeViewNode : TreeViewNode
+    public abstract class LibraryItem : IComparable
     {
-        public GenreTreeViewNode(string genre, TreeViewNode parent, TreeViewController controller) : base(parent, controller)
-        {
-            Genre = genre;
-        }
+        public abstract string DisplayString { get; }
 
-        public string Genre
-        {
-            get;
-            private set;
-        }
-
-        public override string DisplayString
-        {
-            get
-            {
-                return Genre;
-            }
-        }
-
-        public override string ToString()
-        {
-            return Genre;
-        }
+        public abstract int CompareTo(object o);
     }
 }

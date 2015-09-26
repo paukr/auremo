@@ -15,26 +15,28 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Path = Auremo.MusicLibrary.Path;
 
 namespace Auremo
 {
     public class M3UParser : PlaylistFileParserBase
     {
-        private IList<StreamMetadata> m_ParsedStreams = null;
+        private IList<AudioStream> m_ParsedStreams = null;
         private bool m_ExtendedFormat = false;
         
         public M3UParser()
         {
         }
 
-        protected override IEnumerable<StreamMetadata> Parse()
+        protected override IEnumerable<AudioStream> Parse()
         {
-            m_ParsedStreams = new List<StreamMetadata>();
+            m_ParsedStreams = new List<AudioStream>();
 
             try
             {
@@ -50,7 +52,7 @@ namespace Auremo
                 m_ParsedStreams = null;
             }
 
-            IEnumerable<StreamMetadata> result = m_ParsedStreams;
+            IEnumerable<AudioStream> result = m_ParsedStreams;
             m_ParsedStreams = null;
             
             return result;
@@ -88,12 +90,7 @@ namespace Auremo
 
             if (path != "")
             {
-                if (label == null)
-                {
-                    label = path;
-                }
-
-                m_ParsedStreams.Add(new StreamMetadata(path, label));
+                m_ParsedStreams.Add(new AudioStream(new Path(path), label));
             }
         }
 

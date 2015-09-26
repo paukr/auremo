@@ -20,64 +20,73 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public class UnknownPlayable : Playable
+    public class Directory : LibraryItem
     {
-        private UnknownPlayable()
+        public Directory(string name)
         {
+            Name = name;
+            Parent = null;
         }
 
-        public UnknownPlayable(string path)
+        public Directory(string name, Directory parent)
         {
-            Path = path;
+            Name = name;
+            Parent = parent;
+        }
 
-            if (path.Contains("://"))
+        public string Name
+        {
+            get;
+            private set;
+        }
+        
+        public Directory Parent
+        {
+            get;
+            private set;
+        }
+
+        public string Full
+        {
+            get
             {
-                // Looks like a URL.
-                Title = path;
+                return Parent == null ? Name : Parent.Full + "/" + Name;
+            }
+        }
+
+        public override string DisplayString
+        {
+            get
+            {
+                return Name;
+            }
+        }
+
+        public string FilesystemDisplayString
+        {
+            get
+            {
+                return Name;
+            }
+        }
+
+        public override int CompareTo(object o)
+        {
+            if (o is Directory)
+            {
+                return StringComparer.Ordinal.Compare(Full, (o as Directory).Full);
             }
             else
             {
-                // Looks like a stream.
-                Title = Utils.SplitPath(path).Item2;
+                throw new Exception("Directory: attempt to compare to an incompatible object");
             }
         }
 
-        public string Path
+        public override string ToString()
         {
-            get;
-            private set;
-        }
-
-        public string Title
-        {
-            get;
-            private set;
-        }
-
-        public string Artist
-        {
-            get
-            {
-                return null;
-            }
-        }
-
-        public string Album
-        {
-            get
-            {
-                return null;
-            }
-        }
-
-        public string DisplayName
-        {
-            get
-            {
-                return Title;
-            }
+            return DisplayString;
         }
     }
 }

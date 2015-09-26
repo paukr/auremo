@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -41,26 +42,26 @@ namespace Auremo
         #endregion
 
         DataModel m_DataModel = null;
-        PlaylistItem m_ItemMarkedAsCurrent = null;
+        IndexedLibraryItem m_ItemMarkedAsCurrent = null;
         int m_NumberOfSelectedLocalSongs = 0;
-        int m_NumberOfSelectedSpotifySongs = 0;
         int m_NumberOfSelectedStreams = 0;
 
         public Playlist(DataModel dataModel)
         {
             m_DataModel = dataModel;
-            Items = new ObservableCollection<PlaylistItem>();
-            SelectedItems = new ObservableCollection<PlaylistItem>();
+            Items = new ObservableCollection<IndexedLibraryItem>();
+            SelectedItems = new ObservableCollection<IndexedLibraryItem>();
             m_DataModel.ServerStatus.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
-        public IList<PlaylistItem> Items
+        public void OnSelectedItemsChanged()
         {
-            get;
-            private set;
+            SelectedItems.CreateFrom(Items.SelectedItems());
+            NumberOfSelectedLocalSongs = SelectedItems.Count(e => (e.Item as PlaylistItem).Path.CanBeLocal);
+            NumberOfSelectedStreams = SelectedItems.Count(e => (e.Item as PlaylistItem).Path.IsStream);
         }
 
-        public IList<PlaylistItem> SelectedItems
+        public ObservableCollection<IndexedLibraryItem> Items
         {
             get;
             private set;
@@ -69,6 +70,12 @@ namespace Auremo
         public string PlayStatusDescription
         {
             get; 
+            private set;
+        }
+
+        public ObservableCollection<IndexedLibraryItem> SelectedItems
+        {
+            get;
             private set;
         }
 
@@ -88,22 +95,6 @@ namespace Auremo
             }
         }
 
-        public int NumberOfSelectedSpotifySongs
-        {
-            get
-            {
-                return m_NumberOfSelectedSpotifySongs;
-            }
-            private set
-            {
-                if (m_NumberOfSelectedSpotifySongs != value)
-                {
-                    m_NumberOfSelectedSpotifySongs = value;
-                    NotifyPropertyChanged("NumberOfSelectedSpotifySongs");
-                }
-            }
-        }
-
         public int NumberOfSelectedStreams
         {
             get
@@ -118,41 +109,6 @@ namespace Auremo
                     NotifyPropertyChanged("NumberOfSelectedStreams");
                 }
             }
-        }
-
-        public void OnSelectedItemsChanged(IEnumerable<PlaylistItem> selection)
-        {
-            SelectedItems.Clear();
-            int localSongs = 0;
-            int spotifySongs = 0;
-            int streams = 0;
-
-            foreach (PlaylistItem item in selection)
-            {
-                SelectedItems.Add(item);
-
-                if (item.Content is SongMetadata)
-                {
-                    SongMetadata song = item.Content as SongMetadata;
-
-                    if (song.IsLocal)
-                    {
-                        localSongs += 1;
-                    }
-                    else if (song.IsSpotify)
-                    {
-                        spotifySongs += 1;
-                    }
-                }
-                else if (item.Content is StreamMetadata)
-                {
-                    streams += 1;
-                }
-            }
-
-            NumberOfSelectedLocalSongs = localSongs;
-            NumberOfSelectedSpotifySongs = spotifySongs;
-            NumberOfSelectedStreams = streams;
         }
 
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -187,28 +143,7 @@ namespace Auremo
 
             foreach (MPDSongResponseBlock block in response)
             {
-                Playable playable = block.ToPlayable(m_DataModel);
-
-                // If this is a stream that is in the collection, use the database version
-                // instead of the constructed one so we can display the user-set label.
-                if (playable is StreamMetadata)
-                {
-                    StreamMetadata stream = m_DataModel.StreamsCollection.StreamByPath(playable.Path);
-
-                    if (stream != null)
-                    {
-                        playable = stream;
-                    }
-                }
-
-                if (playable != null)
-                {
-                    PlaylistItem item = new PlaylistItem();
-                    item.Id = block.Id;
-                    item.Position = block.Pos;
-                    item.Playable = playable;
-                    Items.Add(item);
-                }
+                Items.Add(new IndexedLibraryItem(new PlaylistItem(block, m_DataModel), Items.Count));
             }
 
             UpdateCurrentSong();
@@ -218,8 +153,8 @@ namespace Auremo
         {
             if (m_ItemMarkedAsCurrent != null)
             {
-                m_ItemMarkedAsCurrent.IsPlaying = false;
-                m_ItemMarkedAsCurrent.IsPaused = false;
+                m_ItemMarkedAsCurrent.ItemAs<PlaylistItem>().IsPlaying = false;
+                m_ItemMarkedAsCurrent.ItemAs<PlaylistItem>().IsPaused = false;
             }
 
             int current = m_DataModel.ServerStatus.CurrentSongIndex;
@@ -227,26 +162,9 @@ namespace Auremo
             if (current >= 0 && current < Items.Count)
             {
                 m_ItemMarkedAsCurrent = Items[current];
-                m_ItemMarkedAsCurrent.IsPlaying = m_DataModel.ServerStatus.IsPlaying;
-                m_ItemMarkedAsCurrent.IsPaused = m_DataModel.ServerStatus.IsPaused;
+                m_ItemMarkedAsCurrent.ItemAs<PlaylistItem>().IsPlaying = m_DataModel.ServerStatus.IsPlaying;
+                m_ItemMarkedAsCurrent.ItemAs<PlaylistItem>().IsPaused = m_DataModel.ServerStatus.IsPaused;
             }
-        }
-
-        private Playable PlayableByPath(string path)
-        {
-            Playable result = m_DataModel.Database.SongByPath(path);
-
-            if (result == null)
-            {
-                result = m_DataModel.StreamsCollection.StreamByPath(path);
-            }
-
-            if (result == null)
-            {
-                result = new UnknownPlayable(path);
-            }
-
-            return result;
         }
     }
 }

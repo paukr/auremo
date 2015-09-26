@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -48,12 +49,12 @@ namespace Auremo
         object m_Lock = new object();
         string m_SearchString = "";
         string[] m_SearchStringFragments = new string[0];
-        volatile IList<IEnumerable<SongMetadata>> m_NewResults = new List<IEnumerable<SongMetadata>>();
+        volatile IList<IEnumerable<Song>> m_NewResults = new List<IEnumerable<Song>>();
 
         public QuickSearch(DataModel dataModel)
         {
             m_DataModel = dataModel;
-            SearchResults = new ObservableCollection<MusicCollectionItem>();
+            SearchResults = new ObservableCollection<IndexedLibraryItem>();
 
             m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
 
@@ -91,7 +92,7 @@ namespace Auremo
             }
         }
 
-        public ObservableCollection<MusicCollectionItem> SearchResults
+        public ObservableCollection<IndexedLibraryItem> SearchResults
         {
             get;
             private set;
@@ -108,7 +109,7 @@ namespace Auremo
             }
         }
 
-        public void AddSearchResults(IEnumerable<SongMetadata> resultList)
+        public void AddSearchResults(IEnumerable<Song> resultList)
         {
             lock (m_Lock)
             {
@@ -120,19 +121,19 @@ namespace Auremo
 
         private void OnNewSearchResultsReceived()
         {
-            IList<IEnumerable<SongMetadata>> newResults = null;
+            IList<IEnumerable<Song>> newResults = null;
 
             lock (m_Lock)
             {
                 newResults = m_NewResults;
-                m_NewResults = new List<IEnumerable<SongMetadata>>();
+                m_NewResults = new List<IEnumerable<Song>>();
             }
 
-            foreach (IEnumerable<SongMetadata> resultList in newResults)
+            foreach (IEnumerable<Song> resultList in newResults)
             {
-                foreach (SongMetadata result in resultList)
+                foreach (Song result in resultList)
                 {
-                    SearchResults.Add(new MusicCollectionItem(result, SearchResults.Count));
+                    SearchResults.Add(new IndexedLibraryItem(result, SearchResults.Count));
                 }
             }
         }
@@ -142,7 +143,7 @@ namespace Auremo
             char[] delimiters = { ' ', '\t' };
             string[] fragments = search.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
 
-            if (!Utils.CollectionsAreEqual(m_SearchStringFragments, fragments))
+            if (!m_SearchStringFragments.SequenceEqual(fragments))
             {
                 m_SearchStringFragments = fragments;
                 return true;

@@ -15,10 +15,12 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using Auremo.Properties;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -42,20 +44,29 @@ namespace Auremo
         #endregion
 
         private DataModel m_DataModel = null;
-        private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByArtist = new SortedDictionary<string, ISet<AlbumMetadata>>();
-        private IDictionary<string, IDictionary<string, AlbumMetadata>> m_AlbumsByArtistAndName = new SortedDictionary<string, IDictionary<string, AlbumMetadata>>();
-        private IDictionary<string, ISet<AlbumMetadata>> m_AlbumsByGenre = new SortedDictionary<string, ISet<AlbumMetadata>>();
-        private IDictionary<AlbumMetadata, ISet<string>> m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>();
-        private IDictionary<SongMetadata, AlbumMetadata> m_AlbumBySong = new SortedDictionary<SongMetadata, AlbumMetadata>();
-        private IDictionary<string, SongMetadata> m_LocalSongCollection = new SortedDictionary<string, SongMetadata>(StringComparer.Ordinal);
-        private IDictionary<string, SongMetadata> m_SpotifySongCollection = new SortedDictionary<string, SongMetadata>(StringComparer.Ordinal);
+
+        private IDictionary<Artist, IDictionary<string, Album>> m_AlbumLookup = new SortedDictionary<Artist, IDictionary<string, Album>>();
+        private IDictionary<Genre, IDictionary<Album, GenreFilteredAlbum>> m_GenreFilteredAlbumLookup = new SortedDictionary<Genre, IDictionary<Album, GenreFilteredAlbum>>();
+
+        private IDictionary<LibraryItem, ISet<LibraryItem>> m_ArtistExpansion = new SortedDictionary<LibraryItem, ISet<LibraryItem>>();
+        private IDictionary<LibraryItem, ISet<LibraryItem>> m_AlbumExpansion = new SortedDictionary<LibraryItem, ISet<LibraryItem>>();
+        private IDictionary<LibraryItem, ISet<LibraryItem>> m_GenreExpansion = new SortedDictionary<LibraryItem, ISet<LibraryItem>>();
+        private IDictionary<LibraryItem, ISet<LibraryItem>> m_GenreFilteredAlbumExpansion = new SortedDictionary<LibraryItem, ISet<LibraryItem>>();
+        private IDictionary<LibraryItem, ISet<LibraryItem>> m_DirectoryExpansion = new SortedDictionary<LibraryItem, ISet<LibraryItem>>();
+
+        private string UnknownArtist = "Unknown Artist";
+        private string UnknownGenre = "Unknown Genre";
+        private string UnknownAlbum = "Unknown Album";
 
         public Database(DataModel dataModel)
         {
             m_DataModel = dataModel;
-            Artists = new List<string>();
-            Genres = new List<string>();
             AlbumSortRule = new AlbumByDateComparer();
+
+            Artists = new SortedDictionary<string, Artist>();
+            Genres = new SortedDictionary<string, Genre>();
+            Directories = new SortedDictionary<string, Directory>();
+            Songs = new SortedDictionary<Path, Song>();
 
             m_DataModel.ServerSession.PropertyChanged += new PropertyChangedEventHandler(OnServerSessionPropertyChanged);
             m_DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
@@ -63,15 +74,18 @@ namespace Auremo
 
         public void ClearCollection()
         {
-            m_AlbumsByArtist.Clear();
-            m_AlbumsByGenre.Clear();
-            m_SongPathsByAlbum.Clear();
-            m_AlbumBySong.Clear();
-            m_LocalSongCollection.Clear();
-            m_SpotifySongCollection.Clear();
+            Artists.Clear();
+            Genres.Clear();
+            Directories.Clear();
+            Songs.Clear();
 
-            Artists = new List<string>();
-            Genres = new List<string>();
+            m_AlbumLookup.Clear();
+            m_GenreFilteredAlbumLookup.Clear();
+
+            m_ArtistExpansion.Clear();
+            m_AlbumExpansion.Clear();
+            m_GenreExpansion.Clear();
+            m_GenreFilteredAlbumExpansion.Clear();
 
             NotifyPropertyChanged("Database");
         }
@@ -79,127 +93,82 @@ namespace Auremo
         public void RefreshCollection()
         {
             ProcessSettings();
-            m_SongPathsByAlbum = new SortedDictionary<AlbumMetadata, ISet<string>>(AlbumSortRule);
+            ClearCollection();
             QuerySongInfo();
         }
 
         public void OnListAllInfoResponseReceived(IEnumerable<MPDSongResponseBlock> response)
         {
             ClearCollection();
-
-            PopulateSongInfo(response);
-            PopulateArtists();
-            PopulateGenres();
-            PopulateAlbumsByArtist();
-            PopulateSongPathsByAlbum();
-            PopulateAlbumsBySong();
-            PopulateAlbumsByGenre();
-
+            PopulateDatabase(response);
             NotifyPropertyChanged("Database");
         }
 
-        public IEnumerable<string> Artists
+        // TODO: this might work as a ConcurrentDictionary.
+        public IDictionary<string, Artist> Artists
         {
             get;
             private set;
         }
 
-        public IEnumerable<string> Genres
+        // TODO: this might work as a ConcurrentDictionary.
+        public IDictionary<string, Genre> Genres
         {
             get;
             private set;
         }
 
-        public IEnumerable<SongMetadata> Songs
-        {
-            get
-            {
-                return m_LocalSongCollection.Values;
-            }
-        }
-
-        public ISet<AlbumMetadata> AlbumsByArtist(string artist)
-        {
-            ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>(AlbumSortRule);
-
-            if (m_AlbumsByArtist.ContainsKey(artist))
-            {
-                foreach (AlbumMetadata album in m_AlbumsByArtist[artist])
-                {
-                    result.Add(album);
-                }
-            }
-
-            return result;
-        }
-
-        public ISet<AlbumMetadata> AlbumsByGenre(string genre)
-        {
-            ISet<AlbumMetadata> result = new SortedSet<AlbumMetadata>(AlbumSortRule);
-
-            if (m_AlbumsByGenre.ContainsKey(genre))
-            {
-                foreach (AlbumMetadata album in m_AlbumsByGenre[genre])
-                {
-                    result.Add(album);
-                }
-            }
-
-            return result;
-        }
-
-        public AlbumMetadata AlbumOfSong(SongMetadata song)
-        {
-            AlbumMetadata album = null;
-
-            if (m_AlbumBySong.TryGetValue(song, out album))
-            {
-                return album;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public ISet<SongMetadata> SongsByAlbum(AlbumMetadata byAlbum)
-        {
-            SortedSet<SongMetadata> result = new SortedSet<SongMetadata>();
-
-            if (m_SongPathsByAlbum.ContainsKey(byAlbum))
-            {
-                foreach (string path in m_SongPathsByAlbum[byAlbum])
-                {
-                    if (m_LocalSongCollection.ContainsKey(path))
-                    {
-                        result.Add(m_LocalSongCollection[path]);
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        public SongMetadata SongByPath(string path)
-        {
-            SongMetadata result;
-            
-            if (m_LocalSongCollection.TryGetValue(path, out result))
-            {
-                return result;
-            }
-            else if (m_SpotifySongCollection.TryGetValue(path, out result))
-            {
-                return result;
-            }
-
-            return null;
-        }
-
-        public IComparer<AlbumMetadata> AlbumSortRule
+        public IDictionary<string, Directory> Directories
         {
             get;
             private set;
+        }
+
+        // TODO: this might work as a ConcurrentDictionary.
+        public IDictionary<Path, Song> Songs
+        {
+            get;
+            private set;
+        }
+
+        public IComparer<Album> AlbumSortRule
+        {
+            get;
+            private set;
+        }
+
+        public IEnumerable<LibraryItem> Expand(LibraryItem parent)
+        {
+            if (parent is Artist && m_ArtistExpansion.ContainsKey(parent))
+            {
+                return m_ArtistExpansion[parent].ToList();
+            }
+            else if (parent is Album && m_AlbumExpansion.ContainsKey(parent))
+            {
+                return m_AlbumExpansion[parent].ToList();
+            }
+            else if (parent is Genre && m_GenreExpansion.ContainsKey(parent))
+            {
+                return m_GenreExpansion[parent].ToList();
+            }
+            else if (parent is GenreFilteredAlbum && m_GenreFilteredAlbumExpansion.ContainsKey(parent))
+            {
+                return m_GenreFilteredAlbumExpansion[parent].ToList();
+            }
+
+            throw new Exception("Database.Expand(): cannot expand object: " + parent.ToString());
+        }
+
+        public IEnumerable<LibraryItem> Expand(IEnumerable<LibraryItem> parents)
+        {
+            IList<LibraryItem> result = new List<LibraryItem>();
+
+            foreach (LibraryItem parent in parents)
+            {
+                result.AddAll(Expand(parent));
+            }
+
+            return result;
         }
 
         private void ProcessSettings()
@@ -218,142 +187,153 @@ namespace Auremo
         {
             m_DataModel.ServerSession.ListAllInfo();
         }
-            
-        private void PopulateSongInfo(IEnumerable<MPDSongResponseBlock> response)
+
+        private void PopulateDatabase(IEnumerable<MPDSongResponseBlock> response)
         {
-            foreach (MPDSongResponseBlock item in response)
+            foreach (MPDSongResponseBlock block in response)
             {
-                Playable playable = item.ToPlayable(m_DataModel);
+                Song song = new Song(block);
+                song.Artist = GetOrCreateArtist(Settings.Default.UseAlbumArtist && block.AlbumArtist != null ? block.AlbumArtist : block.Artist);
+                song.Genre = GetOrCreateGenre(block.Genre);
+                song.Album = GetOrCreateAlbum(song.Artist, block.Album);
+                song.GenreFilteredAlbum = GetOrCreateGenreFilteredAlbum(song.Genre, song.Album);
+                song.Directory = GetOrCreateDirectory(song.Path);
 
-                if (playable != null && playable is SongMetadata)
-                {
-                    SongMetadata song = playable as SongMetadata;
+                song.Date = song.IsSpotify ?
+                    m_DataModel.YearNormalizer.Normalize(block.Date) :
+                    m_DataModel.CustomDateNormalizer.Normalize(block.Date);
 
-                    if (song.IsSpotify)
-                    {
-                        if (!m_SpotifySongCollection.ContainsKey(song.Path))
-                        {
-                            m_SpotifySongCollection.Add(song.Path, song);
-                        }
-                    }
-                    else if (song.IsLocal)
-                    {
-                        if (!m_LocalSongCollection.ContainsKey(song.Path))
-                        {
-                            m_LocalSongCollection.Add(song.Path, song);
-                        }
-                    }
-                }
+                Songs[song.Path] = song;
+                AddExpansion(song.Album, song);
+                AddExpansion(song.GenreFilteredAlbum, song);
             }
-        }
-
-        private void PopulateArtists()
-        {
-            ISet<string> uniqueArtists = new SortedSet<string>();
-
-            foreach (SongMetadata song in m_LocalSongCollection.Values)
-            {
-                uniqueArtists.Add(song.Artist);
-            }
-
-            Artists = uniqueArtists;
-        }
-
-        private void PopulateGenres()
-        {
-            ISet<string> uniqueGenres = new SortedSet<string>();
-
-            foreach (SongMetadata song in m_LocalSongCollection.Values)
-            {
-                uniqueGenres.Add(song.Genre);
-            }
-
-            Genres = uniqueGenres;
         }
         
-        private void PopulateAlbumsByArtist()
+        private Artist GetOrCreateArtist(string artist)
         {
-            // Create a lookup table of unique artist/album pairs. Find
-            // the last timestamp for each.
-            IDictionary<string, IDictionary<string, string>> artistTitleAndDate = new SortedDictionary<string, IDictionary<string, string>>();
+            string key = artist ?? UnknownArtist;
 
-            foreach (SongMetadata song in m_LocalSongCollection.Values)
+            if (!Artists.ContainsKey(key))
             {
-                if (artistTitleAndDate.ContainsKey(song.Artist))
-                {
-                    IDictionary<string, string> titleAndDate = artistTitleAndDate[song.Artist];
-                    string existingDate = null;
-                    titleAndDate.TryGetValue(song.Album, out existingDate);
+                Artists[key] = new Artist(key);
+            }
 
-                    if (existingDate == null || song.Date != null && existingDate.CompareTo(song.Date) < 0)
-                    {
-                        titleAndDate[song.Album] = song.Date;
-                    }
+            return Artists[key];
+        }
+
+        private Genre GetOrCreateGenre(string genre)
+        {
+            string key = genre ?? UnknownGenre;
+
+            if (!Genres.ContainsKey(key))
+            {
+                Genres[key] = new Genre(key);
+            }
+
+            return Genres[key];
+        }
+
+        private Album GetOrCreateAlbum(Artist artist, string title)
+        {
+            string albumKey = title ?? UnknownAlbum;
+
+            if (!m_AlbumLookup.ContainsKey(artist))
+            {
+                m_AlbumLookup[artist] = new SortedDictionary<string, Album>(StringComparer.Ordinal);
+            }
+
+            IDictionary<string, Album> albumList = m_AlbumLookup[artist];
+
+            if (!albumList.ContainsKey(albumKey))
+            {
+                Album album = new Album(artist, albumKey, null);
+                albumList[albumKey] = album;
+                AddExpansion(artist, album);
+            }
+
+            return albumList[albumKey];
+        }
+
+        private GenreFilteredAlbum GetOrCreateGenreFilteredAlbum(Genre genre, Album album)
+        {
+            if (!m_GenreFilteredAlbumLookup.ContainsKey(genre))
+            {
+                m_GenreFilteredAlbumLookup[genre] = new SortedDictionary<Album, GenreFilteredAlbum>();
+            }
+
+            IDictionary<Album, GenreFilteredAlbum> albumList = m_GenreFilteredAlbumLookup[genre];
+
+            if (!albumList.ContainsKey(album))
+            {
+                GenreFilteredAlbum genreFilteredAlbum = new GenreFilteredAlbum(genre, album.Artist, album.Title, album.Date);
+                m_GenreFilteredAlbumLookup[genre][album] = genreFilteredAlbum;
+                AddExpansion(genre, genreFilteredAlbum);
+            }
+
+            return m_GenreFilteredAlbumLookup[genre][album];
+        }
+
+        private Directory GetOrCreateDirectory(Path path)
+        {
+            string[] parts = path.Directories;
+            string fullpath = "";
+            Directory parentOrResult = null;
+
+            for (int i = 0; i < parts.Count() - 1; ++i)
+            {
+                fullpath = fullpath + parts[i] + "/";
+
+                if (Directories.ContainsKey(fullpath))
+                {
+                    parentOrResult = Directories[fullpath];
                 }
                 else
                 {
-                    IDictionary<string, string> titleAndDate = new SortedDictionary<string, string>();
-                    titleAndDate[song.Album] = song.Date;
-                    artistTitleAndDate[song.Artist] = titleAndDate;
+                    Directory dir = new Directory(parts[i], parentOrResult);
+                    Directories[fullpath] = dir;
+                    parentOrResult = dir;
                 }
             }
 
-            // Now create the proper AlbumMetadata objects and add them to
-            // the various lookups.
-            foreach (string artist in artistTitleAndDate.Keys)
-            {
-                IDictionary<string, string> titleAndDate = artistTitleAndDate[artist];
-                m_AlbumsByArtist[artist] = new SortedSet<AlbumMetadata>(AlbumSortRule);
-                ISet<AlbumMetadata> albumsByArtist = m_AlbumsByArtist[artist];
-                m_AlbumsByArtistAndName[artist] = new SortedDictionary<string, AlbumMetadata>();
-                IDictionary<string, AlbumMetadata> albumsByArtistAndName = m_AlbumsByArtistAndName[artist];
-
-                foreach (string album in artistTitleAndDate[artist].Keys)
-                {
-                    AlbumMetadata node = new AlbumMetadata(artist, album, titleAndDate[album]);
-                    albumsByArtist.Add(node);
-                    albumsByArtistAndName[album] = node;
-                }
-            }
+            return parentOrResult;
         }
 
-        private void PopulateSongPathsByAlbum()
+        private void AddExpansion(LibraryItem parent, LibraryItem child)
         {
-            foreach (SongMetadata song in m_LocalSongCollection.Values)
+            IDictionary<LibraryItem, ISet<LibraryItem>> lookup = null;
+
+            if (parent is Artist)
             {
-                AlbumMetadata album = m_AlbumsByArtistAndName[song.Artist][song.Album];
-
-                if (!m_SongPathsByAlbum.ContainsKey(album))
-                {
-                    m_SongPathsByAlbum[album] = new SortedSet<string>();
-                }
-
-                m_SongPathsByAlbum[album].Add(song.Path);
+                lookup = m_ArtistExpansion;
             }
-        }
-
-        private void PopulateAlbumsBySong()
-        {
-            foreach (KeyValuePair<AlbumMetadata, ISet<string>> albumAndSongs in m_SongPathsByAlbum)
+            else if (parent is Album)
             {
-                foreach (string songPath in albumAndSongs.Value)
-                {
-                    m_AlbumBySong.Add(SongByPath(songPath), albumAndSongs.Key);
-                }
+                lookup = m_AlbumExpansion;
             }
-        }
-
-        private void PopulateAlbumsByGenre()
-        {
-            foreach (SongMetadata song in m_LocalSongCollection.Values)
+            else if (parent is Genre)
             {
-                if (!m_AlbumsByGenre.ContainsKey(song.Genre))
-                {
-                    m_AlbumsByGenre[song.Genre] = new SortedSet<AlbumMetadata>(AlbumSortRule);
-                }
-
-                m_AlbumsByGenre[song.Genre].Add(m_AlbumBySong[song]);
+                lookup = m_GenreExpansion;
             }
+            else if (parent is GenreFilteredAlbum)
+            {
+                lookup = m_GenreFilteredAlbumExpansion;
+            }
+            else if (parent is Directory)
+            {
+                lookup = m_DirectoryExpansion;
+            }
+
+            if (lookup == null)
+            {
+                throw new Exception("");
+            }
+
+            if (!lookup.ContainsKey(parent))
+            {
+                lookup[parent] = new SortedSet<LibraryItem>();
+            }
+
+            lookup[parent].Add(child);
         }
 
         private void OnServerSessionPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

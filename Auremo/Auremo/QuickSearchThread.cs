@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace Auremo
 {
     public class QuickSearchThread
     {
+        const int ResultUpdateInterval = 500; // Milliseconds
         QuickSearch m_Owner = null;
         Database m_Database = null;
         object m_Lock = new object();
@@ -57,8 +59,6 @@ namespace Auremo
 
         private void Run()
         {
-            IEnumerable<SongMetadata> allSongs = m_Database.Songs;
-
             string[] fragments = new string[0];
             bool searchChanged = false;
             bool terminating = false;
@@ -81,13 +81,13 @@ namespace Auremo
                         fragments[i] = fragments[i].ToLower();
                     }
 
-                    IList<SongMetadata> newResults = new List<SongMetadata>();
+                    IList<Song> newResults = new List<Song>();
 
                     if (searchChanged && fragments.Count() > 0)
                     {
                         DateTime lastUpdate = DateTime.MinValue;
 
-                        foreach (SongMetadata song in allSongs)
+                        foreach (Song song in m_Database.Songs.Values)
                         {
                             bool allFragmentsMatch = true;
 
@@ -101,7 +101,7 @@ namespace Auremo
                             {
                                 newResults.Add(song);
 
-                                if (DateTime.Now.Subtract(lastUpdate).TotalMilliseconds >= 500)
+                                if (DateTime.Now.Subtract(lastUpdate).TotalMilliseconds >= ResultUpdateInterval)
                                 {
                                     lock (m_Lock)
                                     {
@@ -113,7 +113,7 @@ namespace Auremo
                                     if (!terminating && !searchChanged)
                                     {
                                         m_Owner.AddSearchResults(newResults);
-                                        newResults = new List<SongMetadata>();
+                                        newResults = new List<Song>();
                                         lastUpdate = DateTime.Now;
                                     }
                                 }
@@ -153,14 +153,9 @@ namespace Auremo
             }
         }
 
-        private static bool Match(string tag, string fragment)
+        private static bool Match(object tag, string fragment)
         {
-            if (tag == null)
-            {
-                return false;
-            }
-
-            return tag.ToLower().Contains(fragment);
+            return tag == null ? false : tag.ToString().ToLower().Contains(fragment);
         }
     }
 }

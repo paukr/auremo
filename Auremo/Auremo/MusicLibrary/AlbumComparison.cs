@@ -15,20 +15,23 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public class AlbumByDateComparer : IComparer<AlbumMetadata>
+    public class AlbumByDateComparer : IComparer<Album>
     {
-        public int Compare(AlbumMetadata lhs, AlbumMetadata rhs)
+        public int Compare(Album lhs, Album rhs)
         {
-            if (lhs.Artist != rhs.Artist)
+            int artistComparison = lhs.Artist.CompareTo(rhs.Artist);
+
+            if (artistComparison != 0)
             {
-                return lhs.Artist.CompareTo(rhs.Artist);
+                return artistComparison;
             }
             else if (lhs.Date == rhs.Date)
             {
@@ -49,13 +52,15 @@ namespace Auremo
         }
     }
 
-    public class AlbumByTitleComparer : IComparer<AlbumMetadata>
+    public class AlbumByTitleComparer : IComparer<Album>
     {
-        public int Compare(AlbumMetadata lhs, AlbumMetadata rhs)
+        public int Compare(Album lhs, Album rhs)
         {
-            if (lhs.Artist != rhs.Artist)
+            int artistComparison = lhs.Artist.CompareTo(rhs.Artist);
+
+            if (artistComparison != 0)
             {
-                return lhs.Artist.CompareTo(rhs.Artist);
+                return artistComparison;
             }
             else
             {

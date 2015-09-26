@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -42,16 +43,16 @@ namespace Auremo
 
         #endregion
 
-        private IDictionary<string, StreamMetadata> m_StreamsByLabel = new SortedDictionary<string, StreamMetadata>(StringComparer.CurrentCulture);
+        private IDictionary<string, AudioStream> m_StreamsByLabel = new SortedDictionary<string, AudioStream>(StringComparer.CurrentCulture);
         const string m_Filename = "saved_streams.pls";
 
         public StreamsCollection()
         {
-            Streams = new ObservableCollection<MusicCollectionItem>();
+            Streams = new ObservableCollection<IndexedLibraryItem>();
             Load();
         }
 
-        public IList<MusicCollectionItem> Streams
+        public ObservableCollection<IndexedLibraryItem> Streams
         {
             get;
             private set;
@@ -72,11 +73,11 @@ namespace Auremo
                 {
                     PLSParser parser = new PLSParser();
                     string playlist = System.Text.Encoding.UTF8.GetString(data);
-                    IEnumerable<StreamMetadata> streams = parser.ParseString(playlist);
+                    IEnumerable<AudioStream> streams = parser.ParseString(playlist);
 
                     if (streams != null)
                     {
-                        foreach (StreamMetadata stream in streams)
+                        foreach (AudioStream stream in streams)
                         {
                             AddWithoutNotification(stream);
                         }
@@ -115,7 +116,7 @@ namespace Auremo
             store.Close();
         }
 
-        public bool Add(StreamMetadata stream)
+        public bool Add(AudioStream stream)
         {
             if (AddWithoutNotification(stream))
             {
@@ -129,11 +130,11 @@ namespace Auremo
             }
         }
 
-        public bool Add(IEnumerable<StreamMetadata> streams)
+        public bool Add(IEnumerable<AudioStream> streams)
         {
             bool allSucceeded = true;
 
-            foreach (StreamMetadata stream in streams)
+            foreach (AudioStream stream in streams)
             {
                 bool succeeded = AddWithoutNotification(stream);
                 allSucceeded &= succeeded;
@@ -143,44 +144,37 @@ namespace Auremo
             UpdateStreamsView();
             return allSucceeded;
         }
-        
-        public bool Delete(MusicCollectionItem item)
-        {
-            if (item != null && item.Content is StreamMetadata)
-            {
-                StreamMetadata stream = item.Content as StreamMetadata;
 
-                if (DeleteWithoutNotification(stream))
-                {
-                    Save();
-                    UpdateStreamsView();
-                    return true;
-                }
+        public bool Delete(AudioStream stream)
+        {
+            if (DeleteWithoutNotification(stream))
+            {
+                Save();
+                UpdateStreamsView();
+                return true;
             }
-            
-            return false;
+            else
+            {
+                return false;
+            }
         }
-        
-        public bool Delete(IEnumerable<MusicCollectionItem> items)
+
+        public bool Delete(IEnumerable<AudioStream> streams)
         {
             bool allSucceeded = true;
 
-            foreach (MusicCollectionItem item in items)
+            foreach (AudioStream stream in streams)
             {
-                if (item != null && item.Content is StreamMetadata)
-                {
-                    StreamMetadata stream = item.Content as StreamMetadata;
-                    bool succeeded = DeleteWithoutNotification(stream);
-                    allSucceeded &= succeeded;
-                }
+                bool succeeded = DeleteWithoutNotification(stream);
+                allSucceeded &= succeeded;
             }
 
             Save();
             UpdateStreamsView();
             return allSucceeded;
         }
-        
-        public bool Rename(StreamMetadata stream, string newLabel)
+
+        public bool Rename(AudioStream stream, string newLabel)
         {
             if (m_StreamsByLabel.ContainsKey(newLabel))
             {
@@ -197,11 +191,11 @@ namespace Auremo
             }
         }
 
-        public StreamMetadata StreamByPath(string path)
+        public AudioStream StreamByPath(Path path)
         {
-            foreach (StreamMetadata stream in m_StreamsByLabel.Values)
+            foreach (AudioStream stream in m_StreamsByLabel.Values)
             {
-                if (stream.Path == path)
+                if (stream.Path.CompareTo(path) == 0)
                 {
                     return stream;
                 }
@@ -210,7 +204,7 @@ namespace Auremo
             return null;
         }
 
-        private bool AddWithoutNotification(StreamMetadata stream)
+        private bool AddWithoutNotification(AudioStream stream)
         {
             if (m_StreamsByLabel.ContainsKey(stream.Label))
             {
@@ -221,7 +215,7 @@ namespace Auremo
             return true;
         }
 
-        private bool DeleteWithoutNotification(StreamMetadata stream)
+        private bool DeleteWithoutNotification(AudioStream stream)
         {
             if (m_StreamsByLabel.ContainsKey(stream.Label))
             {
@@ -234,12 +228,7 @@ namespace Auremo
 
         private void UpdateStreamsView()
         {
-            Streams.Clear();
-
-            foreach (StreamMetadata stream in m_StreamsByLabel.Values)
-            {
-                Streams.Add(new MusicCollectionItem(stream, Streams.Count));
-            }
+            Streams.CreateFrom(m_StreamsByLabel.Values);
         }
     }
 }

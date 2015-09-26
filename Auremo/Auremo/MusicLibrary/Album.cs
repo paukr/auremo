@@ -20,18 +20,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public class AlbumMetadata : IComparable
+    public class Album : LibraryItem
     {
-        public AlbumMetadata(string artist, string albumTitle, string date)
+        public Album(Artist artist, string title, string date)
         {
             Artist = artist;
-            Title = albumTitle;
+            Title = title;
             Date = date;
         }
 
-        public string Artist
+        public Artist Artist
         {
             get;
             set;
@@ -57,30 +57,37 @@ namespace Auremo
             }
         }
 
-        public override string ToString()
+        public override string DisplayString
         {
-            return Artist + ": " + Title;
+            get
+            {
+                return Title;
+            }
         }
 
-        public int CompareTo(object o)
+        public override int CompareTo(object o)
         {
-            if (o is AlbumMetadata)
+            if (o is Album)
             {
-                AlbumMetadata rhs = o as AlbumMetadata;
+                Album rhs = o as Album;
+                int result = Artist.CompareTo(rhs.Artist);
 
-                if (Artist != rhs.Artist)
+                if (result == 0)
                 {
-                    return StringComparer.Ordinal.Compare(Artist, rhs.Artist);
+                    result = StringComparer.Ordinal.Compare(Title, rhs.Title);
                 }
-                else
-                {
-                    return StringComparer.Ordinal.Compare(Title, rhs.Title);
-                }
+
+                return result;
             }
             else
             {
-                throw new Exception("SongMetadata: attempt to compare to an incompatible object");
+                throw new Exception("Album: attempt to compare to an incompatible object");
             }
+        }
+
+        public override string ToString()
+        {
+            return DisplayString;
         }
     }
 }

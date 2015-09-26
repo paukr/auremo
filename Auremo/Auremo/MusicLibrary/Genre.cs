@@ -20,16 +20,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public class ArtistTreeViewNode : TreeViewNode
+    public class Genre : LibraryItem
     {
-        public ArtistTreeViewNode(string artist, TreeViewNode parent, TreeViewController controller) : base(parent, controller)
+        public Genre(string name)
         {
-            Artist = artist;
+            Name = name;
         }
 
-        public string Artist
+        public string Name
         {
             get;
             private set;
@@ -39,13 +39,25 @@ namespace Auremo
         {
             get
             {
-                return Artist;
+                return Name;
+            }
+        }
+
+        public override int CompareTo(object o)
+        {
+            if (o is Genre)
+            {
+                return StringComparer.Ordinal.Compare(Name, (o as Genre).Name);
+            }
+            else
+            {
+                throw new Exception("Genre: attempt to compare to an incompatible object");
             }
         }
 
         public override string ToString()
         {
-            return Artist;
+            return DisplayString;
         }
     }
 }

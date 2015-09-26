@@ -22,9 +22,13 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace Auremo
+namespace Auremo.MusicLibrary
 {
-    public abstract class TreeViewNode : INotifyPropertyChanged, IComparable
+    /// <summary>
+    /// A wrapper for LibraryItem that adds child items and selection features
+    /// useful for use in TreeViews.
+    /// </summary>
+    public class HierarchicalLibraryItem : INotifyPropertyChanged, IComparable
     {
         #region INotifyPropertyChanged implementation
 
@@ -44,45 +48,90 @@ namespace Auremo
         private bool m_IsExpanded = false;
         private bool m_IsMultiSelected = false;
 
-        protected TreeViewNode(TreeViewNode parent, TreeViewController controller)
+        /// <summary>
+        /// Create a root node.
+        /// </summary>
+        public HierarchicalLibraryItem(LibraryItem item, HierarchyController controller)
         {
-            Parent = parent;
-            Children = new ObservableCollection<TreeViewNode>();
+            Item = item;
+            Parent = null;
+            Children = new ObservableCollection<HierarchicalLibraryItem>();
             Controller = controller;
-            ID = -1;
-            HighestChildID = -1;
+            Id = -1;
+            HighestChildId = -1;
+            Controller.RootLevelNodes.Add(this);
         }
 
-        public TreeViewNode Root
+        /// <summary>
+        /// Create a child node.
+        /// </summary>
+        public HierarchicalLibraryItem(LibraryItem item, HierarchicalLibraryItem parent)
+        {
+            Item = item;
+            Parent = parent;
+            Parent.Children.Add(this);
+            Children = new ObservableCollection<HierarchicalLibraryItem>();
+            Controller = Parent.Controller;
+            Id = -1;
+            HighestChildId = -1;
+        }
+        
+        public LibraryItem Item
+        {
+            get;
+            private set;
+        }
+
+        public HierarchicalLibraryItem Parent
+        {
+            get;
+            private set;
+        }
+
+        public HierarchicalLibraryItem Root
         {
             get
             {
-                TreeViewNode root = this;
-
-                while (root.Parent != null)
-                {
-                    root = root.Parent;
-                }
-
-                return root;
+                return Parent == null ? this : Parent.Root;
             }
         }
 
-        public TreeViewNode Parent
+        public ObservableCollection<HierarchicalLibraryItem> Children
         {
             get;
             private set;
         }
 
-        public IList<TreeViewNode> Children
+        /// <summary>
+        /// Return the LibraryItems contained in leaf-level children.
+        /// </summary>
+        public IEnumerable<LibraryItem> LeafItems
         {
-            get;
-            private set;
+            get
+            {
+                IList<LibraryItem> result = new List<LibraryItem>();
+                FillLeafItemsRecursively(result);
+                return result;
+            }
         }
 
-        public virtual void AddChild(TreeViewNode child)
+        private void FillLeafItemsRecursively(IList<LibraryItem> result)
         {
-            // Virtual so that leaf types can forbid this.
+            if (Children.Count == 0)
+            {
+                result.Add(Item);
+            }
+            else
+            {
+                foreach (HierarchicalLibraryItem child in Children)
+                {
+                    child.FillLeafItemsRecursively(result);
+                }
+            }
+        }
+
+        public void AddChild(HierarchicalLibraryItem child)
+        {
             Children.Add(child);
             NotifyPropertyChanged("Children");
         }
@@ -124,9 +173,9 @@ namespace Auremo
                     }
                     else
                     {
-                        foreach (TreeViewNode child in Children)
+                        foreach (HierarchicalLibraryItem child in Children)
                         {
-                            child.OnAncestorCollapsed();
+                            child.IsExpanded = false;
                         }
                     }
 
@@ -148,6 +197,11 @@ namespace Auremo
                     if (value)
                     {
                         Controller.MultiSelection.Add(this);
+
+                        if (Parent != null)
+                        {
+                            Parent.IsExpanded = true;
+                        }
                     }
                     else
                     {
@@ -160,49 +214,47 @@ namespace Auremo
             }
         }
 
-        public TreeViewController Controller
+        public HierarchyController Controller
         {
             get;
             private set;
         }
 
-        public int ID
+        public int Id
         {
             get;
             set;
         }
 
-        public int HighestChildID
+        public int HighestChildId
         {
             get;
             set;
         }
 
-        public void OnAncestorCollapsed()
+        public string DisplayString
         {
-            IsMultiSelected = false;
-
-            foreach (TreeViewNode child in Children)
+            get
             {
-                child.OnAncestorCollapsed();
+                return Item.DisplayString;
             }
         }
 
         public int CompareTo(object o)
         {
-            if (o is TreeViewNode)
+            if (o is HierarchicalLibraryItem)
             {
-                return ID - ((TreeViewNode)o).ID;
+                return Id - (o as HierarchicalLibraryItem).Id;
             }
             else
             {
-                throw new Exception("TreeViewNode: attempt to compare to an incompatible object");
+                throw new Exception("HierarchicalLibraryItem: attempt to compare to an incompatible object");
             }
         }
 
-        public abstract string DisplayString
+        public override string ToString()
         {
-            get;
+            return DisplayString;
         }
     }
 }

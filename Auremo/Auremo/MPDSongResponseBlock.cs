@@ -15,11 +15,13 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.Properties;
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Auremo.Properties;
+
 
 namespace Auremo
 {
@@ -39,73 +41,6 @@ namespace Auremo
             Time = null;
             Title = null;
             Track = -1;
-        }
-
-        public Playable ToPlayable(DataModel dataModel)
-        {
-            if (File == null)
-            {
-                return null;
-            }
-            else if (File.ToLowerInvariant().StartsWith("http:") || File.ToLowerInvariant().StartsWith("https:"))
-            {
-                StreamMetadata result = new StreamMetadata(File, Name);
-                result.Name = Name;
-                result.Title = Title;
-                return result;
-            }
-            else if (File.StartsWith("local:track:") || File.StartsWith("spotify:track:"))
-            {
-                SongMetadata result = new SongMetadata();
-                result.Path = File;
-                result.Title = Title;
-                result.Genre = Genre == null ? "No Genre" : Genre;
-                result.Album = Album == null ? "Unknown Album" : Album;
-                result.Length = Time;
-                result.Track = Track;
-                result.Date = result.IsLocal ? dataModel.CustomDateNormalizer.Normalize(Date) : dataModel.YearNormalizer.Normalize(Date);
-
-                if (Settings.Default.UseAlbumArtist && AlbumArtist != null)
-                {
-                    result.Artist = AlbumArtist;
-                }
-                else
-                {
-                    result.Artist = Artist == null ? "Unknown Artist" : Artist;
-                }
-
-                return result;
-            }
-            else if (File.StartsWith("spotify:"))
-            {
-                LinkMetadata result = new LinkMetadata();
-                result.Path = File;
-                result.Title = Title;
-                return result;
-            }
-            else
-            {
-                // Ugly copy-pasted code
-                SongMetadata result = new SongMetadata();
-                result.Path = File;
-                result.Title = Title;
-                result.Genre = Genre == null ? "No Genre" : Genre;
-                result.Album = Album == null ? "Unknown Album" : Album;
-                result.Length = Time;
-                result.Track = Track;
-                result.Date = dataModel.YearNormalizer.Normalize(Date);
-
-                if (Settings.Default.UseAlbumArtist && AlbumArtist != null)
-                {
-                    result.Artist = AlbumArtist;
-                }
-                else
-                {
-                    result.Artist = Artist == null ? "Unknown Artist" : Artist;
-                }
-
-                return result;
-            }
         }
 
         public string File

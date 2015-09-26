@@ -15,38 +15,31 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Controls;
 
-namespace Auremo
+namespace Auremo.GUI
 {
-    public interface Playable
+    public static class ExtensionMethods
     {
-        string Path
+        /// <summary>
+        /// Return the selected items in the container in top-down order.
+        /// </summary>
+        public static IList<LibraryItem> Selection(this DataGrid container)
         {
-            get;
+            return container.SelectedItems.Cast<IndexedLibraryItem>().OrderBy(e => e.Position).Select(e => e.Item).ToList();
         }
 
-        string Title
+        /// <summary>
+        /// Return the selected items, asserting that they are T, in the container in top-down order.
+        /// </summary>
+        public static IList<T> Selection<T>(this DataGrid container) where T : LibraryItem
         {
-            get;
-        }
-
-        string Artist
-        {
-            get;
-        }
-
-        string Album
-        {
-            get;
-        }
-
-        string DisplayName
-        {
-            get;
+            return container.SelectedItems.Cast<IndexedLibraryItem>().OrderBy(e => e.Position).Select(e => e.Item as T).ToList();
         }
     }
 }

@@ -10,6 +10,8 @@
         <Setter Property="CanUserReorderColumns" Value="False"/>
         <Setter Property="CanUserResizeRows" Value="False"/>
         <Setter Property="CanUserSortColumns" Value="False"/>
+        <Setter Property="EnableColumnVirtualization" Value="False"/>
+        <Setter Property="EnableRowVirtualization" Value="False"/>
         <Setter Property="HorizontalGridLinesBrush" Value="Transparent"/>
         <Setter Property="IsReadOnly" Value="True"/>
         <Setter Property="RowHeaderWidth" Value="0"/>
@@ -78,7 +80,7 @@
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="{StaticResource RowSelectionBackgroundBrush}"/>
                         </Trigger>
-                        <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
+                        <DataTrigger Binding="{Binding Path=Item.IsPlaying}" Value="True">
                             <Setter Property="Background" Value="{StaticResource PlayingBackgroundBrush}"/>
                         </DataTrigger>
                     </Style.Triggers>
@@ -97,7 +99,7 @@
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Foreground" Value="{StaticResource SelectedTextBrush}"/>
                         </Trigger>
-                        <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
+                        <DataTrigger Binding="{Binding Path=Item.IsPlaying}" Value="True">
                             <Setter Property="Foreground" Value="{StaticResource PlayingTextBrush}"/>
                         </DataTrigger>
                     </Style.Triggers>

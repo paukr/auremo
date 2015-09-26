@@ -15,39 +15,47 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Path = Auremo.MusicLibrary.Path;
 
 namespace Auremo
 {
     public class PLSParser : PlaylistFileParserBase
     {
-        private IDictionary<int, StreamMetadata> m_ParsedStreams = null;
+        private class Parameters
+        {
+            public Parameters() { Path = null; Label = null; }
+            public Path Path { get; set; }
+            public string Label { get; set; }
+        }
+
+        private IDictionary<int, Parameters> m_ParsedParameters = null;
 
         public PLSParser()
         {
         }
 
-        protected override IEnumerable<StreamMetadata> Parse()
+        protected override IEnumerable<AudioStream> Parse()
         {
-            m_ParsedStreams = new SortedDictionary<int, StreamMetadata>();
-            IList<StreamMetadata> result = null;
+            m_ParsedParameters = new SortedDictionary<int, Parameters>();
+            IList<AudioStream> result = null;
 
             try
             {
                 ParseHeader();
                 ParseEntries();
+                result = new List<AudioStream>();
 
-                result = new List<StreamMetadata>();
-
-                foreach (StreamMetadata stream in m_ParsedStreams.Values)
+                foreach (Parameters parameters in m_ParsedParameters.Values)
                 {
-                    if (stream.Path != null)
+                    if (parameters.Path != null)
                     {
-                        result.Add(stream);
+                        result.Add(new AudioStream(parameters.Path, parameters.Label));
                     }
                 }
             }
@@ -56,7 +64,7 @@ namespace Auremo
                 result = null;
             }
 
-            m_ParsedStreams = null;
+            m_ParsedParameters = null;
             return result;
         }
 
@@ -93,18 +101,18 @@ namespace Auremo
 
                     int index = GetNumberSuffix(key);
 
-                    if (!m_ParsedStreams.ContainsKey(index))
+                    if (!m_ParsedParameters.ContainsKey(index))
                     {
-                        m_ParsedStreams.Add(index, new StreamMetadata(null, null));
+                        m_ParsedParameters.Add(index, new Parameters());
                     }
 
                     if (key.StartsWith("file"))
                     {
-                        m_ParsedStreams[index].Path = value;
+                        m_ParsedParameters[index].Path = new Path(value);
                     }
                     else if (key.StartsWith("title"))
                     {
-                        m_ParsedStreams[index].Label = value;
+                        m_ParsedParameters[index].Label = value;
                     }
                     else
                     {

@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using Auremo.MusicLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,15 +34,15 @@ namespace Auremo
         {
         }
 
-        abstract protected IEnumerable<StreamMetadata> Parse();
+        abstract protected IEnumerable<AudioStream> Parse();
 
-        public IEnumerable<StreamMetadata> ParseFile(string filename)
+        public IEnumerable<AudioStream> ParseFile(string filename)
         {
             Init(File.ReadAllText(filename));
             return Parse();
         }
 
-        public IEnumerable<StreamMetadata> ParseString(string input)
+        public IEnumerable<AudioStream> ParseString(string input)
         {
             Init(input);
             return Parse();

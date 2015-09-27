@@ -15,9 +15,8 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
-using Auremo.Properties;
 using System.ComponentModel;
-using System.Globalization;
+using Auremo.Properties;
 
 namespace Auremo
 {
@@ -42,6 +41,7 @@ namespace Auremo
         private SessionState m_State = SessionState.Disconnected;
         private string m_Host = "";
         private int m_Port = -1;
+        private bool m_OnlineMode = true;
         private string m_StatusMessage = "Initializing.";
         private string m_ActivityDescription = "";
         private string m_ErrorMessage = "";
@@ -60,18 +60,29 @@ namespace Auremo
         public ServerSession(DataModel dataModel)
         {
             m_DataModel = dataModel;
+            m_DataModel.ServerList.PropertyChanged += new PropertyChangedEventHandler(OnServersPropertyChanged);
         }
 
-        public bool Connect(string host, int port)
+        public void UpdateConnection()
+        {
+            DoCleanup();
+
+            if (OnlineMode && State == SessionState.Disconnected)
+            {
+                Connect();
+            }
+        }
+
+        public bool Connect()
         {
             if (m_SessionThread != null)
             {
                 return false;
             }
 
-            m_Host = host;
-            m_Port = port;
-            m_SessionThread = new ServerSessionThread(this, m_DataModel, host, port, 1000 * Settings.Default.NetworkTimeout, Settings.Default.ReconnectInterval);
+            m_Host = m_DataModel.ServerList.SelectedServer.Hostname;
+            m_Port = m_DataModel.ServerList.SelectedServer.Port;
+            m_SessionThread = new ServerSessionThread(this, m_DataModel, 1000 * Settings.Default.NetworkTimeout, Settings.Default.ReconnectInterval);
             m_SessionThread.Start();
             return true;
         }
@@ -90,6 +101,27 @@ namespace Auremo
             {
                 m_SessionThread = null;
                 m_State = SessionState.Disconnected;
+            }
+        }
+
+        public bool OnlineMode
+        {
+            get
+            {
+                return m_OnlineMode;
+            }
+            set
+            {
+                m_OnlineMode = value;
+
+                if (OnlineMode)
+                {
+                    Connect();
+                }
+                else
+                {
+                    Disconnect();
+                }
             }
         }
          
@@ -117,6 +149,15 @@ namespace Auremo
             get
             {
                 return State == SessionState.Connected;
+            }
+        }
+
+        private void OnServersPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "SelectedServer")
+            {
+                Disconnect();
+
             }
         }
 

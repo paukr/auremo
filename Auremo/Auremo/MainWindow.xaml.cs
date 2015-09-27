@@ -50,7 +50,6 @@ namespace Auremo
         private IList<LibraryItem> m_DragDropPayload = null;
         private Point? m_DragStartPosition = null;
         private bool m_PropertyUpdateInProgress = false;
-        private bool m_OnlineMode = true;
         private string m_AutoSearchString = "";
         private DateTime m_TimeOfLastAutoSearch = DateTime.MinValue;
         private object m_LastAutoSearchSender = null;
@@ -155,18 +154,8 @@ namespace Auremo
 
         private void OnTimerTick(Object sender, EventArgs e)
         {
-            UpdateConnection();
+            DataModel.ServerSession.UpdateConnection();
             Update();
-        }
-
-        private void UpdateConnection()
-        {
-            DataModel.ServerSession.DoCleanup();
-
-            if (m_OnlineMode && DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
-            {
-                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
-            }
         }
 
         private void Update()
@@ -305,7 +294,7 @@ namespace Auremo
         private void OnExit(object sender, System.ComponentModel.CancelEventArgs e)
         {
             DataModel.QuickSearch.Terminate();
-            DataModel.ServerSession.Disconnect();
+            DataModel.ServerSession.OnlineMode = false;
 
             if (m_SettingsWindow != null)
             {
@@ -344,30 +333,24 @@ namespace Auremo
 
         private void OnConnectClicked(object sender, RoutedEventArgs e)
         {
-            m_OnlineMode = true;
-            DataModel.ServerSession.Disconnect();
-
-            if (DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
-            {
-                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
-            }
+            DataModel.ServerSession.OnlineMode = true;
         }
 
         private void OnDisconnectClicked(object sender, RoutedEventArgs e)
         {
-            m_OnlineMode = false;
-            DataModel.ServerSession.Disconnect();
+            DataModel.ServerSession.OnlineMode = false;
         }
 
         private void OnResetConnectionClicked(object sender, RoutedEventArgs e)
         {
-            m_OnlineMode = true;
+            DataModel.ServerSession.OnlineMode = true;
             DataModel.ServerSession.Disconnect();
+        }
 
-            if (DataModel.ServerSession.State == ServerSession.SessionState.Disconnected)
-            {
-                DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
-            }
+        private void Reconnect()
+        {
+            DataModel.ServerSession.Disconnect();
+            DataModel.ServerSession.OnlineMode = true;
         }
 
         private void OnEnableDisbaleOutput(object sender, RoutedEventArgs e)
@@ -572,6 +555,22 @@ namespace Auremo
         public void OnRescanPlaylistsCollectionClicked(object sender, RoutedEventArgs e)
         {
             DataModel.SavedPlaylists.Refresh();
+        }
+
+        public void OnServerClicked(object sender, RoutedEventArgs e)
+        {
+            DependencyObject dep = sender as DependencyObject;
+
+            while (dep != null && !(dep is MenuItem))
+            {
+                dep = VisualTreeHelper.GetParent(dep);
+            }
+
+            MenuItem menuItem = dep as MenuItem;
+            ServerEntry server = menuItem.Header as ServerEntry;
+            DataModel.ServerList.SelectedServerIndex = server.ItemIndex;
+            Settings.Default.Servers = DataModel.ServerList.Serialize();
+            Settings.Default.Save();
         }
 
         private IList<Song> SelectedLocalSongsOnPlaylist()
@@ -1697,28 +1696,24 @@ namespace Auremo
         #region Settings and settings tab
 
         // Called by SettingsWindow when new settings are applied.
-        public void SettingsChanged(bool reconnect)
+        public void SettingsChanged(bool reconnectNeeded)
         {
             ApplyTabVisibilitySettings();
+            DataModel.ServerList.Deserialize(Settings.Default.Servers);
             m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             m_Timer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Default.ViewUpdateInterval);
             DataModel.CustomDateNormalizer.ReadFromSettings();
 
-            if (reconnect)
+            if (reconnectNeeded)
             {
                 DataModel.ServerSession.Disconnect();
-
-                if (m_OnlineMode)
-                {
-                    DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
-                }
             }
         }
 
         private void ApplyInitialSettings()
         {
             ApplyTabVisibilitySettings();
-            DataModel.ServerSession.Connect(Settings.Default.Server, Settings.Default.Port);
+            DataModel.ServerList.Deserialize(Settings.Default.Servers);
         }
 
         private void ApplyTabVisibilitySettings()
@@ -1735,47 +1730,47 @@ namespace Auremo
 
             if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.QuickSearchTab.ToString())
             {
-                m_QuickSearchTab.Visibility = System.Windows.Visibility.Visible;
+                m_QuickSearchTab.Visibility = Visibility.Visible;
                 m_QuickSearchTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.ArtistListTab.ToString())
             {
-                m_ArtistListTab.Visibility = System.Windows.Visibility.Visible;
+                m_ArtistListTab.Visibility = Visibility.Visible;
                 m_ArtistListTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.ArtistTreeTab.ToString())
             {
-                m_ArtistTreeTab.Visibility = System.Windows.Visibility.Visible;
+                m_ArtistTreeTab.Visibility = Visibility.Visible;
                 m_ArtistTreeTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.GenreListTab.ToString())
             {
-                m_GenreListTab.Visibility = System.Windows.Visibility.Visible;
+                m_GenreListTab.Visibility = Visibility.Visible;
                 m_GenreListTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.GenreTreeTab.ToString())
             {
-                m_GenreTreeTab.Visibility = System.Windows.Visibility.Visible;
+                m_GenreTreeTab.Visibility = Visibility.Visible;
                 m_GenreTreeTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.FilesystemTab.ToString())
             {
-                m_FilesystemTab.Visibility = System.Windows.Visibility.Visible;
+                m_FilesystemTab.Visibility = Visibility.Visible;
                 m_FilesystemTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.AdvancedSearchTab.ToString())
             {
-                m_AdvancedSearchTab.Visibility = System.Windows.Visibility.Visible;
+                m_AdvancedSearchTab.Visibility = Visibility.Visible;
                 m_AdvancedSearchTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.StreamsTab.ToString())
             {
-                m_StreamsTab.Visibility = System.Windows.Visibility.Visible;
+                m_StreamsTab.Visibility = Visibility.Visible;
                 m_StreamsTab.IsSelected = true;
             }
             else if (Settings.Default.DefaultMusicCollectionTab == MusicCollectionTab.PlaylistsTab.ToString())
             {
-                m_PlaylistsTab.Visibility = System.Windows.Visibility.Visible;
+                m_PlaylistsTab.Visibility = Visibility.Visible;
                 m_PlaylistsTab.IsSelected = true;
             }
         }
@@ -1962,7 +1957,7 @@ namespace Auremo
         {
             if (m_SettingsWindow == null)
             {
-                m_SettingsWindow = new SettingsWindow(this);
+                m_SettingsWindow = new SettingsWindow(DataModel);
             }
             else
             {

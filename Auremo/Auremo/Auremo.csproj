@@ -122,6 +122,8 @@
     </Compile>
     <Compile Include="MusicLibrary\AlbumComparison.cs" />
     <Compile Include="GUI\ExtensionMethods.cs" />
+    <Compile Include="ServerEntry.cs" />
+    <Compile Include="ServerList.cs" />
     <Compile Include="MainWindowOverlay.xaml.cs">
       <DependentUpon>MainWindowOverlay.xaml</DependentUpon>
     </Compile>
@@ -262,6 +264,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="WPFResources\ScrollViewerStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WPFResources\SettingsDataGridStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

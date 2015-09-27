@@ -57,6 +57,13 @@
                 <MenuItem Header="Exit" Click="OnExitClicked"/>
             </MenuItem>
             <MenuItem Name="m_ConnectionMenuItem" Header="Connection">
+                <MenuItem Header="Server" ItemsSource="{Binding Path=ServerList.Items}">
+                    <MenuItem.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Content="{Binding Path=DisplayString}" IsChecked="{Binding Path=IsSelected, Mode=OneWay}" Click="OnServerClicked"/>
+                        </DataTemplate>
+                    </MenuItem.ItemTemplate>
+                </MenuItem>
                 <MenuItem Header="Connect" Click="OnConnectClicked" IsEnabled="{Binding Path=ServerSession.IsConnected,Converter={StaticResource NegateBoolConverter}}"/>
                 <MenuItem Header="Disconnect" Click="OnDisconnectClicked" IsEnabled="{Binding Path=ServerSession.IsConnected}"/>
                 <MenuItem Header="Reset connection" Click="OnResetConnectionClicked" IsEnabled="{Binding Path=ServerSession.IsConnected}"/>

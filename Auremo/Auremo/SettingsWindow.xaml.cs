@@ -17,32 +17,42 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
+using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Auremo.Properties;
 
 namespace Auremo
 {
-    public partial class SettingsWindow : Window
+    public partial class SettingsWindow : Window, INotifyPropertyChanged
     {
-        MainWindow m_Parent = null;
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
+
+        DataModel m_DataModel = null;
         const char m_StringCollectionSeparator = ';';
 
-        public SettingsWindow(MainWindow parent)
+        public SettingsWindow(DataModel dataModel)
         {
             InitializeComponent();
-
-            m_Parent = parent;
+            ServerList = new ServerList();
+            DataContext = this;
+            m_DataModel = dataModel;
             LoadSettings();
         }
 
@@ -52,6 +62,11 @@ namespace Auremo
         }
 
         private void ValidateOptions(object sender, RoutedEventArgs e)
+        {
+            ValidateOptions();
+        }
+
+        private void ValidateOptions()
         {
             ClampTextBoxContent(m_PortEntry, 1, 6600, 65536);
             ClampTextBoxContent(m_UpdateIntervalEntry, 100, 500, 5000);
@@ -93,9 +108,6 @@ namespace Auremo
 
         private void LoadSettings()
         {
-            m_ServerEntry.Text = Settings.Default.Server;
-            m_PortEntry.Text = Settings.Default.Port.ToString();
-            m_PasswordEntry.Password = Crypto.DecryptPassword(Settings.Default.Password);
             m_UpdateIntervalEntry.Text = Settings.Default.ViewUpdateInterval.ToString();
             m_NetworkTimeoutEntry.Text = Settings.Default.NetworkTimeout.ToString();
             m_ReconnectIntervalEntry.Text = Settings.Default.ReconnectInterval.ToString();
@@ -118,7 +130,8 @@ namespace Auremo
             m_StreamsTabIsVisible.IsChecked = Settings.Default.StreamsTabIsVisible;
             m_PlaylistsTabIsVisible.IsChecked = Settings.Default.PlaylistsTabIsVisible;
             SelectDefaultMusicCollectionTab(Settings.Default.DefaultMusicCollectionTab);
-
+            ServerList.Deserialize(Settings.Default.Servers);
+                        
             m_SendToPlaylistMethodAddAsNext.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.AddAsNext.ToString();
             m_SendToPlaylistMethodReplaceAndPlay.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString();
             m_SendToPlaylistMethodAppend.IsChecked = !m_SendToPlaylistMethodAddAsNext.IsChecked.Value && !m_SendToPlaylistMethodReplaceAndPlay.IsChecked.Value;
@@ -140,21 +153,15 @@ namespace Auremo
 
         private void SaveSettings()
         {
-            int port = Utils.StringToInt(m_PortEntry.Text, 6600);
-            string password = Crypto.EncryptPassword(m_PasswordEntry.Password);
             AlbumSortingMode albumSortingMode = m_SortAlbumsByDate.IsChecked.Value ? AlbumSortingMode.ByDate : AlbumSortingMode.ByName;
-
+            string servers = ServerList.Serialize();
             bool reconnectNeeded =
-                m_ServerEntry.Text != Settings.Default.Server ||
-                port != Settings.Default.Port ||
-                password != Settings.Default.Password ||
                 m_UseAlbumArtist.IsChecked != Settings.Default.UseAlbumArtist ||
                 albumSortingMode.ToString() != Settings.Default.AlbumSortingMode ||
-                m_DateFormatsEntry.Text != StringCollectionAsString(Settings.Default.AlbumDateFormats);
+                m_DateFormatsEntry.Text != StringCollectionAsString(Settings.Default.AlbumDateFormats) ||
+                servers != Settings.Default.Servers;
 
-            Settings.Default.Server = m_ServerEntry.Text;
-            Settings.Default.Port = port;
-            Settings.Default.Password = password;
+            Settings.Default.Servers = servers;
             Settings.Default.ViewUpdateInterval = Utils.StringToInt(m_UpdateIntervalEntry.Text, 500);
             Settings.Default.NetworkTimeout = Utils.StringToInt(m_NetworkTimeoutEntry.Text, 10);
             Settings.Default.ReconnectInterval = Utils.StringToInt(m_ReconnectIntervalEntry.Text, 10);
@@ -192,7 +199,8 @@ namespace Auremo
 
             Settings.Default.InitialSetupDone = true;
             Settings.Default.Save();
-            m_Parent.SettingsChanged(reconnectNeeded);
+
+            m_DataModel.MainWindow.SettingsChanged(reconnectNeeded);
         }
 
         private string StringCollectionAsString(StringCollection strings)
@@ -249,7 +257,7 @@ namespace Auremo
 
         private void OnClose(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            m_Parent.OnChildWindowClosing(this);
+            m_DataModel.MainWindow.OnChildWindowClosing(this);
         }
 
         private MusicCollectionTab SelectedDefaultMusicCollectionTab()
@@ -287,6 +295,80 @@ namespace Auremo
             m_FilesystemTabIsDefault.IsChecked = tab == MusicCollectionTab.FilesystemTab.ToString();
             m_StreamsTabIsDefault.IsChecked = tab == MusicCollectionTab.StreamsTab.ToString();
             m_PlaylistsTabIsDefault.IsChecked = tab == MusicCollectionTab.PlaylistsTab.ToString();
+        }
+
+        private void OnAddServerClicked(object sender, RoutedEventArgs e)
+        {
+            ServerList.Set(ServerList.Items.Count, new ServerEntry("localhost", 6600, ""));
+        }
+
+        private void OnDeleteServerClicked(object sender, RoutedEventArgs e)
+        {
+            int oldSelection = m_ServerSettings.SelectedIndex;
+
+            if (oldSelection >= 0 && oldSelection < ServerList.Items.Count)
+            {
+                ServerList.Items.RemoveAt(oldSelection);
+
+                if (ServerList.Items.Count == 0)
+                {
+                    ServerList.Set(ServerList.Items.Count, new ServerEntry("localhost", 6600, ""));
+                }
+                else
+                {
+                    ServerList.SelectedServerIndex = Math.Max(0, oldSelection - 1);
+                }
+            }
+        }
+
+        public ServerList ServerList
+        {
+            get;
+            private set;
+        }
+
+        private void OnServerSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (m_ServerSettings.SelectedIndex == -1)
+            {
+                m_HostnameEntry.Text = "";
+                m_PortEntry.Text = "";
+                m_PasswordEntry.Password = "";
+            }
+            else
+            {
+                // TODO: shouldn't SelectedServer work just fine?
+                m_HostnameEntry.Text = ServerList.Items[m_ServerSettings.SelectedIndex].Hostname;
+                m_PortEntry.Text = ServerList.Items[m_ServerSettings.SelectedIndex].Port.ToString();
+                m_PasswordEntry.Password = Crypto.DecryptPassword(ServerList.Items[m_ServerSettings.SelectedIndex].EncryptedPassword);
+            }
+        }
+
+        private void ServerEntryUpdated(object sender, RoutedEventArgs e)
+        {
+            ServerEntryUpdated();
+        }
+
+        private void ServerEntryUpdated()
+        {
+            ValidateOptions();
+
+            if (m_ServerSettings.SelectedIndex != -1)
+            {
+                // TODO: shouldn't SelectedServer work just fine?
+                ServerList.Items[m_ServerSettings.SelectedIndex].Hostname = m_HostnameEntry.Text;
+                ServerList.Items[m_ServerSettings.SelectedIndex].Port = Utils.StringToInt(m_PortEntry.Text) ?? 6600;
+                ServerList.Items[m_ServerSettings.SelectedIndex].EncryptedPassword = Crypto.EncryptPassword(m_PasswordEntry.Password);
+            }
+        }
+
+        private void OnServerEntryKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                ServerEntryUpdated();
+                e.Handled = true;
+            }
         }
     }
 }

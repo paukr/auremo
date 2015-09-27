@@ -15,12 +15,8 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
-using Auremo.Properties;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -33,6 +29,7 @@ namespace Auremo
         public delegate void GenericSingleArgumentResponseReceivedCallback(IEnumerable<MPDResponseLine> response, string argument);
         public delegate void SongListResponseReceivedCallback(IEnumerable<MPDSongResponseBlock> response);
         public delegate void NamedSongListResponseReceivedCallback(string name, IEnumerable<MPDSongResponseBlock> response);
+
         private ServerSession m_Parent = null;
         private DataModel m_DataModel = null;
         private Thread m_Thread = null;
@@ -42,6 +39,9 @@ namespace Auremo
         private Queue<MPDCommand> m_CommandQueue = new Queue<MPDCommand>();
         private bool m_StatusUpdateEnqueued = false;
         private bool m_StatsUpdateEnqueued = false;
+        private string m_Host = "";
+        private int m_Port = -1;
+        private string m_EncryptedPassword = "";
         private int m_ReconnectInterval = 0;
         private int m_Timeout = 0;
         private TcpClient m_Connection = null;
@@ -56,15 +56,18 @@ namespace Auremo
         private string m_CharsLeftFromLastBuffer = "";
         private UTF8Encoding m_UTF8 = new UTF8Encoding();
 
-        public ServerSessionThread(ServerSession parent, DataModel dataModel, string host, int port, int timeout, int reconnectInterval)
+        public ServerSessionThread(ServerSession parent, DataModel dataModel, int timeout, int reconnectInterval)
         {
             m_Parent = parent;
             m_DataModel = dataModel;
             m_ReceiveBuffer = new byte[m_ReceiveBufferSize];
-            Host = host;
-            Port = port;
             m_Timeout = timeout;
             m_ReconnectInterval = reconnectInterval;
+
+            // Stash settings before switching to a different thread context.
+            m_Host = m_DataModel.ServerList.SelectedServer.Hostname;
+            m_Port = m_DataModel.ServerList.SelectedServer.Port;
+            m_EncryptedPassword = m_DataModel.ServerList.SelectedServer.EncryptedPassword;
 
             m_Thread = new Thread(Run);
             m_Thread.Name = "MPD connection thread";
@@ -100,18 +103,6 @@ namespace Auremo
                                                "Auremo has crashed!");
                 throw e;
             }
-        }
-
-        private string Host
-        {
-            get;
-            set;
-        }
-
-        private int Port
-        {
-            get;
-            set;
         }
 
         public bool Terminating
@@ -170,7 +161,7 @@ namespace Auremo
                 {
                     m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connecting);
                     m_Parent.OnActivityChanged("");
-                    IAsyncResult connectResult = m_Connection.BeginConnect(Host, Port, null, null);
+                    IAsyncResult connectResult = m_Connection.BeginConnect(m_Host, m_Port, null, null);
 
                     while (!connectResult.IsCompleted && !Terminating)
                     {
@@ -212,7 +203,7 @@ namespace Auremo
 
                 if (m_Connection == null)
                 {
-                    m_Parent.OnActivityChanged("Connecting to " + Host + ":" + Port + " failed.");
+                    m_Parent.OnActivityChanged("Connecting to " + m_Host + ":" + m_Port + " failed.");
 
                     if (fatal)
                     {
@@ -289,7 +280,7 @@ namespace Auremo
                 m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connecting);
             }
 
-            m_Parent.OnActivityChanged("Disconnected from " + Host + ":" + Port + ".");
+            m_Parent.OnActivityChanged("Disconnected from " + m_Host + ":" + m_Port + ".");
 
             if (m_Connection != null)
             {
@@ -344,6 +335,8 @@ namespace Auremo
 
         private void ReceiveResponse(MPDCommand command)
         {
+            // TODO: if the server is really slow (Mopidy on an RPI for
+            // example), we can get stuck here during shutdown.
             MPDResponseLine statusLine = GetResponseLine();
 
             while (statusLine != null && !statusLine.IsStatus)
@@ -590,7 +583,7 @@ namespace Auremo
 
         private void SendPassword()
         {
-            string password = Crypto.DecryptPassword(Settings.Default.Password);
+            string password = Crypto.DecryptPassword(m_EncryptedPassword);
 
             if (password.Length > 0)
             {

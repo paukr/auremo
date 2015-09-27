@@ -144,7 +144,6 @@
     <Compile Include="MusicLibrary\Song.cs" />
     <Compile Include="ConverterClasses.cs" />
     <Compile Include="CurrentSong.cs" />
-    <Compile Include="DataGridItem.cs" />
     <Compile Include="GlobalEnums.cs" />
     <Compile Include="MusicLibrary\AudioStream.cs" />
     <Compile Include="QuickSearch.cs" />

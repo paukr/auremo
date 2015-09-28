@@ -53,10 +53,6 @@ namespace Auremo
         private IDictionary<LibraryItem, ISet<Song>> m_GenreFilteredAlbumExpansion = null;
         private IDictionary<LibraryItem, ISet<LibraryItem>> m_DirectoryExpansion = null;
         
-        private string UnknownArtist = "Unknown Artist";
-        private string UnknownGenre = "Unknown Genre";
-        private string UnknownAlbum = "Unknown Album";
-
         public Database(DataModel dataModel)
         {
             m_DataModel = dataModel;
@@ -220,7 +216,7 @@ namespace Auremo
         
         private Artist GetOrCreateArtist(string artist)
         {
-            string key = artist ?? UnknownArtist;
+            string key = artist ?? Artist.Unknown;
 
             if (!Artists.ContainsKey(key))
             {
@@ -232,7 +228,7 @@ namespace Auremo
 
         private Genre GetOrCreateGenre(string genre)
         {
-            string key = genre ?? UnknownGenre;
+            string key = genre ?? Genre.Unknown;
 
             if (!Genres.ContainsKey(key))
             {
@@ -245,7 +241,7 @@ namespace Auremo
         private Album GetOrCreateAlbum(MPDSongResponseBlock block)
         {
             Artist artist = Artists[SelectArtistTag(block)];
-            string albumKey = block.Album ?? UnknownAlbum;
+            string albumKey = block.Album ?? Album.Unknown;
 
             if (!m_AlbumLookup.ContainsKey(artist))
             {

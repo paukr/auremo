@@ -37,9 +37,10 @@ namespace Auremo
             DatabaseView = new DatabaseView(this);
             StreamsCollection = new StreamsCollection();
             SavedPlaylists = new SavedPlaylists(this);
-            CurrentSong = new CurrentSong(this);
+            CurrentSong =new CurrentSong(this);
             Playlist = new Playlist(this);
             OutputCollection = new OutputCollection(this);
+            CoverArtRepository = new CoverArtRepository(this);
             CustomDateNormalizer = new DateNormalizer();
             CustomDateNormalizer.ReadFromSettings();
             YearNormalizer = new DateNormalizer(new string[] {"YYYY"});
@@ -118,6 +119,12 @@ namespace Auremo
         }
         
         public OutputCollection OutputCollection
+        {
+            get;
+            private set;
+        }
+
+        public CoverArtRepository CoverArtRepository
         {
             get;
             private set;

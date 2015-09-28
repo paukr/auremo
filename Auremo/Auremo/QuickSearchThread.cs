@@ -27,6 +27,7 @@ namespace Auremo
     public class QuickSearchThread
     {
         const int ResultUpdateInterval = 250; // Milliseconds
+        const int ResultMaxBlockSize = 25;
         QuickSearch m_Owner = null;
         Database m_Database = null;
         object m_Lock = new object();
@@ -89,20 +90,11 @@ namespace Auremo
 
                         foreach (Song song in m_Database.Songs.Values)
                         {
-                            bool allFragmentsMatch = true;
-
-                            for (int i = 0; i < fragments.Count() && allFragmentsMatch; ++i)
-                            {
-                                // TODO: optimize: this causes artist, album and song
-                                // name converted to lowercase multiple times.
-                                allFragmentsMatch &= Match(song, fragments[i]);
-                            }
-
-                            if (allFragmentsMatch)
+                            if (Match(song, fragments))
                             {
                                 newResults.Add(song);
 
-                                if (newResults.Count > 25 || DateTime.Now.Subtract(lastUpdate).TotalMilliseconds >= ResultUpdateInterval)
+                                if (newResults.Count > ResultMaxBlockSize || DateTime.Now.Subtract(lastUpdate).TotalMilliseconds >= ResultUpdateInterval)
                                 {
                                     lock (m_Lock)
                                     {
@@ -159,16 +151,13 @@ namespace Auremo
             }
         }
 
-        private static bool Match(Song song, string fragment)
+        private static bool Match(Song song, string[] fragments)
         {
-            return
-                song.Title != null && song.Title.ToLower().Contains(fragment) ||
-                song.Album != null && song.Album.Title.ToLower().Contains(fragment) ||
-                song.Artist != null && song.Artist.Name.ToLower().Contains(fragment);
+            string title = song.Title == null ? null : song.Title.ToLower();
+            string album = song.Album == null ? null : song.Album.Title.ToLower();
+            string artist = song.Artist == null ? null : song.Artist.Name.ToLower();
 
-
-
-            //return tag == null ? false : tag.ToString().ToLower().Contains(fragment);
+            return fragments.All(e => artist != null && artist.Contains(e) || album != null && album.Contains(e) || title != null && title.Contains(e));
         }
     }
 }

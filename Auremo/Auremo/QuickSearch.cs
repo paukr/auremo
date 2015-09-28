@@ -21,8 +21,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading;
+using System.Windows.Threading;
 
 namespace Auremo
 {
@@ -42,11 +42,13 @@ namespace Auremo
 
         #endregion
 
+        private delegate void SearchResultsDelegate(IEnumerable<Song> resultList, int resultSearchId);
+
         private DataModel m_DataModel = null;
         private QuickSearchThread m_Searcher = null;
         private Thread m_Thread = null;
 
-        object m_Lock = new object();
+        int m_SearchId = -1;
         string m_SearchString = "";
         string[] m_SearchStringFragments = new string[0];
         volatile IList<IEnumerable<Song>> m_NewResults = new List<IEnumerable<Song>>();
@@ -80,13 +82,10 @@ namespace Auremo
 
                     if (searchChanged && m_Searcher != null)
                     {
-                        lock (m_Lock)
-                        {
-                            m_Searcher.OnSearchStringChanged(m_SearchStringFragments);
-                            m_NewResults.Clear();
-                            SearchResults.Clear();
-                            
-                        }
+                        m_SearchId = (m_SearchId + 1) % 0x1000000;
+                        m_Searcher.OnSearchStringChanged(m_SearchStringFragments, m_SearchId);
+                        m_NewResults.Clear();
+                        SearchResults.Clear();
                     }
                 }
             }
@@ -109,32 +108,16 @@ namespace Auremo
             }
         }
 
-        public void AddSearchResults(IEnumerable<Song> resultList)
+        public void PostSearchResults(IEnumerable<Song> resultList, int resultSearchId)
         {
-            lock (m_Lock)
-            {
-                m_NewResults.Add(resultList);
-            }
-
-            m_DataModel.MainWindow.Dispatcher.BeginInvoke((Action)OnNewSearchResultsReceived, null);
+            m_DataModel.MainWindow.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new SearchResultsDelegate(AddSearchResults), resultList, resultSearchId);
         }
 
-        private void OnNewSearchResultsReceived()
+        private void AddSearchResults(IEnumerable<Song> resultList, int resultSearchId)
         {
-            IList<IEnumerable<Song>> newResults = null;
-
-            lock (m_Lock)
+            if (resultSearchId == m_SearchId)
             {
-                newResults = m_NewResults;
-                m_NewResults = new List<IEnumerable<Song>>();
-            }
-
-            foreach (IEnumerable<Song> resultList in newResults)
-            {
-                foreach (Song result in resultList)
-                {
-                    SearchResults.Add(new IndexedLibraryItem(result, SearchResults.Count));
-                }
+                SearchResults.AddFrom(resultList);
             }
         }
 

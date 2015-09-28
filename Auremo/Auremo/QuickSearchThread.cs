@@ -26,12 +26,12 @@ namespace Auremo
 {
     public class QuickSearchThread
     {
-        const int ResultUpdateInterval = 500; // Milliseconds
+        const int ResultUpdateInterval = 250; // Milliseconds
         QuickSearch m_Owner = null;
         Database m_Database = null;
         object m_Lock = new object();
+        int m_SearchId = -1;
         string[] m_Fragments = new string[0];
-        bool m_SearchChanged = false;
         bool m_Terminating = false;
         private ManualResetEvent m_Event = new ManualResetEvent(false);
 
@@ -59,18 +59,17 @@ namespace Auremo
 
         private void Run()
         {
+            int searchId = -1;
             string[] fragments = new string[0];
-            bool searchChanged = false;
             bool terminating = false;
 
             while (!terminating)
             {
                 lock (m_Lock)
                 {
+                    searchId = m_SearchId;
                     fragments = m_Fragments;
-                    searchChanged = m_SearchChanged;
                     terminating = m_Terminating;
-                    m_SearchChanged = false;
                     m_Event.Reset();
                 }
 
@@ -82,8 +81,9 @@ namespace Auremo
                     }
 
                     IList<Song> newResults = new List<Song>();
+                    bool searchChanged = false;
 
-                    if (searchChanged && fragments.Count() > 0)
+                    if (fragments.Count() > 0)
                     {
                         DateTime lastUpdate = DateTime.MinValue;
 
@@ -93,39 +93,45 @@ namespace Auremo
 
                             for (int i = 0; i < fragments.Count() && allFragmentsMatch; ++i)
                             {
-                                string fragment = fragments[i];
-                                allFragmentsMatch = Match(song.Artist, fragment) || Match(song.Album, fragment) || Match(song.Title, fragment);
+                                // TODO: optimize: this causes artist, album and song
+                                // name converted to lowercase multiple times.
+                                allFragmentsMatch &= Match(song, fragments[i]);
                             }
 
                             if (allFragmentsMatch)
                             {
                                 newResults.Add(song);
 
-                                if (DateTime.Now.Subtract(lastUpdate).TotalMilliseconds >= ResultUpdateInterval)
+                                if (newResults.Count > 25 || DateTime.Now.Subtract(lastUpdate).TotalMilliseconds >= ResultUpdateInterval)
                                 {
                                     lock (m_Lock)
                                     {
-                                        searchChanged = m_SearchChanged;
+                                        searchChanged = searchId != m_SearchId;
+                                        searchId = m_SearchId;
                                         terminating = m_Terminating;
                                         m_Event.Reset();
                                     }
 
                                     if (!terminating && !searchChanged)
                                     {
-                                        m_Owner.AddSearchResults(newResults);
+                                        m_Owner.PostSearchResults(newResults, searchId);
                                         newResults = new List<Song>();
                                         lastUpdate = DateTime.Now;
+                                    }
+                                    else
+                                    {
+                                        break;
                                     }
                                 }
                             }
                         }
                     }
 
-                    if (!terminating && !searchChanged)
+                    if (!searchChanged && !terminating)
                     {
                         if (newResults.Count > 0)
                         {
-                            m_Owner.AddSearchResults(newResults);
+                            m_Owner.PostSearchResults(newResults, searchId);
                         }
 
                         m_Event.WaitOne();
@@ -134,12 +140,12 @@ namespace Auremo
             }
         }
 
-        public void OnSearchStringChanged(string[] fragments)
+        public void OnSearchStringChanged(string[] fragments, int searchId)
         {
             lock (m_Lock)
             {
+                m_SearchId = searchId;
                 m_Fragments = fragments;
-                m_SearchChanged = true;
                 m_Event.Set();
             }
         }
@@ -153,9 +159,16 @@ namespace Auremo
             }
         }
 
-        private static bool Match(object tag, string fragment)
+        private static bool Match(Song song, string fragment)
         {
-            return tag == null ? false : tag.ToString().ToLower().Contains(fragment);
+            return
+                song.Title != null && song.Title.ToLower().Contains(fragment) ||
+                song.Album != null && song.Album.Title.ToLower().Contains(fragment) ||
+                song.Artist != null && song.Artist.Name.ToLower().Contains(fragment);
+
+
+
+            //return tag == null ? false : tag.ToString().ToLower().Contains(fragment);
         }
     }
 }

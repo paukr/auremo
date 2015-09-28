@@ -16,19 +16,36 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ComponentModel;
+using System.Windows.Media;
 
 namespace Auremo.MusicLibrary
 {
-    public class Album : LibraryItem
+    public class Album : LibraryItem, INotifyPropertyChanged
     {
-        public Album(Artist artist, string title, string date)
+        #region INotifyPropertyChanged implementation
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
+
+        public static readonly string Unknown = "Unknown Album";
+        ImageSource m_Cover = null;
+
+        public Album(Artist artist, string title, string date, ImageSource cover = null)
         {
             Artist = artist;
             Title = title;
             Date = date;
+            Cover = cover;
         }
 
         public Artist Artist
@@ -54,6 +71,22 @@ namespace Auremo.MusicLibrary
             get
             {
                 return Utils.ExtractYearFromDateString(Date);
+            }
+        }
+
+        public ImageSource Cover
+        {
+            get
+            {
+                return m_Cover;
+            }
+            set
+            {
+                if (value != m_Cover)
+                {
+                    m_Cover = value;
+                    NotifyPropertyChanged("Cover");
+                }
             }
         }
 

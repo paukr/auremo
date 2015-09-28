@@ -24,6 +24,7 @@ namespace Auremo.MusicLibrary
 {
     public class Artist : LibraryItem
     {
+        public static readonly string Unknown = "Unknown Artist";
         public Artist(string name)
         {
             Name = name;

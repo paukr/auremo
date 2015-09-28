@@ -15,6 +15,11 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+
 namespace Auremo
 {
     public class Utils
@@ -117,6 +122,64 @@ namespace Auremo
             {
                 return date.Substring(0, 4);
             }
+        }
+
+        public static string EncodeFilename(string source)
+        {
+            string encodeChars = new string(Path.GetInvalidFileNameChars()) + "_";
+            StringBuilder result = new StringBuilder();
+
+            foreach (char c in source)
+            {
+                if (encodeChars.Contains(c))
+                {
+                    result.Append("_");
+                    result.Append(((UInt32)c).ToString("X8"));
+                }
+                else
+                {
+                    result.Append(c);
+                }
+            }
+
+            return result.ToString();
+        }
+
+        public static string DecodeFilename(string source)
+        {
+            StringBuilder result = new StringBuilder();
+            int i = 0, max = source.Length;
+
+            while (i < max)
+            {
+                if (source[i] == '_')
+                {
+                    if (i > max - 9)
+                    {
+                        throw new Exception("Improper encoding in cover art file name.");
+                    }
+                    else
+                    {
+                        string number = source.Substring(i + 1, 8);
+                        i += 8;
+                        UInt32 code = 0;
+
+                        if (!UInt32.TryParse(number, out code))
+                        {
+                            char c = (char)code;
+                            result.Append(c);
+                        }
+                    }
+                }
+                else
+                {
+                    result.Append(source[i]);
+                }
+
+                ++i;
+            }
+
+            return result.ToString();
         }
     }
 }

@@ -515,6 +515,9 @@ namespace Auremo
 
         private void ParseSongList()
         {
+            // Uncomment this to read the song database from a diagnostics dump.
+            //ReadResponseFromFile();
+
             MPDSongResponseBlock song = new MPDSongResponseBlock(null);
 
             foreach (MPDResponseLine line in m_CurrentResponse)
@@ -634,6 +637,17 @@ namespace Auremo
         private void Callback(NamedSongListResponseReceivedCallback callback, string name)
         {
             m_DataModel.MainWindow.Dispatcher.Invoke(callback, new object[] { name, m_CurrentSongList });
+        }
+
+        // For debugging purposes only
+        private void ReadResponseFromFile()
+        {
+            m_CurrentResponse = new List<MPDResponseLine>();
+
+            foreach (string s in System.IO.File.ReadAllLines(@"c:\users\mikko\auremodiagnosticslog.txt"))
+            {
+                m_CurrentResponse.Add(new MPDResponseLine(s));
+            }
         }
     }
 }

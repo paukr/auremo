@@ -201,7 +201,7 @@ namespace Auremo
                     m_DataModel.YearNormalizer.Normalize(block.Date) :
                     m_DataModel.CustomDateNormalizer.Normalize(block.Date);
 
-                song.Artist = GetOrCreateArtist(Settings.Default.UseAlbumArtist && block.AlbumArtist != null ? block.AlbumArtist : block.Artist);
+                song.Artist = GetOrCreateArtist(SelectArtistTag(block));
                 song.Genre = GetOrCreateGenre(block.Genre);
                 song.Album = GetOrCreateAlbum(block);
                 song.GenreFilteredAlbum = GetOrCreateGenreFilteredAlbum(song.Genre, song.Album);
@@ -239,7 +239,7 @@ namespace Auremo
 
         private Album GetOrCreateAlbum(MPDSongResponseBlock block)// Artist artist, string title, string date)
         {
-            Artist artist = Artists[block.Artist ?? UnknownArtist];
+            Artist artist = Artists[SelectArtistTag(block)];
             string albumKey = block.Album ?? UnknownAlbum;
 
             if (!m_AlbumLookup.ContainsKey(artist))
@@ -315,6 +315,18 @@ namespace Auremo
             }
 
             return parentOrResult;
+        }
+
+        private string SelectArtistTag(MPDSongResponseBlock block)
+        {
+            if (Settings.Default.UseAlbumArtist)
+            {
+                return block.AlbumArtist ?? block.Artist ?? UnknownArtist;
+            }
+            else
+            {
+                return block.Artist ?? UnknownArtist;
+            }
         }
 
         private void AddArtistExpansion(Artist parent, Album child)

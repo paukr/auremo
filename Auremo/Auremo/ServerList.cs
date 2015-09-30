@@ -84,7 +84,7 @@ namespace Auremo
             {
                 int index = NormalizeIndex(value);
 
-                if (index != m_SelectedServerIndex)
+                if (index != m_SelectedServerIndex || !Items[index].IsSelected)
                 {
                     if (m_SelectedServerIndex == NormalizeIndex(m_SelectedServerIndex))
                     {
@@ -95,7 +95,7 @@ namespace Auremo
                     Items[m_SelectedServerIndex].IsSelected = true;
                     NotifyPropertyChanged("SelectedServerIndex");
                     NotifyPropertyChanged("SelectedServer");
-                }
+                }                
             }
         }
 

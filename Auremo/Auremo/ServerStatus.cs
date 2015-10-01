@@ -521,16 +521,17 @@ namespace Auremo
                     m_MixRampDelay = value;
                     NotifyPropertyChanged("MixRampDelay");
                     NotifyPropertyChanged("MixRampDelayDisplayString");
-                    NotifyPropertyChanged("IsMixRampingEnabled");
+                    NotifyPropertyChanged("IsMixRampEnabled");
                 }
             }
         }
-
+        
         public string MixRampDelayDisplayString => double.IsNaN(MixRampDelay) ?
-            "Mix ramping is disabled." :
+            // TODO: this is no place for References to clicking.
+            "Click here to enable mix ramp" :
             "Mix ramp delay: " + MixRampDelay.ToString(NumberFormatInfo.InvariantInfo) + " seconds";
 
-        public bool IsMixRampingEnabled => !double.IsNaN(MixRampDelay);
+        public bool IsMixRampEnabled => !double.IsNaN(MixRampDelay);
 
         private string m_ErrorMessage = "";
         public string ErrorMessage

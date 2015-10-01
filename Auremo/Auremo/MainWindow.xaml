@@ -60,7 +60,7 @@
                 <MenuItem Header="Server" ItemsSource="{Binding Path=ServerList.Items}">
                     <MenuItem.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox Content="{Binding Path=DisplayString}" IsChecked="{Binding Path=IsSelected, Mode=OneWay}" IsEnabled="{Binding Path=IsSelected, Converter={StaticResource NegateBoolConverter}}" Click="OnServerClicked"/>
+                            <RadioButton GroupName="ServerRadioGroup" Content="{Binding Path=DisplayString}" IsChecked="{Binding Path=IsSelected, Mode=OneWay}" Click="OnServerClicked" Checked="OnServerClicked"/>
                         </DataTemplate>
                     </MenuItem.ItemTemplate>
                 </MenuItem>

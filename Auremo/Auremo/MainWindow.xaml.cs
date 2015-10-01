@@ -568,9 +568,13 @@ namespace Auremo
 
             MenuItem menuItem = dep as MenuItem;
             ServerEntry server = menuItem.Header as ServerEntry;
-            DataModel.ServerList.SelectedServerIndex = server.ItemIndex;
-            Settings.Default.Servers = DataModel.ServerList.Serialize();
-            Settings.Default.Save();
+
+            if (!server.IsSelected)
+            {
+                DataModel.ServerList.SelectedServerIndex = server.ItemIndex;
+                Settings.Default.Servers = DataModel.ServerList.Serialize();
+                Settings.Default.Save();
+            }
         }
 
         private IList<Song> SelectedLocalSongsOnPlaylist()

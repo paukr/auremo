@@ -389,7 +389,7 @@ namespace Auremo
 
         private void OnMixRampdbClick(object sender, RoutedEventArgs e)
         {
-            m_Overlay.Activate("Mix ramp threshold (dB):", DataModel.ServerStatus.MixRampdb.ToString(), OnMixRampdbOverlayReturned);
+            m_Overlay.Activate("Mix ramp threshold (dB), empty to disable:", DataModel.ServerStatus.MixRampdb.ToString(), OnMixRampdbOverlayReturned);
         }
 
         private void OnMixRampDelayClick(object sender, RoutedEventArgs e)
@@ -1912,12 +1912,19 @@ namespace Auremo
         {
             if (ok)
             {
-                double? newValue = Utils.StringToDouble(input);
-
-                if (newValue.HasValue)
+                if (input.Length == 0)
                 {
-                    DataModel.ServerSession.MixRampdb(newValue.Value);
-                    Update();
+                    DataModel.ServerSession.MixRampDelay(double.NaN);
+                }
+                else
+                {
+                    double? newValue = Utils.StringToDouble(input);
+
+                    if (newValue.HasValue)
+                    {
+                        DataModel.ServerSession.MixRampdb(newValue.Value);
+                        Update();
+                    }
                 }
             }
 

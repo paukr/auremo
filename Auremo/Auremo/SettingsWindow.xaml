@@ -69,11 +69,11 @@
                 </Grid>
                 <StackPanel Orientation="Horizontal" Height="30">
                     <Label Content="Server:" Style="{StaticResource OptionLabelStyle}" Width="50"/>
-                    <TextBox Name="m_HostnameEntry" Style="{StaticResource OptionTextBoxStyle}" Width="140" LostFocus="ServerEntryUpdated" KeyDown="OnServerEntryKeyDown"/>
+                    <TextBox Name="m_HostnameEntry" Style="{StaticResource OptionTextBoxStyle}" Width="140" LostFocus="ServerEntryUpdated"/>
                     <Label Content="Port:" Style="{StaticResource OptionLabelStyle}" Width="35" Margin="10,0,0,0"/>
-                    <TextBox Name="m_PortEntry" Style="{StaticResource OptionTextBoxStyle}" Width="60" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ServerEntryUpdated" KeyDown="OnServerEntryKeyDown"/>
+                    <TextBox Name="m_PortEntry" Style="{StaticResource OptionTextBoxStyle}" Width="60" PreviewTextInput="OnNumericOptionPreviewTextInput" LostFocus="ServerEntryUpdated"/>
                     <Label Content="Password:" Style="{StaticResource OptionLabelStyle}" Width="70" Margin="10,0,0,0"/>
-                    <PasswordBox Name="m_PasswordEntry" Style="{StaticResource OptionPasswordBoxStyle}" Width="140" LostFocus="ServerEntryUpdated" KeyDown="OnServerEntryKeyDown"/>
+                    <PasswordBox Name="m_PasswordEntry" Style="{StaticResource OptionPasswordBoxStyle}" Width="140" LostFocus="ServerEntryUpdated"/>
                 </StackPanel>
                 <Border BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Margin="15,10,15,2"/>
                 <StackPanel Orientation="Horizontal" Height="30">

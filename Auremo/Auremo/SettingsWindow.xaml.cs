@@ -16,8 +16,6 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
@@ -102,6 +100,7 @@ namespace Auremo
 
         private void OnOKClicked(object sender, RoutedEventArgs e)
         {
+            ServerEntryUpdated(null, null);
             SaveSettings();
             Close();
         }
@@ -346,11 +345,6 @@ namespace Auremo
 
         private void ServerEntryUpdated(object sender, RoutedEventArgs e)
         {
-            ServerEntryUpdated();
-        }
-
-        private void ServerEntryUpdated()
-        {
             ValidateOptions();
 
             if (m_ServerSettings.SelectedIndex != -1)
@@ -359,15 +353,6 @@ namespace Auremo
                 ServerList.Items[m_ServerSettings.SelectedIndex].Hostname = m_HostnameEntry.Text;
                 ServerList.Items[m_ServerSettings.SelectedIndex].Port = Utils.StringToInt(m_PortEntry.Text) ?? 6600;
                 ServerList.Items[m_ServerSettings.SelectedIndex].EncryptedPassword = Crypto.EncryptPassword(m_PasswordEntry.Password);
-            }
-        }
-
-        private void OnServerEntryKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                ServerEntryUpdated();
-                e.Handled = true;
             }
         }
     }

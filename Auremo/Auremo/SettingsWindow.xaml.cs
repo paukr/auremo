@@ -52,6 +52,8 @@ namespace Auremo
             DataContext = this;
             m_DataModel = dataModel;
             LoadSettings();
+
+            ServerList.PropertyChanged += new PropertyChangedEventHandler(OnServerListChanged);
         }
 
         private void OnNumericOptionPreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -130,7 +132,8 @@ namespace Auremo
             m_PlaylistsTabIsVisible.IsChecked = Settings.Default.PlaylistsTabIsVisible;
             SelectDefaultMusicCollectionTab(Settings.Default.DefaultMusicCollectionTab);
             ServerList.Deserialize(Settings.Default.Servers);
-                        
+            OnServerListChanged(null, null);
+
             m_SendToPlaylistMethodAddAsNext.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.AddAsNext.ToString();
             m_SendToPlaylistMethodReplaceAndPlay.IsChecked = Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString();
             m_SendToPlaylistMethodAppend.IsChecked = !m_SendToPlaylistMethodAddAsNext.IsChecked.Value && !m_SendToPlaylistMethodReplaceAndPlay.IsChecked.Value;
@@ -328,19 +331,14 @@ namespace Auremo
 
         private void OnServerSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (m_ServerSettings.SelectedIndex == -1)
-            {
-                m_HostnameEntry.Text = "";
-                m_PortEntry.Text = "";
-                m_PasswordEntry.Password = "";
-            }
-            else
-            {
-                // TODO: shouldn't SelectedServer work just fine?
-                m_HostnameEntry.Text = ServerList.Items[m_ServerSettings.SelectedIndex].Hostname;
-                m_PortEntry.Text = ServerList.Items[m_ServerSettings.SelectedIndex].Port.ToString();
-                m_PasswordEntry.Password = Crypto.DecryptPassword(ServerList.Items[m_ServerSettings.SelectedIndex].EncryptedPassword);
-            }
+            ServerList.SelectedServerIndex = m_ServerSettings.SelectedIndex;
+        }
+
+        private void OnServerListChanged(object sender, PropertyChangedEventArgs e)
+        {
+            m_HostnameEntry.Text = ServerList.SelectedServer.Hostname;
+            m_PortEntry.Text = ServerList.SelectedServer.Port.ToString();
+            m_PasswordEntry.Password = Crypto.DecryptPassword(ServerList.SelectedServer.EncryptedPassword);
         }
 
         private void ServerEntryUpdated(object sender, RoutedEventArgs e)
@@ -349,10 +347,9 @@ namespace Auremo
 
             if (m_ServerSettings.SelectedIndex != -1)
             {
-                // TODO: shouldn't SelectedServer work just fine?
-                ServerList.Items[m_ServerSettings.SelectedIndex].Hostname = m_HostnameEntry.Text;
-                ServerList.Items[m_ServerSettings.SelectedIndex].Port = Utils.StringToInt(m_PortEntry.Text) ?? 6600;
-                ServerList.Items[m_ServerSettings.SelectedIndex].EncryptedPassword = Crypto.EncryptPassword(m_PasswordEntry.Password);
+                ServerList.SelectedServer.Hostname = m_HostnameEntry.Text;
+                ServerList.SelectedServer.Port = Utils.StringToInt(m_PortEntry.Text) ?? 6600;
+                ServerList.SelectedServer.EncryptedPassword = Crypto.EncryptPassword(m_PasswordEntry.Password);
             }
         }
     }

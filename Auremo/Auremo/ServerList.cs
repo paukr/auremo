@@ -116,21 +116,6 @@ namespace Auremo
             SelectedServerIndex = Items.Count - 1;
         }
 
-        public void Set(int index, ServerEntry server)
-        {
-            // Support adding as new entry
-            if (index == Items.Count)
-            {
-                Items.Add(new ServerEntry(server, index, false));
-                SelectedServerIndex = index;
-            }
-            else if (index < Items.Count)
-            {
-                Items[index] = new ServerEntry(server, index, false);
-                SelectedServerIndex = index;
-            }
-        }
-
         public void RemoveSelected()
         {
             if (Items.Count > 1)

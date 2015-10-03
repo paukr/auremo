@@ -306,16 +306,7 @@ namespace Auremo
 
         private void OnDeleteServerClicked(object sender, RoutedEventArgs e)
         {
-            if (ServerList.Items.Count > 1)
-            {
-                int oldSelection = m_ServerSettings.SelectedIndex;
-
-                if (oldSelection >= 0 && oldSelection < ServerList.Items.Count)
-                {
-                    ServerList.Items.RemoveAt(oldSelection);
-                    ServerList.SelectedServerIndex = Math.Max(0, oldSelection - 1);
-                }
-            }
+            ServerList.RemoveSelected();
         }
 
         public ServerList ServerList

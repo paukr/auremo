@@ -125,6 +125,22 @@ namespace Auremo
             }
         }
 
+        public void RemoveSelected()
+        {
+            if (Items.Count > 1)
+            {
+                int removed = SelectedServerIndex;
+                Items.RemoveAt(SelectedServerIndex);
+
+                for (int i = 0; i < Items.Count; ++i)
+                {
+                    Items[i].ItemIndex = i;
+                }
+
+                SelectedServerIndex = Utils.Clamp(0, removed - 1, Items.Count - 1);
+            }
+        }
+        
         public void Deserialize(string source)
         {
             IList<ServerEntry> servers = null;

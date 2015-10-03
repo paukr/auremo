@@ -110,6 +110,12 @@ namespace Auremo
             }
         }
 
+        public void Add(string hostname, int port, string encryptedPassword)
+        {
+            Items.Add(new ServerEntry(hostname, port, encryptedPassword, Items.Count, false));
+            SelectedServerIndex = Items.Count - 1;
+        }
+
         public void Set(int index, ServerEntry server)
         {
             // Support adding as new entry

@@ -301,7 +301,8 @@ namespace Auremo
 
         private void OnAddServerClicked(object sender, RoutedEventArgs e)
         {
-            ServerList.Set(ServerList.Items.Count, new ServerEntry("localhost", 6600, ""));
+            ServerList.Add("localhost", 6600, "");
+            m_ServerSettings.ScrollIntoView(ServerList.SelectedServer);
         }
 
         private void OnDeleteServerClicked(object sender, RoutedEventArgs e)

@@ -41,14 +41,16 @@ namespace Auremo
         private int m_Port = 6600;
         private string m_EncryptedPassword = "";
         private bool m_IsSelected = false;
+        ServerList m_Parent = null;
 
         public ServerEntry()
         {
             ItemIndex = 0;
         }
 
-        public ServerEntry(string hostname, int port, string encryptedPassword, int index = 0, bool selected = false)
+        public ServerEntry(ServerList parent, string hostname, int port, string encryptedPassword, int index = 0, bool selected = false)
         {
+            m_Parent = parent;
             Hostname = hostname;
             Port = port;
             EncryptedPassword = encryptedPassword;
@@ -59,8 +61,9 @@ namespace Auremo
         /// <summary>
         /// Make of a copy of the model.
         /// </summary>
-        public ServerEntry(ServerEntry model, int index = 0, bool selected = false)
+        public ServerEntry(ServerList parent, ServerEntry model, int index = 0, bool selected = false)
         {
+            m_Parent = parent;
             Hostname = model.Hostname;
             Port = model.Port;
             EncryptedPassword = model.EncryptedPassword;
@@ -134,6 +137,11 @@ namespace Auremo
                 {
                     m_IsSelected = value;
                     NotifyPropertyChanged("IsSelected");
+
+                    if (m_IsSelected && m_Parent != null)
+                    {
+                        m_Parent.OnSelectedItemChanged(this);
+                    }
                 }
             }
         }

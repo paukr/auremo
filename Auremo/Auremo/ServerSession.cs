@@ -157,7 +157,6 @@ namespace Auremo
             if (e.PropertyName == "SelectedServer")
             {
                 Disconnect();
-
             }
         }
 

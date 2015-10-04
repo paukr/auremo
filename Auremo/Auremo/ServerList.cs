@@ -39,12 +39,10 @@ namespace Auremo
 
         #endregion 
 
-        int m_SelectedServerIndex = 0;
-
         public ServerList()
         {
             // Have something by default.
-            Items = new ObservableCollection<ServerEntry> { new ServerEntry("localhost", 6600, "", 0, true) };
+            Items = new ObservableCollection<ServerEntry> { new ServerEntry(this, "localhost", 6600, "", 0, true) };
         }
 
         public void SetItems(IEnumerable<ServerEntry> items, int selectedIndex)
@@ -54,17 +52,14 @@ namespace Auremo
             if (items.Count() == 0)
             {
                 // Have something by default.
-                Items.Add(new ServerEntry("localhost", 6600, "", 0, true));
-                SelectedServerIndex = 0;
+                Items.Add(new ServerEntry(this, "localhost", 6600, "", 0, true));
             }
             else
             {
                 foreach (ServerEntry item in items)
                 {
-                    Items.Add(new ServerEntry(item, Items.Count, false));
+                    Items.Add(new ServerEntry(this, item, Items.Count, Items.Count == selectedIndex));
                 }
-
-                SelectedServerIndex = NormalizeIndex(selectedIndex);
             }
 
             NotifyPropertyChanged("SelectedServerIndex");
@@ -75,25 +70,33 @@ namespace Auremo
         {
             get
             {
-                return m_SelectedServerIndex;
-            }
-            set
-            {
-                int index = NormalizeIndex(value);
-
-                if (index != m_SelectedServerIndex || !Items[index].IsSelected)
+                foreach (ServerEntry server in Items)
                 {
-                    if (m_SelectedServerIndex == NormalizeIndex(m_SelectedServerIndex))
+                    if (server.IsSelected)
                     {
-                        Items[m_SelectedServerIndex].IsSelected = false;
+                        return server.ItemIndex;
                     }
+                }
 
-                    m_SelectedServerIndex = index;
-                    Items[m_SelectedServerIndex].IsSelected = true;
-                    NotifyPropertyChanged("SelectedServerIndex");
-                    NotifyPropertyChanged("SelectedServer");
-                }                
+                return -1;
             }
+        }
+
+        private void SetSelectedServerIndex(int index)
+        {
+            foreach (ServerEntry server in Items)
+            {
+                server.IsSelected = server.ItemIndex == index;
+            }
+
+            NotifyPropertyChanged("SelectedServerIndex");
+            NotifyPropertyChanged("SelectedServer");
+        }
+
+        public void OnSelectedItemChanged(ServerEntry caller)
+        {
+            NotifyPropertyChanged("SelectedServerIndex");
+            NotifyPropertyChanged("SelectedServer");
         }
 
         public ObservableCollection<ServerEntry> Items
@@ -102,33 +105,29 @@ namespace Auremo
             private set;
         }
 
-        public ServerEntry SelectedServer
-        {
-            get
-            {
-                return Items[m_SelectedServerIndex];
-            }
-        }
+        public ServerEntry SelectedServer => SelectedServerIndex < 0 ? null : Items[SelectedServerIndex];
 
         public void Add(string hostname, int port, string encryptedPassword)
         {
-            Items.Add(new ServerEntry(hostname, port, encryptedPassword, Items.Count, false));
-            SelectedServerIndex = Items.Count - 1;
+            Items.Add(new ServerEntry(this, hostname, port, encryptedPassword, Items.Count, false));
+            SetSelectedServerIndex(Items.Count - 1);
         }
 
         public void RemoveSelected()
         {
-            if (Items.Count > 1)
+            int index = SelectedServerIndex;
+
+            if (Items.Count > 1 && index >= 0)
             {
-                int removed = SelectedServerIndex;
-                Items.RemoveAt(SelectedServerIndex);
+                SetSelectedServerIndex(-1);
+                Items.RemoveAt(index);
 
                 for (int i = 0; i < Items.Count; ++i)
                 {
                     Items[i].ItemIndex = i;
                 }
 
-                SelectedServerIndex = Utils.Clamp(0, removed - 1, Items.Count - 1);
+                SetSelectedServerIndex(Utils.Clamp(0, index - 1, Items.Count - 1));
             }
         }
         
@@ -149,7 +148,7 @@ namespace Auremo
 
                     for (int i = 1; i < parts.Length && success; i += 3)
                     {
-                        ServerEntry server = new ServerEntry(parts[i], Utils.StringToInt(parts[i + 1], -1), parts[i + 2]);
+                        ServerEntry server = new ServerEntry(this, parts[i], Utils.StringToInt(parts[i + 1], -1), parts[i + 2]);
                         success = server.Port != -1;
                         servers.Add(server);
                     }
@@ -163,7 +162,7 @@ namespace Auremo
 
             if (servers == null)
             {
-                servers = new ServerEntry[] { new ServerEntry("localhost", 6600, "", 0, false) };
+                servers = new ServerEntry[] { new ServerEntry(this, "localhost", 6600, "", 0, false) };
             }
 
             SetItems(servers, selectedIndex);
@@ -185,11 +184,6 @@ namespace Auremo
             }
 
             return result.ToString();
-        }
-
-        private int NormalizeIndex(int i)
-        {
-            return i >= 0 && i < Items.Count ? i : 0;
         }
     }
 }

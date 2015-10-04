@@ -571,7 +571,7 @@ namespace Auremo
 
             if (!server.IsSelected)
             {
-                DataModel.ServerList.SelectedServerIndex = server.ItemIndex;
+                server.IsSelected = true;
                 Settings.Default.Servers = DataModel.ServerList.Serialize();
                 Settings.Default.Save();
             }

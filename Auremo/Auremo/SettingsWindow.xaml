@@ -51,7 +51,7 @@
                     <DataGrid Name="m_ServerSettings" Style="{StaticResource SettingsDataGridStyle}"
                               ItemsSource="{Binding Path=ServerList.Items}"
                               Grid.RowSpan="3"
-                              SelectionChanged="OnServerSelectionChanged">
+                              SelectionChanged="OnServerListSelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Server name or address" Width="4*" Binding="{Binding Path=Hostname}"/>
                             <DataGridTextColumn Header="Port" Width="1*" Binding="{Binding Path=Port}"/>

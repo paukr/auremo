@@ -316,16 +316,23 @@ namespace Auremo
             private set;
         }
 
-        private void OnServerSelectionChanged(object sender, SelectionChangedEventArgs e)
+        
+        private void OnServerListSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ServerList.SelectedServerIndex = m_ServerSettings.SelectedIndex;
+            OnServerListChanged(null, null);
         }
+        
 
         private void OnServerListChanged(object sender, PropertyChangedEventArgs e)
         {
-            m_HostnameEntry.Text = ServerList.SelectedServer.Hostname;
-            m_PortEntry.Text = ServerList.SelectedServer.Port.ToString();
-            m_PasswordEntry.Password = Crypto.DecryptPassword(ServerList.SelectedServer.EncryptedPassword);
+            ServerEntry server = ServerList.SelectedServer;
+
+            if (server != null)
+            {
+                m_HostnameEntry.Text = server.Hostname;
+                m_PortEntry.Text = server.Port.ToString();
+                m_PasswordEntry.Password = Crypto.DecryptPassword(server.EncryptedPassword);
+            }
         }
 
         private void ServerEntryUpdated(object sender, RoutedEventArgs e)

@@ -18,11 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.IsolatedStorage;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading;
 using System.Web;
 using System.Web.Script.Serialization;
 using System.Windows.Media;
@@ -63,7 +59,7 @@ namespace Auremo
             string root = m_BaseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string auremo = "Auremo";
             string coverArt = "CoverArt";
-            m_BaseDirectory = System.IO.Path.Combine(root, auremo, coverArt);
+            m_BaseDirectory = Path.Combine(root, auremo, coverArt);
 
             try
             {   // TODO quite a few combines here.
@@ -86,23 +82,21 @@ namespace Auremo
 
         private void Run()
         {
-            string artist = "", album = "";
-            bool deleteIt = false;
-            bool keepGoing = m_Parent.GetRequest(out artist, out album, out deleteIt);
+            CoverArtFetchTask request = m_Parent.PopRequest();
 
-            while (keepGoing)
+            while (request != null)
             {
-                if (deleteIt)
+                if (request.Request == CoverArtFetchTask.RequestType.Delete)
                 {
-                    RemoveCoverFromDiskCache(artist, album);
+                    RemoveCoverFromDiskCache(request.Artist, request.Album);
                 }
                 else
                 {
-                    ImageSource image = CoverOf(artist, album);
-                    m_Parent.CoverArtFetchFinished(image);
+                    ImageSource image = CoverOf(request.Artist, request.Album);
+                    m_Parent.CoverArtFetchFinished(request.Artist, request.Album, image);
                 }
 
-                keepGoing = m_Parent.GetRequest(out artist, out album, out deleteIt);
+                request = m_Parent.PopRequest();
             }
         }
 

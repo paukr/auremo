@@ -123,8 +123,9 @@
     <Compile Include="AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CoverArtFetchTask.cs" />
     <Compile Include="CoverArtFetchThread.cs" />
-    <Compile Include="CoverArtManager.xaml.cs" />
+    <Compile Include="CoverArtWindow.xaml.cs" />
     <Compile Include="CoverArtRepository.cs" />
     <Compile Include="MusicLibrary\AlbumComparison.cs" />
     <Compile Include="GUI\ExtensionMethods.cs" />
@@ -188,7 +189,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="CoverArtManager.xaml">
+    <Page Include="CoverArtWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

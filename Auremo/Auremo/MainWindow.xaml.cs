@@ -21,7 +21,6 @@ using Auremo.Properties;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -43,6 +42,7 @@ namespace Auremo
     public partial class MainWindow : Window
     {
         private SettingsWindow m_SettingsWindow = null;
+        private CoverArtWindow m_CoverArtWindow = null;
         private TextWindow m_LicenseWindow = null;
         private AboutWindow m_AboutWindow = null;
         private DispatcherTimer m_Timer = null;
@@ -1965,6 +1965,20 @@ namespace Auremo
             }
 
             m_SettingsWindow.Show();
+        }
+
+        private void BringUpCoverArtWindow()
+        {
+            if (m_CoverArtWindow == null)
+            {
+                m_CoverArtWindow = new CoverArtWindow(this);
+            }
+            else
+            {
+                m_CoverArtWindow.Visibility = Visibility.Visible;
+            }
+
+            m_CoverArtWindow.Show();
         }
 
         private void BringUpLicenseWindow()

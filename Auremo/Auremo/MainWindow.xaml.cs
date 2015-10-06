@@ -559,22 +559,8 @@ namespace Auremo
 
         public void OnServerClicked(object sender, RoutedEventArgs e)
         {
-            DependencyObject dep = sender as DependencyObject;
-
-            while (dep != null && !(dep is MenuItem))
-            {
-                dep = VisualTreeHelper.GetParent(dep);
-            }
-
-            MenuItem menuItem = dep as MenuItem;
-            ServerEntry server = menuItem.Header as ServerEntry;
-
-            if (!server.IsSelected)
-            {
-                server.IsSelected = true;
-                Settings.Default.Servers = DataModel.ServerList.Serialize();
-                Settings.Default.Save();
-            }
+            Settings.Default.Servers = DataModel.ServerList.Serialize();
+            Settings.Default.Save();
         }
 
         private IList<Song> SelectedLocalSongsOnPlaylist()

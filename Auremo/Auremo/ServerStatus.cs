@@ -504,6 +504,7 @@ namespace Auremo
             }
         }
 
+        // TODO: UI messages aren't really this class's problem.
         public string MixRampdbDisplayString => "Mix ramp threshold: " + MixRampdb.ToString(NumberFormatInfo.InvariantInfo) + " dB";
 
         private double m_MixRampDelay = double.NaN;
@@ -527,8 +528,8 @@ namespace Auremo
         }
         
         public string MixRampDelayDisplayString => double.IsNaN(MixRampDelay) ?
-            // TODO: this is no place for References to clicking.
-            "Click here to enable mix ramp" :
+            // TODO: UI messages aren't really this class's problem.
+            "Enable mix ramp" :
             "Mix ramp delay: " + MixRampDelay.ToString(NumberFormatInfo.InvariantInfo) + " seconds";
 
         public bool IsMixRampEnabled => !double.IsNaN(MixRampDelay);

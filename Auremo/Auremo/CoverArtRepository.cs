@@ -46,8 +46,6 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
         private IDictionary<string, IDictionary<string, ImageSource>> m_Covers = new SortedDictionary<string, IDictionary<string, ImageSource>>();
-        private ImageSource m_CoverLoadingImage = null;
-        private ImageSource m_CoverUnavailableImage = null;
         private CoverArtFetchThread m_Fetcher = null;
 
         private Thread m_Thread = null;
@@ -69,9 +67,6 @@ namespace Auremo
         public CoverArtRepository(DataModel dataModel)
         {
             m_DataModel = dataModel;
-
-            m_CoverLoadingImage = new BitmapImage(new Uri("pack://application:,,,/Auremo;component/Graphics/Auremo_icon_128.png", UriKind.Absolute));
-            m_CoverUnavailableImage = m_CoverLoadingImage;
 
             m_Fetcher = new CoverArtFetchThread(this);
             m_Thread = new Thread(new ThreadStart(m_Fetcher.Start));
@@ -103,7 +98,7 @@ namespace Auremo
 
                 if (!m_Covers[artist].ContainsKey(album))
                 {
-                    m_Covers[artist][album] = m_CoverLoadingImage;
+                    m_Covers[artist][album] = null;
 
                     lock (m_Lock)
                     {
@@ -253,7 +248,7 @@ namespace Auremo
             foreach (Tuple<string, string, ImageSource> request in completedRequests)
             {
                 EnsureLookupEntryExists(request.Item1);
-                m_Covers[request.Item1][request.Item2] = request.Item3 ?? m_CoverUnavailableImage;
+                m_Covers[request.Item1][request.Item2] = request.Item3;
                 CoverFetched(request.Item1, request.Item2, request.Item3);
             }
         }

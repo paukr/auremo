@@ -224,6 +224,7 @@ namespace Auremo
                     }
                 }
 
+                response.Close();
                 return mbids.Count == 0 ? null : mbids;
             }
             catch (Exception)

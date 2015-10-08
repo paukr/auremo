@@ -96,6 +96,7 @@ namespace Auremo
                     m_Parent.CoverArtFetchFinished(request.Artist, request.Album, image);
                 }
 
+                // TODO: this doesn't actually return when exiting.
                 request = m_Parent.PopRequest();
             }
         }

@@ -201,9 +201,10 @@ namespace Auremo
             }
         }
 
-        private void OnCoverFetched(string artist, string album, ImageSource cover)
+        private void OnCoverFetched(object sender, CoverFetchedEventArgs e)
         {
-            Cover = cover ?? m_AuremoLogo;
+            // TODO: match artist and album name first.
+            Cover = e.Cover ?? m_AuremoLogo;
         }
     }
 }

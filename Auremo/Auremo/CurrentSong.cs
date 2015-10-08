@@ -21,6 +21,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Auremo
 {
@@ -42,11 +44,17 @@ namespace Auremo
 
         private DataModel m_DataModel = null;
         private Playable m_Playable = null;
+        private ImageSource m_Cover = null;
+        private ImageSource m_AuremoLogo = null;
 
         public CurrentSong(DataModel dataModel)
         {
             m_DataModel = dataModel;
+            m_AuremoLogo = new BitmapImage(new Uri("pack://application:,,,/Auremo;component/Graphics/Auremo_icon.png", UriKind.Absolute));
+
             m_DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
+            m_DataModel.CoverArtRepository.CoverFetched += new CoverArtRepository.CoverArtFetchedHandler(OnCoverFetched);
+
             Update();
         }
 
@@ -55,11 +63,13 @@ namespace Auremo
             m_DataModel.ServerSession.CurrentSong();
         }
 
-        public void OnCurrentSongResponseReceived(IEnumerable<MPDSongResponseBlock> response)
+        public void OnCurrentSongResponseReceived(IEnumerable<MPDSongResponseBlock> responses)
         {
-            if (response.Count() > 0)
+            if (responses.Count() > 0)
             {
-                Playable = PlayableFactory.CreatePlayable(response.First());
+                MPDSongResponseBlock response = responses.First();
+                Playable = PlayableFactory.CreatePlayable(response);
+                Cover = m_DataModel.CoverArtRepository.FetchCoverOfAlbum(response.Artist, response.Album, CoverArtRepository.Priority.High) ?? m_AuremoLogo;
             }
         }
 
@@ -105,7 +115,6 @@ namespace Auremo
 
                     if (Playable is AudioStream)
                     {
-                        //jatka tästä
                         AudioStream stream = Playable as AudioStream;
 
                         if (stream.Title != null)
@@ -164,6 +173,22 @@ namespace Auremo
             }
         }
 
+        public ImageSource Cover
+        {
+            get
+            {
+                return m_Cover;
+            }
+            set
+            {
+                if (value != m_Cover)
+                {
+                    m_Cover = value;
+                    NotifyPropertyChanged("Cover");
+                }
+            }
+        }
+
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "CurrentSongIndex" || e.PropertyName == "PlaylistVersion")
@@ -174,6 +199,11 @@ namespace Auremo
             {
                 NotifyPropertyChanged("DisplayString");
             }
+        }
+
+        private void OnCoverFetched(string artist, string album, ImageSource cover)
+        {
+            Cover = cover ?? m_AuremoLogo;
         }
     }
 }

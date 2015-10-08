@@ -50,7 +50,7 @@ namespace Auremo
                                                "Please take a screenshot of this message and send it to the developer.\n\n" +
                                                e.ToString(),
                                                "Auremo has crashed!");
-                throw e;
+                throw;
             }
         }
 

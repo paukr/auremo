@@ -41,7 +41,7 @@ namespace Auremo
 
         #endregion
 
-        public delegate void CoverArtFetchedHandler(string artist, string album, ImageSource cover);
+        public delegate void CoverArtFetchedHandler(object sender, CoverFetchedEventArgs e);
         public event CoverArtFetchedHandler CoverFetched;
 
         private DataModel m_DataModel = null;
@@ -249,7 +249,7 @@ namespace Auremo
             {
                 EnsureLookupEntryExists(request.Item1);
                 m_Covers[request.Item1][request.Item2] = request.Item3;
-                CoverFetched(request.Item1, request.Item2, request.Item3);
+                CoverFetched(this, new CoverFetchedEventArgs(request.Item1, request.Item2, request.Item3));
             }
         }
 

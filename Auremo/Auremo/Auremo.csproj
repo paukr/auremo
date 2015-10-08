@@ -127,6 +127,7 @@
     <Compile Include="CoverArtFetchThread.cs" />
     <Compile Include="CoverArtWindow.xaml.cs" />
     <Compile Include="CoverArtRepository.cs" />
+    <Compile Include="CoverFetchedEventArgs.cs" />
     <Compile Include="MusicLibrary\AlbumComparison.cs" />
     <Compile Include="GUI\ExtensionMethods.cs" />
     <Compile Include="ServerEntry.cs" />

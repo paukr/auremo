@@ -41,6 +41,9 @@ namespace Auremo
 
         #endregion
 
+        public delegate void CoverArtFetchedHandler(string artist, string album, ImageSource cover);
+        public event CoverArtFetchedHandler CoverFetched;
+
         private DataModel m_DataModel = null;
         private IDictionary<string, IDictionary<string, ImageSource>> m_Covers = new SortedDictionary<string, IDictionary<string, ImageSource>>();
         private ImageSource m_CoverLoadingImage = null;
@@ -251,6 +254,7 @@ namespace Auremo
             {
                 EnsureLookupEntryExists(request.Item1);
                 m_Covers[request.Item1][request.Item2] = request.Item3 ?? m_CoverUnavailableImage;
+                CoverFetched(request.Item1, request.Item2, request.Item3);
             }
         }
 

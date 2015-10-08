@@ -31,16 +31,16 @@ namespace Auremo
             ServerList = new ServerList();
             ServerSession = new ServerSession(this);
             ServerStatus = new ServerStatus(this);
+            CoverArtRepository = new CoverArtRepository(this);
             Database = new Database(this);
             QuickSearch = new QuickSearch(this);
             AdvancedSearch = new AdvancedSearch(this);
             DatabaseView = new DatabaseView(this);
             StreamsCollection = new StreamsCollection();
             SavedPlaylists = new SavedPlaylists(this);
-            CurrentSong =new CurrentSong(this);
+            CurrentSong = new CurrentSong(this);
             Playlist = new Playlist(this);
             OutputCollection = new OutputCollection(this);
-            CoverArtRepository = new CoverArtRepository(this);
             CustomDateNormalizer = new DateNormalizer();
             CustomDateNormalizer.ReadFromSettings();
             YearNormalizer = new DateNormalizer(new string[] {"YYYY"});

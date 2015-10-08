@@ -265,7 +265,6 @@ namespace Auremo
                                 {
                                     if (entry.front)
                                     {
-                                        stream.Close();
                                         return entry.image;
                                     }
                                 }

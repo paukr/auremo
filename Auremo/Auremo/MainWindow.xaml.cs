@@ -502,7 +502,7 @@ namespace Auremo
 
         private void OnMusicCollectionDataGridDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            if (!e.Handled && Keyboard.Modifiers == ModifierKeys.None)
+            if (!e.Handled && Keyboard.Modifiers == ModifierKeys.None && SenderIsNotScrollbar(e))
             {
                 SendItemsToPlaylist((sender as DataGrid).Selection());
                 e.Handled = true;
@@ -1145,7 +1145,7 @@ namespace Auremo
 
         private void OnSavedPlaylistsViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            if (Keyboard.Modifiers == ModifierKeys.None)
+            if (Keyboard.Modifiers == ModifierKeys.None && SenderIsNotScrollbar(e))
             {
                 LoadSelectedSavedPlaylist();
             }
@@ -1236,7 +1236,7 @@ namespace Auremo
 
         private void OnPlaylistViewDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            if (Keyboard.Modifiers == ModifierKeys.None)
+            if (Keyboard.Modifiers == ModifierKeys.None && SenderIsNotScrollbar(e))
             {
                 DataGridRow row = DataGridRowBeingClicked(m_PlaylistView, e);
 
@@ -2160,6 +2160,13 @@ namespace Auremo
         private HierarchyController GetControllerOf(TreeView tree)
         {
             return tree.Tag as HierarchyController;
+        }
+
+        /// Verifies that a double-click was not sent by DataGrid's scrollbar.
+        /// Trust Microsoft to mess up stuff like this.
+        private bool SenderIsNotScrollbar(MouseEventArgs e)
+        {
+            return e.OriginalSource is TextBlock;
         }
 
         #endregion

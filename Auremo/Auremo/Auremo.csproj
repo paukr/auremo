@@ -120,6 +120,7 @@
     <Compile Include="AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GlobalMediaKeys.cs" />
     <Compile Include="MusicLibrary\AlbumComparison.cs" />
     <Compile Include="GUI\ExtensionMethods.cs" />
     <Compile Include="ServerEntry.cs" />

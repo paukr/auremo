@@ -21,7 +21,6 @@ using Auremo.Properties;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -57,6 +56,7 @@ namespace Auremo
 
         private const int m_AutoSearchMaxKeystrokeGap = 2500;
 
+
         #region Start-up, construction and destruction
 
         public MainWindow()
@@ -68,7 +68,16 @@ namespace Auremo
             CreateTimer(Settings.Default.ViewUpdateInterval);
             ApplyInitialSettings();
             SetInitialWindowState();
+            RegisterGlobalMediaKeys();
             Update();
+
+            EventManager.RegisterClassHandler(typeof(Window), PreviewKeyDownEvent, new KeyEventHandler(OnWindowKeyDown));
+        }
+
+        private void OnWindowKeyDown(object sender, KeyEventArgs e)
+        {
+            int i = (int)e.Key;
+            i = 0;
         }
 
         public DataModel DataModel
@@ -293,6 +302,7 @@ namespace Auremo
 
         private void OnExit(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            UnregisterGlobalMediaKeys();
             DataModel.QuickSearch.Terminate();
             DataModel.ServerSession.OnlineMode = false;
 

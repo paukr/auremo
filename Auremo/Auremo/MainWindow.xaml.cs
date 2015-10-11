@@ -253,41 +253,54 @@ namespace Auremo
         {
             if (!e.Handled && !m_Overlay.Active)
             {
-                if (e.Key == Key.MediaPreviousTrack)
-                {
-                    Back();
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.Space && !m_QuickSearchBox.IsKeyboardFocused && !m_AdvancedSearchBox.IsKeyboardFocused && !AutoSearchInProgress)
+                if (e.Key == Key.Space && !m_QuickSearchBox.IsKeyboardFocused && !m_AdvancedSearchBox.IsKeyboardFocused && !AutoSearchInProgress)
                 {
                     TogglePlayPause();
                     e.Handled = true;
                 }
-                else if (e.Key == Key.MediaPlayPause)
+                else
                 {
-                    TogglePlayPause();
-                    e.Handled = true;
+                    e.Handled = HandleMediaKeys(e.Key);
                 }
-                else if (e.Key == Key.MediaStop)
-                {
-                    Stop();
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.MediaNextTrack)
-                {
-                    Skip();
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.VolumeDown)
-                {
-                    VolumeDown();
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.VolumeUp)
-                {
-                    VolumeUp();
-                    e.Handled = true;
-                }
+            }
+        }
+
+        /// Return true if handled.
+        private bool HandleMediaKeys(Key key)
+        {
+            if (key == Key.MediaPreviousTrack)
+            {
+                Back();
+                return true;
+            }
+            else if (key == Key.MediaPlayPause)
+            {
+                TogglePlayPause();
+                return true;
+            }
+            else if (key == Key.MediaStop)
+            {
+                Stop();
+                return true;
+            }
+            else if (key == Key.MediaNextTrack)
+            {
+                Skip();
+                return true;
+            }
+            else if (key == Key.VolumeDown)
+            {
+                VolumeDown();
+                return true;
+            }
+            else if (key == Key.VolumeUp)
+            {
+                VolumeUp();
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 

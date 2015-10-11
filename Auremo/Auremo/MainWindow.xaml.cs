@@ -294,6 +294,7 @@ namespace Auremo
         private void OnExit(object sender, System.ComponentModel.CancelEventArgs e)
         {
             DataModel.QuickSearch.Terminate();
+            DataModel.CoverArtRepository.Terminate();
             DataModel.ServerSession.OnlineMode = false;
 
             if (m_SettingsWindow != null)

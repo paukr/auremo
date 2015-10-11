@@ -56,7 +56,6 @@ namespace Auremo
 
         private const int m_AutoSearchMaxKeystrokeGap = 2500;
 
-
         #region Start-up, construction and destruction
 
         public MainWindow()
@@ -70,14 +69,6 @@ namespace Auremo
             SetInitialWindowState();
             RegisterGlobalMediaKeys();
             Update();
-
-            EventManager.RegisterClassHandler(typeof(Window), PreviewKeyDownEvent, new KeyEventHandler(OnWindowKeyDown));
-        }
-
-        private void OnWindowKeyDown(object sender, KeyEventArgs e)
-        {
-            int i = (int)e.Key;
-            i = 0;
         }
 
         public DataModel DataModel

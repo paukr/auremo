@@ -24,11 +24,12 @@ namespace Auremo.MusicLibrary
 {
     public class Album : LibraryItem
     {
-        public Album(Artist artist, string title, string date)
+        public Album(Artist artist, string title, string date, string directory)
         {
             Artist = artist;
             Title = title;
             Date = date;
+            Directory = directory;
         }
 
         public Artist Artist
@@ -47,6 +48,12 @@ namespace Auremo.MusicLibrary
         {
             get;
             set;
+        }
+
+        public string Directory
+        {
+            get;
+            private set;
         }
 
         public string Year

@@ -120,7 +120,8 @@ namespace Auremo
             m_EnableVolumeControl.IsChecked = Settings.Default.EnableVolumeControl;
             m_UseAlbumArtist.IsChecked = Settings.Default.UseAlbumArtist;
             m_SortAlbumsByDate.IsChecked = Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDate.ToString();
-            m_SortAlbumsByName.IsChecked = m_SortAlbumsByDate.IsChecked != true;
+            m_SortAlbumsByDirectory.IsChecked = Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDirectory.ToString();
+            m_SortAlbumsByName.IsChecked = m_SortAlbumsByDate.IsChecked != true && m_SortAlbumsByDirectory.IsChecked != true;
             m_QuickSearchTabIsVisible.IsChecked = Settings.Default.QuickSearchTabIsVisible;
             m_AdvancedSearchTabIsVisible.IsChecked = Settings.Default.AdvancedTabIsVisible;
             m_ArtistListTabIsVisible.IsChecked = Settings.Default.ArtistListTabIsVisible;
@@ -155,7 +156,21 @@ namespace Auremo
 
         private void SaveSettings()
         {
-            AlbumSortingMode albumSortingMode = m_SortAlbumsByDate.IsChecked.Value ? AlbumSortingMode.ByDate : AlbumSortingMode.ByName;
+            AlbumSortingMode albumSortingMode;
+
+            if (m_SortAlbumsByDate.IsChecked == true)
+            {
+                albumSortingMode = AlbumSortingMode.ByDate;
+            }
+            else if (m_SortAlbumsByDirectory.IsChecked == true)
+            {
+                albumSortingMode = AlbumSortingMode.ByDate;
+            }
+            else
+            {
+                albumSortingMode = AlbumSortingMode.ByName;
+            }
+
             string servers = ServerList.Serialize();
             bool reconnectNeeded =
                 m_UseAlbumArtist.IsChecked != Settings.Default.UseAlbumArtist ||

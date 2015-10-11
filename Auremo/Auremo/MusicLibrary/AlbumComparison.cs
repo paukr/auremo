@@ -52,6 +52,30 @@ namespace Auremo.MusicLibrary
         }
     }
 
+    public class AlbumByDirectoryComparer : IComparer<Album>
+    {
+        public int Compare(Album lhs, Album rhs)
+        {
+            int directoryComparison = lhs.Directory.CompareTo(rhs.Directory);
+
+            if (directoryComparison != 0)
+            {
+                return directoryComparison;
+            }
+
+            int artistComparison = lhs.Artist.CompareTo(rhs.Artist);
+
+            if (artistComparison != 0)
+            {
+                return artistComparison;
+            }
+            else
+            {
+                return lhs.Title.CompareTo(rhs.Title);
+            }
+        }
+    }
+
     public class AlbumByTitleComparer : IComparer<Album>
     {
         public int Compare(Album lhs, Album rhs)
@@ -98,6 +122,30 @@ namespace Auremo.MusicLibrary
             else
             {
                 return lhs.Date.CompareTo(rhs.Date);
+            }
+        }
+    }
+
+    public class GenreFilteredAlbumByDirectoryComparer : IComparer<GenreFilteredAlbum>
+    {
+        public int Compare(GenreFilteredAlbum lhs, GenreFilteredAlbum rhs)
+        {
+            int genreComparison = lhs.Genre.CompareTo(rhs.Genre);
+
+            if (genreComparison != 0)
+            {
+                return genreComparison;
+            }
+
+            int directoryComparison = lhs.Directory.CompareTo(rhs.Directory);
+
+            if (directoryComparison != 0)
+            {
+                return directoryComparison;
+            }
+            else
+            {
+                return lhs.Title.CompareTo(rhs.Title);
             }
         }
     }

@@ -25,7 +25,8 @@ namespace Auremo
     public enum AlbumSortingMode
     {
         ByDate,
-        ByName
+        ByName,
+        ByDirectory
     }
 
     public enum MusicCollectionTab

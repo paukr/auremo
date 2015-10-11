@@ -179,6 +179,11 @@ namespace Auremo
                 m_AlbumSortRule = new AlbumByDateComparer();
                 m_GenreFilteredAlbumSortRule = new GenreFilteredAlbumByDateComparer();
             }
+            else if (Settings.Default.AlbumSortingMode == AlbumSortingMode.ByDirectory.ToString())
+            {
+                m_AlbumSortRule = new AlbumByDirectoryComparer();
+                m_GenreFilteredAlbumSortRule = new GenreFilteredAlbumByDirectoryComparer();
+            }
             else
             {
                 m_AlbumSortRule = new AlbumByTitleComparer();
@@ -204,7 +209,7 @@ namespace Auremo
                 song.Artist = GetOrCreateArtist(SelectArtistTag(block));
                 song.Genre = GetOrCreateGenre(block.Genre);
                 song.Album = GetOrCreateAlbum(block);
-                song.GenreFilteredAlbum = GetOrCreateGenreFilteredAlbum(song.Genre, song.Album);
+                song.GenreFilteredAlbum = GetOrCreateGenreFilteredAlbum(song.Album, block);
                 song.Directory = GetOrCreateDirectory(song.Path);
 
                 Songs[song.Path] = song;
@@ -237,7 +242,7 @@ namespace Auremo
             return Genres[key];
         }
 
-        private Album GetOrCreateAlbum(MPDSongResponseBlock block)// Artist artist, string title, string date)
+        private Album GetOrCreateAlbum(MPDSongResponseBlock block)
         {
             Artist artist = Artists[SelectArtistTag(block)];
             string albumKey = block.Album ?? UnknownAlbum;
@@ -265,7 +270,8 @@ namespace Auremo
                     }
                 }
 
-                Album album = new Album(artist, albumKey, date);
+                string directory = new Path(block.File).Directories.Last();
+                Album album = new Album(artist, albumKey, date, directory);
                 albumList[albumKey] = album;
                 AddArtistExpansion(artist, album);
             }
@@ -273,8 +279,10 @@ namespace Auremo
             return albumList[albumKey];
         }
 
-        private GenreFilteredAlbum GetOrCreateGenreFilteredAlbum(Genre genre, Album album)
+        private GenreFilteredAlbum GetOrCreateGenreFilteredAlbum(Album album, MPDSongResponseBlock block)
         {
+            Genre genre = Genres[block.Genre ?? UnknownGenre];
+
             if (!m_GenreFilteredAlbumLookup.ContainsKey(genre))
             {
                 m_GenreFilteredAlbumLookup[genre] = new SortedDictionary<Album, GenreFilteredAlbum>();
@@ -284,7 +292,8 @@ namespace Auremo
 
             if (!albumList.ContainsKey(album))
             {
-                GenreFilteredAlbum genreFilteredAlbum = new GenreFilteredAlbum(genre, album.Artist, album.Title, album.Date);
+                string directory = new Path(block.File).Directories.Last();
+                GenreFilteredAlbum genreFilteredAlbum = new GenreFilteredAlbum(genre, album.Artist, album.Title, album.Date, directory);
                 m_GenreFilteredAlbumLookup[genre][album] = genreFilteredAlbum;
                 AddGenreExpansion(genre, genreFilteredAlbum);
             }

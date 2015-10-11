@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:l="clr-namespace:Auremo"
-        Title="Settings - Auremo" MinWidth="700" Width="700" MaxWidth="700" MinHeight="300" Height="515" MaxHeight="950"
+        Title="Settings - Auremo" MinWidth="700" Width="700" MaxWidth="700" MinHeight="280" Height="530" MaxHeight="975"
         ResizeMode="CanResize"
         Background="{StaticResource WindowBackgroundBrush}"
         Closing="OnClose">
@@ -109,15 +109,19 @@
                 <StackPanel Orientation="Horizontal" Height="30">
                     <CheckBox Name="m_EnableVolumeControl" Content="Enable volume control" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Margin="4,6,0,8"/>
                 </StackPanel>
-                <Border BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Margin="15,2"/>
                 <StackPanel Orientation="Horizontal" Height="30">
                     <CheckBox Name="m_UseAlbumArtist" Content="Categorize albums by AlbumArtist tag when available" IsChecked="True" Style="{StaticResource OptionCheckBoxStyle}" Margin="4,6,0,8"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Height="30">
-                    <Label Content="Sort albums by an artist by" Style="{StaticResource OptionLabelStyle}" Width="349"/>
-                    <RadioButton Name="m_SortAlbumsByDate" Content="Date, then name" IsChecked="True" GroupName="AlbumSortMode" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                    <RadioButton Name="m_SortAlbumsByName" Content="Name only" IsChecked="False" GroupName="AlbumSortMode" VerticalAlignment="Center"/>
+                <Border BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Margin="15,2"/>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Sort albums by an artist by" Style="{StaticResource OptionLabelStyle}" Width="349" VerticalAlignment="Top"/>
+                    <StackPanel>
+                        <RadioButton Name="m_SortAlbumsByDate" Content="Date, then name" IsChecked="True" GroupName="AlbumSortMode" VerticalAlignment="Center" Margin="0,3"/>
+                        <RadioButton Name="m_SortAlbumsByDirectory" Content="Directory, then name" IsChecked="False" GroupName="AlbumSortMode" VerticalAlignment="Center" Margin="0,3"/>
+                        <RadioButton Name="m_SortAlbumsByName" Content="Name only" IsChecked="False" GroupName="AlbumSortMode" VerticalAlignment="Center" Margin="0,3"/>
+                    </StackPanel>
                 </StackPanel>
+                <Border BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Margin="15,2"/>
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Style="{StaticResource OptionTextBlockStyle}" Width="345" Height="45">

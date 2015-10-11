@@ -24,7 +24,7 @@ namespace Auremo.MusicLibrary
 {
     public class GenreFilteredAlbum : LibraryItem
     {
-        public GenreFilteredAlbum(Genre genre, Artist artist, string title, string date)
+        public GenreFilteredAlbum(Genre genre, Artist artist, string title, string date, string directory)
         {
             Genre = genre;
             Artist = artist;
@@ -54,6 +54,12 @@ namespace Auremo.MusicLibrary
         {
             get;
             set;
+        }
+
+        public string Directory
+        {
+            get;
+            private set;
         }
 
         public string Year

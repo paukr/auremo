@@ -277,7 +277,7 @@ namespace Auremo
 
         private GenreFilteredAlbum GetOrCreateGenreFilteredAlbum(Album album, MPDSongResponseBlock block)
         {
-            Genre genre = Genres[block.Genre ?? UnknownGenre];
+            Genre genre = Genres[block.Genre ?? Genre.Unknown];
 
             if (!m_GenreFilteredAlbumLookup.ContainsKey(genre))
             {
@@ -326,11 +326,11 @@ namespace Auremo
         {
             if (Settings.Default.UseAlbumArtist)
             {
-                return block.AlbumArtist ?? block.Artist ?? UnknownArtist;
+                return block.AlbumArtist ?? block.Artist ?? Artist.Unknown;
             }
             else
             {
-                return block.Artist ?? UnknownArtist;
+                return block.Artist ?? Artist.Unknown;
             }
         }
 

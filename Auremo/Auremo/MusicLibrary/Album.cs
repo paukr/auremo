@@ -21,24 +21,9 @@ using System.Windows.Media;
 
 namespace Auremo.MusicLibrary
 {
-    public class Album : LibraryItem, INotifyPropertyChanged
+    public class Album : LibraryItem
     {
-        #region INotifyPropertyChanged implementation
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChanged(string info)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
-        }
-
-        #endregion
-
         public static readonly string Unknown = "Unknown Album";
-        ImageSource m_Cover = null;
 
         public Album(Artist artist, string title, string date, string directory)
         {

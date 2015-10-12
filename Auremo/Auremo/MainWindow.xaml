@@ -32,13 +32,9 @@
                  Visibility="Hidden"/>
     </Window.ToolTip>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="9*"/>
-            <ColumnDefinition Width="31*"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="500*"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -90,15 +86,14 @@
                 <Hyperlink NavigateUri="http://auremo.codeplex.com/releases/" RequestNavigate="OnNavigate">Download page</Hyperlink>
             </MenuItem>
         </Menu>
-        <Image Source="Graphics/Auremo_icon.png" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.RowSpan="5" Grid.ColumnSpan="2" Margin="32"/>
         <Grid Grid.Row="1" Margin="0,10" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="28*"/>
-                <ColumnDefinition Width="47*"/>
+                <ColumnDefinition Width="10*" MinWidth="210"/>
                 <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="75*"/>
+                <ColumnDefinition Width="10*" MinWidth="50"/>
             </Grid.ColumnDefinitions>
-            <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}" Grid.ColumnSpan="2" Focusable="False" KeyboardNavigation.DirectionalNavigation="None">
+            <Image Source="Graphics/Auremo_icon.png" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="3" Margin="32"/>
+            <TabControl Name="m_CollectionBrowsingModes" Style="{StaticResource MusicCollectionTabControlStyle}" Focusable="False" KeyboardNavigation.DirectionalNavigation="None">
                 <TabItem Name="m_QuickSearchTab" Header="Quick search">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -580,7 +575,7 @@
                     </Grid>
                 </TabItem>
             </TabControl>
-            <GridSplitter HorizontalAlignment="Left" Width="10" VerticalAlignment="Stretch" Grid.Column="2" ResizeBehavior="PreviousAndNext" Height="Auto" Background="Transparent" Margin="0,0,0,5" IsEnabled="True" ResizeDirection="Columns" Cursor="SizeWE"/>
+            <GridSplitter HorizontalAlignment="Left" Width="10" VerticalAlignment="Stretch" Grid.Column="1" ResizeBehavior="PreviousAndNext" Height="Auto" Background="Transparent" Margin="0,0,0,5" IsEnabled="True" ResizeDirection="Columns" Cursor="SizeWE"/>
             <DataGrid Name="m_PlaylistView"
                       Style="{StaticResource PlaylistStyle}"
                       ItemsSource="{Binding Path=Playlist.Items}"
@@ -595,7 +590,7 @@
                       DragOver="OnPlaylistViewDragOver"
                       DragLeave="OnPlaylistViewDragLeave"
                       Drop="OnPlaylistViewDrop"
-                      Grid.Column="3">
+                      Grid.Column="2">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Width="15" CanUserResize="False">
                         <DataGridTemplateColumn.CellTemplate>
@@ -649,7 +644,7 @@
             <TextBlock Name="m_PlaylistViewHint" Grid.Column="3" Style="{StaticResource CollectionHintTextStyle}" Text="Drag music here to add it to the playlist." IsEnabled="{Binding ElementName=m_PlaylistView, Path=Items.Count, Converter={StaticResource EqualsConverter}, ConverterParameter=0, Mode=OneWay}"/>
             <Line Name="m_DropPositionIndicator" Grid.Column="3" X1="0" X2="464" Y1="80" Y2="80" IsHitTestVisible="False" Visibility="Hidden" StrokeThickness="1" Stroke="{StaticResource DropPositionIndicatorBrush}"/>
         </Grid>
-        <Border Grid.Row="2" Padding="20,4" BorderBrush="{StaticResource HeaderBorderBrush }" BorderThickness="0,1,0,0" Background="{StaticResource ControlPanelBackgroundBrush}" Grid.ColumnSpan="2">
+        <Border Grid.Row="2" Padding="20,4" BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="0,1,0,0" Background="{StaticResource ControlPanelBackgroundBrush}">
             <DockPanel Name="m_SeekPanel" LastChildFill="True" Margin="0,5,0,0">
                 <!-- m_PlayPosition and m_SeekBar cannot use bindings for play position because the
                      seek bar can be dragged by the user and the twitchy slider looks ugly. Updates
@@ -657,10 +652,10 @@
                 <Label Name="m_PlayPosition" DockPanel.Dock="Left" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="00:00"/>
                 <Label Name="m_SongLength" DockPanel.Dock="Right" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="{Binding Path=ServerStatus.SongLength, Converter={StaticResource IntToTimecodeConverter}}"/>
                 <Slider Name="m_SeekBar" Style="{StaticResource MusicSliderStyle}" Margin="2" VerticalAlignment="Center" Minimum="0" Value="0" Maximum="{Binding Path=ServerStatus.SongLength}" IsEnabled="{Binding Path=ServerStatus.SongLength, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"
-                        PreviewMouseDown="OnSeekBarDragStart" ValueChanged="OnSeekBarValueChanged" PreviewMouseUp="OnSeekBarDragEnd"  MouseWheel="OnSeekBarMouseWheel" />
+                        PreviewMouseDown="OnSeekBarDragStart" ValueChanged="OnSeekBarValueChanged" PreviewMouseUp="OnSeekBarDragEnd"  MouseWheel="OnSeekBarMouseWheel"/>
             </DockPanel>
         </Border>
-        <Border Grid.Row="3" Padding="20,5" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}" Grid.ColumnSpan="2">  <!--  -->
+        <Border Grid.Row="3" Padding="20,5" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}">
             <Grid Name="m_PlaybackControlPanel" Grid.Row="3" Height="55">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -699,7 +694,7 @@
                 </StackPanel>
             </Grid>
         </Border>
-        <Border Grid.Row="4" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0" Grid.ColumnSpan="2">
+        <Border Grid.Row="4" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0">
             <StatusBar Padding="5,0" Background="{StaticResource WindowBackgroundBrush}" Height="30">
                 <StatusBarItem HorizontalAlignment="Left">
                     <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=CurrentSong.DisplayString, Mode=OneWay}"/>

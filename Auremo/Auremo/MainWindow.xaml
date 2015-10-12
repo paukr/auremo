@@ -42,6 +42,7 @@
         <Menu Style="{StaticResource MainMenuStyle}" Grid.ColumnSpan="2">
             <MenuItem Header="File">
                 <MenuItem Header="Edit settings..." Click="OnEditSettingsClicked"/>
+                <MenuItem Header="Cover art..." Click="OnCoverArtClicked"/>
                 <Separator/>
                 <MenuItem Header="Add stream by URL..." Click="OnAddStreamURLClicked"/>
                 <MenuItem Header="Add streams from PLS/M3U file..." Click="OnAddStreamsFromFileClicked"/>

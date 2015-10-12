@@ -327,6 +327,11 @@ namespace Auremo
             BringUpSettingsWindow();
         }
 
+        private void OnCoverArtClicked(object sender, RoutedEventArgs e)
+        {
+            BringUpCoverArtWindow();
+        }
+
         private void OnExitClicked(object sender, RoutedEventArgs e)
         {
             Close();

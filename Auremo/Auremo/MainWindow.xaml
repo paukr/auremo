@@ -46,6 +46,7 @@
         <Menu Style="{StaticResource MainMenuStyle}" Grid.ColumnSpan="2">
             <MenuItem Header="File">
                 <MenuItem Header="Edit settings..." Click="OnEditSettingsClicked"/>
+                <MenuItem Header="Cover art..." Click="OnCoverArtClicked"/>
                 <Separator/>
                 <MenuItem Header="Add stream by URL..." Click="OnAddStreamURLClicked"/>
                 <MenuItem Header="Add streams from PLS/M3U file..." Click="OnAddStreamsFromFileClicked"/>
@@ -660,7 +661,7 @@
                         PreviewMouseDown="OnSeekBarDragStart" ValueChanged="OnSeekBarValueChanged" PreviewMouseUp="OnSeekBarDragEnd"  MouseWheel="OnSeekBarMouseWheel" />
             </DockPanel>
         </Border>
-        <Border Grid.Row="3" Padding="20,5" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}" Grid.ColumnSpan="2">  <!--  -->
+        <Border Grid.Row="3" Grid.ColumnSpan="2" Padding="20,5" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}">
             <Grid Name="m_PlaybackControlPanel" Grid.Row="3" Height="55">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

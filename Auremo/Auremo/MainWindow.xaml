@@ -695,20 +695,6 @@
                 </Button>
             </DockPanel>
         </Grid>
-        
-        <!--
-        <Border Grid.Row="2" Padding="20,4" BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="0,1,0,0" Background="{StaticResource ControlPanelBackgroundBrush}">
-        </Border>
-        -->
-            
-        <!--
-        <Border Grid.Row="3" Grid.ColumnSpan="2" Padding="20,5" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}">
-        </Border>
-        -->
-        <!--
-        <Border Grid.Row="4" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0">    
-        </Border>
-        -->
         <l:MainWindowOverlay x:Name="m_Overlay" Grid.ColumnSpan="2" Grid.RowSpan="5" Visibility="Collapsed"/>
     </Grid>
 </Window>

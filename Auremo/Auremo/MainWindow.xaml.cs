@@ -39,8 +39,22 @@ using Path = Auremo.MusicLibrary.Path;
 
 namespace Auremo
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged implementation
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
+
         private SettingsWindow m_SettingsWindow = null;
         private CoverArtWindow m_CoverArtWindow = null;
         private TextWindow m_LicenseWindow = null;
@@ -49,11 +63,12 @@ namespace Auremo
         private object m_DragSource = null;
         private IList<LibraryItem> m_DragDropPayload = null;
         private Point? m_DragStartPosition = null;
-        private bool m_PropertyUpdateInProgress = false;
         private string m_AutoSearchString = "";
         private DateTime m_TimeOfLastAutoSearch = DateTime.MinValue;
         private object m_LastAutoSearchSender = null;
         private object m_LastLastAutoSearchHit = null;
+        bool m_SeekBarBeingDragged = false;
+        bool m_VolumeSliderBeingDragged = false;
 
         private const int m_AutoSearchMaxKeystrokeGap = 2500;
 
@@ -169,8 +184,6 @@ namespace Auremo
 
         private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            m_PropertyUpdateInProgress = true;
-
             if (e.PropertyName == "OK")
             {
                 if (!DataModel.ServerStatus.OK)
@@ -181,29 +194,56 @@ namespace Auremo
             }
             else if (e.PropertyName == "PlayPosition")
             {
-                OnPlayPositionChangedOnServer();
+                if (!m_SeekBarBeingDragged)
+                {
+                    NotifyPropertyChanged("PlayPosition");
+                }
             }
             else if (e.PropertyName == "Volume")
             {
-                OnVolumeChanged();
+                if (!m_VolumeSliderBeingDragged)
+                {
+                    NotifyPropertyChanged("Volume");
+                }
             }
-
-            m_PropertyUpdateInProgress = false;
         }
 
-        private void OnPlayPositionChangedOnServer()
+        
+
+        
+        /*
+        private void OnVolumeSliderDragged(object sender, RoutedPropertyChangedEventArgs<T> e)
         {
-            if (!m_SeekBarIsBeingDragged)
-            {
-                m_SeekBar.Value = DataModel.ServerStatus.PlayPosition;
-                m_PlayPosition.Content = Utils.IntToTimecode(DataModel.ServerStatus.PlayPosition);
-            }
+
+        }
+        */
+
+        private void OnVolumeControlDragEnd(object sender, MouseButtonEventArgs e)
+        {
+            m_VolumeSliderBeingDragged = true;
+        }
+        
+        private void OnVolumeControlDragStart(object sender, MouseButtonEventArgs e)
+        {
+            m_VolumeSliderBeingDragged = true;
         }
 
         private void OnVolumeChanged()
         {
             m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             m_VolumeControl.Value = DataModel.ServerStatus.Volume.HasValue ? DataModel.ServerStatus.Volume.Value : 0;
+        }
+
+        private void OnVolumeMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta < 0)
+            {
+                VolumeDown();
+            }
+            else if (e.Delta > 0)
+            {
+                VolumeUp();
+            }
         }
 
         #endregion
@@ -1476,21 +1516,21 @@ namespace Auremo
 
         #region Seek bar
 
-        private bool m_SeekBarIsBeingDragged = false;
+        public int PlayPosition => m_SeekBarBeingDragged ? (int)m_SeekBar.Value : DataModel.ServerStatus.PlayPosition;
 
         private void OnSeekBarDragStart(object sender, MouseButtonEventArgs e)
         {
-            m_SeekBarIsBeingDragged = true;
+            m_SeekBarBeingDragged = true;
         }
 
         private void OnSeekBarValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            m_PlayPosition.Content = Utils.IntToTimecode((int)m_SeekBar.Value);
+            NotifyPropertyChanged("PlayPosition");
         }
 
         private void OnSeekBarDragEnd(object sender, MouseButtonEventArgs e)
         {
-            m_SeekBarIsBeingDragged = false;
+            m_SeekBarBeingDragged = false;
             DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, (int)m_SeekBar.Value);
             Update();
         }
@@ -1559,30 +1599,7 @@ namespace Auremo
         {
             Skip();
         }
-
-        bool m_VolumeRestoreInProgress = false;
-
-        private void OnVolumeSliderDragged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (!m_PropertyUpdateInProgress && !m_VolumeRestoreInProgress)
-            {
-                // Volume slider is actually moving because the user is moving it.
-                DataModel.ServerSession.SetVol((int)e.NewValue);
-            }
-        }
-
-        private void OnVolumeMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (e.Delta < 0)
-            {
-                VolumeDown();
-            }
-            else if (e.Delta > 0)
-            {
-                VolumeUp();
-            }
-        }
-
+        
         private void OnToggleRandomClicked(object sender, RoutedEventArgs e)
         {
             DataModel.ServerSession.Random(!DataModel.ServerStatus.IsOnRandom);
@@ -1645,7 +1662,7 @@ namespace Auremo
             DataModel.ServerSession.Next();
             Update();
         }
-                
+        
         private void VolumeDown()
         {
             int? currentVolume = DataModel.ServerStatus.Volume;
@@ -1676,6 +1693,24 @@ namespace Auremo
                     Update();
                 }
             }
+        }
+
+        public int Volume => m_VolumeSliderBeingDragged ? (int)m_VolumeControl.Value : DataModel.ServerStatus.Volume ?? 100;
+
+        private void OnVolumeSliderDragStart(object sender, MouseButtonEventArgs e)
+        {
+            m_VolumeSliderBeingDragged = true;
+        }
+
+        private void OnVolumeControlValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            DataModel.ServerSession.SetVol((int)m_VolumeControl.Value);
+        }
+
+        private void OnVolumeSliderDragEnd(object sender, MouseButtonEventArgs e)
+        {
+            m_VolumeSliderBeingDragged = false;
+            Update();
         }
 
         #endregion

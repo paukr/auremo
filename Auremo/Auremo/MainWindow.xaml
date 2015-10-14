@@ -654,7 +654,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Border Width="100" Height="100" Margin="8,8,18,8" Grid.RowSpan="3">
-                <Image Source="{Binding Path=CurrentSong.Cover}"  HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Image Source="{Binding Path=CurrentSong.Cover}"  HorizontalAlignment="Center" VerticalAlignment="Center" MouseDown="OnCoverArtClick"/>
             </Border>
             <Grid Grid.Column="1">
                 <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=CurrentSong.DisplayString, Mode=OneWay}" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
@@ -696,5 +696,6 @@
             </DockPanel>
         </Grid>
         <l:MainWindowOverlay x:Name="m_Overlay" Grid.ColumnSpan="2" Grid.RowSpan="5" Visibility="Collapsed"/>
+        <l:CoverArtOverlay x:Name="m_CoverArtOverlay" Grid.RowSpan="5" Visibility="Collapsed"/>
     </Grid>
 </Window>

@@ -125,6 +125,9 @@
     </Compile>
     <Compile Include="CoverArtFetchTask.cs" />
     <Compile Include="CoverArtFetchThread.cs" />
+    <Compile Include="CoverArtOverlay.xaml.cs">
+      <DependentUpon>CoverArtOverlay.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CoverArtWindow.xaml.cs" />
     <Compile Include="CoverArtRepository.cs" />
     <Compile Include="CoverFetchedEventArgs.cs" />
@@ -187,6 +190,10 @@
     </Compile>
     <Compile Include="Utils.cs" />
     <Page Include="AboutWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="CoverArtOverlay.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

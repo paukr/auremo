@@ -105,6 +105,7 @@ namespace Auremo
             NameScope.SetNameScope(m_SavedPlaylistsViewContextMenu, NameScope.GetNameScope(this));
             NameScope.SetNameScope(m_PlaylistViewContextMenu, NameScope.GetNameScope(this));
             DataContext = DataModel;
+            m_CoverArtOverlay.SetDataModel(DataModel);
             DataModel.ServerStatus.PropertyChanged += new PropertyChangedEventHandler(OnServerStatusPropertyChanged);
         }
 
@@ -208,15 +209,10 @@ namespace Auremo
             }
         }
 
-        
-
-        
-        /*
-        private void OnVolumeSliderDragged(object sender, RoutedPropertyChangedEventArgs<T> e)
+        private void OnCoverArtClick(object sender, MouseButtonEventArgs e)
         {
-
+            m_CoverArtOverlay.Visibility = Visibility.Visible;
         }
-        */
 
         private void OnVolumeControlDragEnd(object sender, MouseButtonEventArgs e)
         {

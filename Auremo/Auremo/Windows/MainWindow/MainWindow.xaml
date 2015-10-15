@@ -7,7 +7,7 @@
         Left="0" Top="0"
         MinWidth="960" MinHeight="590"
         Background="{StaticResource WindowBackgroundBrush}"
-        Icon="Graphics/auremo.ico"
+        Icon="../../Graphics/auremo.ico"
         PreviewKeyDown="OnKeyDown"
         Closing="OnExit"
         TextOptions.TextFormattingMode="Display">

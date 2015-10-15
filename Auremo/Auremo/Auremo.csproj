@@ -117,14 +117,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AboutWindow.xaml.cs">
+    <Compile Include="Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MusicLibrary\AlbumComparison.cs" />
-    <Compile Include="GUI\ExtensionMethods.cs" />
+    <Compile Include="Windows\Utils\ExtensionMethods.cs" />
     <Compile Include="ServerEntry.cs" />
     <Compile Include="ServerList.cs" />
-    <Compile Include="MainWindowOverlay.xaml.cs">
+    <Compile Include="Windows\MainWindow\MainWindowOverlay.xaml.cs">
       <DependentUpon>MainWindowOverlay.xaml</DependentUpon>
     </Compile>
     <Compile Include="MusicLibrary\Album.cs" />
@@ -144,7 +144,7 @@
     <Compile Include="MusicLibrary\PlaylistItem.cs" />
     <Compile Include="MusicLibrary\SavedPlaylist.cs" />
     <Compile Include="MusicLibrary\Song.cs" />
-    <Compile Include="ConverterClasses.cs" />
+    <Compile Include="Windows\Utils\ConverterClasses.cs" />
     <Compile Include="CurrentSong.cs" />
     <Compile Include="GlobalEnums.cs" />
     <Compile Include="MusicLibrary\AudioStream.cs" />
@@ -167,22 +167,22 @@
     <Compile Include="ServerSession.cs" />
     <Compile Include="ServerSessionThread.cs" />
     <Compile Include="ServerStatus.cs" />
-    <Compile Include="SettingsWindow.xaml.cs">
+    <Compile Include="Windows\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="PLSParser.cs" />
     <Compile Include="AdvancedSearch.cs" />
     <Compile Include="StickyButton.cs" />
     <Compile Include="StreamsCollection.cs" />
-    <Compile Include="TextWindow.xaml.cs">
+    <Compile Include="Windows\TextWindow.xaml.cs">
       <DependentUpon>TextWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils.cs" />
-    <Page Include="AboutWindow.xaml">
+    <Page Include="Windows\AboutWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Windows\MainWindow\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -191,95 +191,95 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Database.cs" />
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Windows\MainWindow\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="MainWindowOverlay.xaml">
+    <Page Include="Windows\MainWindow\MainWindowOverlay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SettingsWindow.xaml">
+    <Page Include="Windows\SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFResources\ActionButtonStyle.xaml">
+    <Page Include="Windows\Styles\ActionButtonStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="WPFResources\Brushes.xaml">
+    <Page Include="Windows\Styles\Brushes.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="WPFResources\ButtonGlyphStyle.xaml">
+    <Page Include="Windows\Styles\ButtonGlyphStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="WPFResources\CollectionHintTextStyle.xaml">
+    <Page Include="Windows\Styles\CollectionHintTextStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFResources\SearchButtonStyle.xaml">
+    <Page Include="Windows\Styles\SearchButtonStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="WPFResources\ContextMenuStyle.xaml">
+    <Page Include="Windows\Styles\ContextMenuStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFResources\CopyableTextBlockStyle.xaml">
+    <Page Include="Windows\Styles\CopyableTextBlockStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFResources\MainMenuStyle.xaml">
+    <Page Include="Windows\Styles\MainMenuStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFResources\MusicCollectionDataGridStyle.xaml">
+    <Page Include="Windows\Styles\MusicCollectionDataGridStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFResources\MusicCollectionTreeViewStyle.xaml">
+    <Page Include="Windows\Styles\MusicCollectionTreeViewStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFResources\MusicSliderStyle.xaml">
+    <Page Include="Windows\Styles\MusicSliderStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="WPFResources\OptionControlStyles.xaml">
+    <Page Include="Windows\Styles\OptionControlStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFResources\PlaybackButtonStyle.xaml">
+    <Page Include="Windows\Styles\PlaybackButtonStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="WPFResources\PlaylistStyle.xaml">
+    <Page Include="Windows\Styles\PlaylistStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFResources\ScrollBarStyle.xaml">
+    <Page Include="Windows\Styles\ScrollBarStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFResources\ScrollViewerStyle.xaml">
+    <Page Include="Windows\Styles\ScrollViewerStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="WPFResources\SettingsDataGridStyle.xaml">
+    <Page Include="Windows\Styles\SettingsDataGridStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="WPFResources\TabControlStyle.xaml">
+    <Page Include="Windows\Styles\TabControlStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TextWindow.xaml">
+    <Page Include="Windows\TextWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WPFResources\TextBoxStyle.xaml">
+    <Page Include="Windows\Styles\TextBoxStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

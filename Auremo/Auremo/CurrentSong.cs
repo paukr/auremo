@@ -105,7 +105,6 @@ namespace Auremo
 
                     if (Playable is AudioStream)
                     {
-                        //jatka tästä
                         AudioStream stream = Playable as AudioStream;
 
                         if (stream.Title != null)
@@ -156,9 +155,14 @@ namespace Auremo
                     }
                 }
 
-                result.Append(". ");
-                result.Append(m_DataModel.ServerStatus.AudioQuality);
                 result.Append(".");
+
+                if (m_DataModel.ServerStatus.AudioQuality.Length > 0)
+                {
+                    result.Append(" ");
+                    result.Append(m_DataModel.ServerStatus.AudioQuality);
+                    result.Append(".");
+                }
 
                 return result.ToString();
             }

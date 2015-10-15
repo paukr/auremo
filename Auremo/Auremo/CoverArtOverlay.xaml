@@ -8,7 +8,7 @@
              d:DesignHeight="300" d:DesignWidth="300"
              MouseDown="OnMouse"
              KeyDown="OnKey">
-        <Border Background="Black">
-            <Image Source="{Binding Path=CurrentSong.Cover}" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"/>
+        <Border Background="#E0101010">
+            <Image Source="{Binding Path=CurrentSong.Cover}" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="10"/>
         </Border>
 </UserControl>

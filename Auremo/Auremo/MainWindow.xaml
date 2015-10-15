@@ -656,17 +656,13 @@
             <Border Width="100" Height="100" Margin="8,8,18,8" Grid.RowSpan="3">
                 <Image Source="{Binding Path=CurrentSong.Cover}"  HorizontalAlignment="Center" VerticalAlignment="Center" MouseDown="OnCoverArtClick"/>
             </Border>
-            <Grid Grid.Column="1">
-                <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=CurrentSong.DisplayString, Mode=OneWay}" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
-                <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerSession.StatusMessage, Mode=OneWay}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
-            </Grid>
-            <DockPanel Name="m_SeekPanel" Grid.Column="1" Grid.Row="1"  LastChildFill="True">
+            <DockPanel Name="m_SeekPanel" Grid.Column="1" Margin="20,0" LastChildFill="True">
                 <Label DockPanel.Dock="Left" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="{Binding Path=MainWindow.PlayPosition, Converter={StaticResource IntToTimecodeConverter}}"/>
                 <Label DockPanel.Dock="Right" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="{Binding Path=ServerStatus.SongLength, Converter={StaticResource IntToTimecodeConverter}}"/>
                 <Slider Name="m_SeekBar" Style="{StaticResource MusicSliderStyle}" Margin="2,9" VerticalAlignment="Center" Minimum="0" Value="{Binding Path=MainWindow.PlayPosition, Mode=OneWay}" Maximum="{Binding Path=ServerStatus.SongLength}" IsEnabled="{Binding Path=ServerStatus.SongLength, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"
                         PreviewMouseDown="OnSeekBarDragStart" ValueChanged="OnSeekBarValueChanged" PreviewMouseUp="OnSeekBarDragEnd" MouseWheel="OnSeekBarMouseWheel"/>
             </DockPanel>
-            <DockPanel Grid.Column="1" Grid.Row="2" Margin="0,0,20,0" LastChildFill="False">
+            <DockPanel Grid.Column="1" Grid.Row="1" Margin="0,0,20,0" LastChildFill="False">
                 <l:StickyButton x:Name="m_RandomButton" Style="{StaticResource PlaybackStickyButtonStyle}" IsDown="{Binding Path=ServerStatus.IsOnRandom}" DockPanel.Dock="Right" Click="OnToggleRandomClicked">
                     <Grid>
                         <Path Style="{StaticResource ButtonGlyphStyle}" Data="M 17,3 14,0 14,6 M 14,2 C 10,2 9,9 4,11 L 0,11 0,13 3,13 C 8,13 11,4 14,4"/>
@@ -694,6 +690,15 @@
                     <Path Style="{StaticResource ButtonGlyphStyle}" Data="M 0,0 1,0 1,4 2,4 6,0 6,4 7,4 11,0 11,9 7,5 6,5 6,9 2,5 1,5 1,9 0,9"/>
                 </Button>
             </DockPanel>
+            <Grid Grid.Column="1" Grid.Row="2" Background="{StaticResource WindowBackgroundBrush}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="17"/>
+                    <RowDefinition Height="17"/>
+                </Grid.RowDefinitions>
+                <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerSession.StatusMessage, Mode=OneWay}" Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+                <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=CurrentSong.DisplayString, Mode=OneWay}" Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+            </Grid>
         </Grid>
         <l:MainWindowOverlay x:Name="m_Overlay" Grid.ColumnSpan="2" Grid.RowSpan="5" Visibility="Collapsed"/>
         <l:CoverArtOverlay x:Name="m_CoverArtOverlay" Grid.RowSpan="5" Visibility="Collapsed"/>

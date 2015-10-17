@@ -21,9 +21,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO.IsolatedStorage;
-using System.Linq;
-using System.Text;
-using Auremo.Properties;
 
 namespace Auremo
 {

@@ -15,12 +15,6 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Auremo.Properties;
-
 namespace Auremo
 {
     public class DataModel

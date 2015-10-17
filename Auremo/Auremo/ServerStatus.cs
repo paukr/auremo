@@ -70,6 +70,9 @@ namespace Auremo
             int playPosition = 0;
             int songLength = 0;
             string audioQuality = "";
+            int crossfade = 0;
+            double mixRampdb = 0.0;
+            double mixRampDelay = double.NaN;
             string errorMessage = "";
 
             foreach (MPDResponseLine line in response)
@@ -155,15 +158,15 @@ namespace Auremo
                 }
                 else if (line.Key == MPDResponseLine.Keyword.Xfade)
                 {
-                    Crossfade = line.IntValue;
+                    crossfade = line.IntValue;
                 }
                 else if (line.Key == MPDResponseLine.Keyword.MixRampdb)
                 {
-                    MixRampdb = line.DoubleValue;
+                    mixRampdb = line.DoubleValue;
                 }
                 else if (line.Key == MPDResponseLine.Keyword.MixRampDelay)
                 {
-                    MixRampDelay = line.DoubleValue;
+                    mixRampDelay = line.DoubleValue;
                 }
                 else if (line.Key == MPDResponseLine.Keyword.Error)
                 {
@@ -175,6 +178,9 @@ namespace Auremo
             PlayPosition = playPosition;
             SongLength = songLength;
             AudioQuality = audioQuality;
+            Crossfade = crossfade;
+            MixRampdb = mixRampdb;
+            MixRampDelay = mixRampDelay;
             ErrorMessage = errorMessage;
         }
 

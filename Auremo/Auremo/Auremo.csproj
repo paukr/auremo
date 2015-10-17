@@ -121,9 +121,9 @@
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MusicLibrary\AlbumComparison.cs" />
-    <Compile Include="Windows\Utils\ExtensionMethods.cs" />
-    <Compile Include="ServerEntry.cs" />
-    <Compile Include="ServerList.cs" />
+    <Compile Include="Windows\Utility\ExtensionMethods.cs" />
+    <Compile Include="DataModelItems\ServerEntry.cs" />
+    <Compile Include="DataModel\ServerList.cs" />
     <Compile Include="Windows\MainWindow\MainWindowOverlay.xaml.cs">
       <DependentUpon>MainWindowOverlay.xaml</DependentUpon>
     </Compile>
@@ -144,40 +144,40 @@
     <Compile Include="MusicLibrary\PlaylistItem.cs" />
     <Compile Include="MusicLibrary\SavedPlaylist.cs" />
     <Compile Include="MusicLibrary\Song.cs" />
-    <Compile Include="Windows\Utils\ConverterClasses.cs" />
-    <Compile Include="CurrentSong.cs" />
-    <Compile Include="GlobalEnums.cs" />
+    <Compile Include="Windows\Utility\ConverterClasses.cs" />
+    <Compile Include="DataModel\CurrentSong.cs" />
+    <Compile Include="Windows\Utility\GlobalEnums.cs" />
     <Compile Include="MusicLibrary\AudioStream.cs" />
-    <Compile Include="QuickSearch.cs" />
-    <Compile Include="Crypto.cs" />
-    <Compile Include="DatabaseView.cs" />
-    <Compile Include="DataModel.cs" />
-    <Compile Include="DateNormalizer.cs" />
-    <Compile Include="DateTemplate.cs" />
-    <Compile Include="M3UParser.cs" />
-    <Compile Include="MPDCommand.cs" />
-    <Compile Include="MPDResponseLine.cs" />
-    <Compile Include="MPDSongResponseBlock.cs" />
-    <Compile Include="Output.cs" />
-    <Compile Include="OutputCollection.cs" />
-    <Compile Include="PlaylistFileParserBase.cs" />
-    <Compile Include="PlaylistWriter.cs" />
-    <Compile Include="QuickSearchThread.cs" />
-    <Compile Include="SavedPlaylists.cs" />
-    <Compile Include="ServerSession.cs" />
-    <Compile Include="ServerSessionThread.cs" />
-    <Compile Include="ServerStatus.cs" />
+    <Compile Include="DataModel\QuickSearch.cs" />
+    <Compile Include="Utility\Crypto.cs" />
+    <Compile Include="DataModel\DatabaseView.cs" />
+    <Compile Include="DataModel\DataModel.cs" />
+    <Compile Include="Utility\DateNormalizer.cs" />
+    <Compile Include="Utility\DateTemplate.cs" />
+    <Compile Include="Utility\M3UParser.cs" />
+    <Compile Include="Protocol\MPDCommand.cs" />
+    <Compile Include="Protocol\MPDResponseLine.cs" />
+    <Compile Include="Protocol\MPDSongResponseBlock.cs" />
+    <Compile Include="DataModelItems\Output.cs" />
+    <Compile Include="DataModel\OutputCollection.cs" />
+    <Compile Include="Utility\PlaylistFileParserBase.cs" />
+    <Compile Include="Utility\PlaylistWriter.cs" />
+    <Compile Include="Threads\QuickSearchThread.cs" />
+    <Compile Include="DataModel\SavedPlaylists.cs" />
+    <Compile Include="DataModel\ServerSession.cs" />
+    <Compile Include="Threads\ServerSessionThread.cs" />
+    <Compile Include="DataModel\ServerStatus.cs" />
     <Compile Include="Windows\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PLSParser.cs" />
-    <Compile Include="AdvancedSearch.cs" />
-    <Compile Include="StickyButton.cs" />
-    <Compile Include="StreamsCollection.cs" />
+    <Compile Include="Utility\PLSParser.cs" />
+    <Compile Include="DataModel\AdvancedSearch.cs" />
+    <Compile Include="Windows\Controls\StickyButton.cs" />
+    <Compile Include="DataModel\StreamsCollection.cs" />
     <Compile Include="Windows\TextWindow.xaml.cs">
       <DependentUpon>TextWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Utils.cs" />
+    <Compile Include="Utility\Utils.cs" />
     <Page Include="Windows\AboutWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -190,7 +190,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Database.cs" />
+    <Compile Include="DataModel\Database.cs" />
     <Compile Include="Windows\MainWindow\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -285,7 +285,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Playlist.cs" />
+    <Compile Include="DataModel\Playlist.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

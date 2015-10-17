@@ -15,11 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
-using Auremo.MusicLibrary;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Auremo.MusicLibrary
 {

@@ -16,12 +16,7 @@
  */
 
 using Auremo.MusicLibrary;
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Path = Auremo.MusicLibrary.Path;
 
 namespace Auremo
 {

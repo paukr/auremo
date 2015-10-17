@@ -384,7 +384,7 @@ namespace Auremo
 
         private void OnCrossfadeClick(object sender, RoutedEventArgs e)
         {
-            m_Overlay.Activate("Crossfade duration (seconds):", DataModel.ServerStatus.Crossfade.ToString(), OnCrossfadeOverlayReturned);
+            m_Overlay.Activate("Crossfade duration (seconds), 0 or empty to disable:", DataModel.ServerStatus.Crossfade.ToString(), OnCrossfadeOverlayReturned);
         }
 
         private void OnMixRampdbClick(object sender, RoutedEventArgs e)
@@ -1886,12 +1886,19 @@ namespace Auremo
         {
             if (ok)
             {
-                int? newValue = Utils.StringToInt(input);
-
-                if (newValue.HasValue)
+                if (input.Length == 0)
                 {
-                    DataModel.ServerSession.Crossfade(newValue.Value);
-                    Update();
+                    DataModel.ServerSession.Crossfade(0);
+                }
+                else
+                {
+                    int? newValue = Utils.StringToInt(input);
+
+                    if (newValue.HasValue)
+                    {
+                        DataModel.ServerSession.Crossfade(newValue.Value);
+                        Update();
+                    }
                 }
             }
 

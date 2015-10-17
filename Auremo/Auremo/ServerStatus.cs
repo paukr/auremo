@@ -483,13 +483,8 @@ namespace Auremo
             }
         }
 
-        public string CrossfadeDisplayString
-        {
-            get
-            {
-                return "Crossfade: " + Crossfade + " seconds";
-            }
-        }
+        // TODO: UI messages aren't really this class's problem.
+        public string CrossfadeDisplayString => Crossfade > 0 ? "Crossfade: " + Crossfade + " seconds" : "Enable crossfade";
 
         private double m_MixRampdb = 0;
 

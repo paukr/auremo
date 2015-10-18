@@ -396,7 +396,7 @@ namespace Auremo
         {
             double oldValue = DataModel.ServerStatus.MixRampDelay;
             string parameter = double.IsNaN(oldValue) ? "" : oldValue.ToString(NumberFormatInfo.InvariantInfo);
-            m_Overlay.Activate("Mix ramp delay (seconds), empty to disable:", parameter, OnMixRampDelayOverlayReturned);
+            m_Overlay.Activate("Mix ramp delay (seconds), 0 or empty to disable:", parameter, OnMixRampDelayOverlayReturned);
         }
 
         private void OnViewLicenseClicked(object sender, RoutedEventArgs e)

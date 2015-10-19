@@ -21,7 +21,6 @@ using Auremo.Properties;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -40,8 +39,22 @@ using Path = Auremo.MusicLibrary.Path;
 
 namespace Auremo
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged implementation
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
+
         private SettingsWindow m_SettingsWindow = null;
         private TextWindow m_LicenseWindow = null;
         private AboutWindow m_AboutWindow = null;
@@ -49,11 +62,12 @@ namespace Auremo
         private object m_DragSource = null;
         private IList<LibraryItem> m_DragDropPayload = null;
         private Point? m_DragStartPosition = null;
-        private bool m_PropertyUpdateInProgress = false;
         private string m_AutoSearchString = "";
         private DateTime m_TimeOfLastAutoSearch = DateTime.MinValue;
         private object m_LastAutoSearchSender = null;
         private object m_LastLastAutoSearchHit = null;
+        bool m_SeekBarBeingDragged = false;
+        bool m_VolumeControlBeingDragged = false;
 
         private const int m_AutoSearchMaxKeystrokeGap = 2500;
 
@@ -109,7 +123,7 @@ namespace Auremo
             m_Timer.Interval = new TimeSpan(0, 0, 0, 0, interval);
             m_Timer.Start();
         }
-        
+
         private void SetInitialWindowState()
         {
             int x = Settings.Default.WindowX;
@@ -167,10 +181,8 @@ namespace Auremo
             }
         }
 
-        private void OnServerStatusPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void OnServerStatusPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            m_PropertyUpdateInProgress = true;
-
             if (e.PropertyName == "OK")
             {
                 if (!DataModel.ServerStatus.OK)
@@ -181,29 +193,18 @@ namespace Auremo
             }
             else if (e.PropertyName == "PlayPosition")
             {
-                OnPlayPositionChangedOnServer();
+                if (!m_SeekBarBeingDragged)
+                {
+                    NotifyPropertyChanged("PlayPosition");
+                }
             }
             else if (e.PropertyName == "Volume")
             {
-                OnVolumeChanged();
+                if (!m_VolumeControlBeingDragged)
+                {
+                    NotifyPropertyChanged("Volume");
+                }
             }
-
-            m_PropertyUpdateInProgress = false;
-        }
-
-        private void OnPlayPositionChangedOnServer()
-        {
-            if (!m_SeekBarIsBeingDragged)
-            {
-                m_SeekBar.Value = DataModel.ServerStatus.PlayPosition;
-                m_PlayPosition.Content = Utils.IntToTimecode(DataModel.ServerStatus.PlayPosition);
-            }
-        }
-
-        private void OnVolumeChanged()
-        {
-            m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
-            m_VolumeControl.Value = DataModel.ServerStatus.Volume.HasValue ? DataModel.ServerStatus.Volume.Value : 0;
         }
 
         #endregion
@@ -212,7 +213,7 @@ namespace Auremo
 
         private void OnSelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
         {
-           DataModel.DatabaseView.OnSelectedArtistsChanged();
+            DataModel.DatabaseView.OnSelectedArtistsChanged();
         }
 
         private void OnSelectedAlbumsBySelectedArtistsChanged(object sender, SelectionChangedEventArgs e)
@@ -1085,7 +1086,7 @@ namespace Auremo
                     {
                         streams = m3uParser.ParseFile(filename);
                     }
-                    
+
                     if (streams != null)
                     {
                         streamsToAdd.AddRange(streams);
@@ -1282,7 +1283,7 @@ namespace Auremo
         {
             StartAddNewPlaylistAsQuery(DataModel.SavedPlaylists.CurrentPlaylistName);
         }
-       
+
         private void OnDedupPlaylistViewClicked(object sender, RoutedEventArgs e)
         {
             ISet<Path> paths = new SortedSet<Path>();
@@ -1470,21 +1471,21 @@ namespace Auremo
 
         #region Seek bar
 
-        private bool m_SeekBarIsBeingDragged = false;
+        public int PlayPosition => m_SeekBarBeingDragged ? (int)m_SeekBar.Value : DataModel.ServerStatus.PlayPosition;
 
         private void OnSeekBarDragStart(object sender, MouseButtonEventArgs e)
         {
-            m_SeekBarIsBeingDragged = true;
+            m_SeekBarBeingDragged = true;
         }
 
         private void OnSeekBarValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            m_PlayPosition.Content = Utils.IntToTimecode((int)m_SeekBar.Value);
+            NotifyPropertyChanged("PlayPosition");
         }
 
         private void OnSeekBarDragEnd(object sender, MouseButtonEventArgs e)
         {
-            m_SeekBarIsBeingDragged = false;
+            m_SeekBarBeingDragged = false;
             DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, (int)m_SeekBar.Value);
             Update();
         }
@@ -1522,6 +1523,72 @@ namespace Auremo
 
         #endregion
 
+        #region Volume control
+
+        public int Volume => m_VolumeControlBeingDragged ? (int)m_VolumeControl.Value : DataModel.ServerStatus.Volume ?? 100;
+
+        private void OnVolumeControlDragStart(object sender, MouseButtonEventArgs e)
+        {
+            m_VolumeControlBeingDragged = true;
+        }
+
+        private void OnVolumeControlValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            DataModel.ServerSession.SetVol((int)m_VolumeControl.Value);
+        }
+
+        private void OnVolumeControlDragEnd(object sender, MouseButtonEventArgs e)
+        {
+            m_VolumeControlBeingDragged = false;
+            Update();
+        }
+
+        private void OnVolumeMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta < 0)
+            {
+                VolumeDown();
+            }
+            else if (e.Delta > 0)
+            {
+                VolumeUp();
+            }
+        }
+
+        private void VolumeDown()
+        {
+            int? currentVolume = DataModel.ServerStatus.Volume;
+
+            if (currentVolume != null && Settings.Default.EnableVolumeControl)
+            {
+                int newVolume = Math.Max(0, currentVolume.Value - Settings.Default.VolumeAdjustmentStep);
+
+                if (newVolume != currentVolume)
+                {
+                    DataModel.ServerSession.SetVol(newVolume);
+                    Update();
+                }
+            }
+        }
+
+        private void VolumeUp()
+        {
+            int? currentVolume = DataModel.ServerStatus.Volume;
+
+            if (currentVolume != null && Settings.Default.EnableVolumeControl)
+            {
+                int newVolume = Math.Min(100, currentVolume.Value + Settings.Default.VolumeAdjustmentStep);
+
+                if (newVolume != currentVolume)
+                {
+                    DataModel.ServerSession.SetVol(newVolume);
+                    Update();
+                }
+            }
+        }
+
+        #endregion
+
         #region Control buttons row
 
         private void OnBackButtonClicked(object sender, RoutedEventArgs e)
@@ -1552,29 +1619,6 @@ namespace Auremo
         private void OnSkipButtonClicked(object sender, RoutedEventArgs e)
         {
             Skip();
-        }
-
-        bool m_VolumeRestoreInProgress = false;
-
-        private void OnVolumeSliderDragged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (!m_PropertyUpdateInProgress && !m_VolumeRestoreInProgress)
-            {
-                // Volume slider is actually moving because the user is moving it.
-                DataModel.ServerSession.SetVol((int)e.NewValue);
-            }
-        }
-
-        private void OnVolumeMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (e.Delta < 0)
-            {
-                VolumeDown();
-            }
-            else if (e.Delta > 0)
-            {
-                VolumeUp();
-            }
         }
 
         private void OnToggleRandomClicked(object sender, RoutedEventArgs e)
@@ -1639,38 +1683,6 @@ namespace Auremo
             DataModel.ServerSession.Next();
             Update();
         }
-                
-        private void VolumeDown()
-        {
-            int? currentVolume = DataModel.ServerStatus.Volume;
-
-            if (currentVolume != null && Settings.Default.EnableVolumeControl)
-            {
-                int newVolume = Math.Max(0, currentVolume.Value - Settings.Default.VolumeAdjustmentStep);
-
-                if (newVolume != currentVolume)
-                {
-                    DataModel.ServerSession.SetVol(newVolume);
-                    Update();
-                }
-            }
-        }
-        
-        private void VolumeUp()
-        {
-            int? currentVolume = DataModel.ServerStatus.Volume;
-
-            if (currentVolume != null && Settings.Default.EnableVolumeControl)
-            {
-                int newVolume = Math.Min(100, currentVolume.Value + Settings.Default.VolumeAdjustmentStep);
-
-                if (newVolume != currentVolume)
-                {
-                    DataModel.ServerSession.SetVol(newVolume);
-                    Update();
-                }
-            }
-        }
 
         #endregion
 
@@ -1680,7 +1692,7 @@ namespace Auremo
         {
             DataModel.ServerSession.Update();
         }
-        
+
         #endregion
 
         #region Settings and settings tab
@@ -1775,7 +1787,7 @@ namespace Auremo
         {
             m_Overlay.Activate("Enter the address of the new stream:", "http://", OnAddStreamAddressOverlayReturned);
         }
-        
+
         private void OnAddStreamAddressOverlayReturned(bool ok, string input)
         {
             string address = input.Trim();
@@ -1800,7 +1812,7 @@ namespace Auremo
                 AudioStream stream = new AudioStream(new Path(pathString), label);
                 DataModel.StreamsCollection.Add(stream);
             }
-            
+
             m_Overlay.Deactivate();
         }
 
@@ -2023,7 +2035,7 @@ namespace Auremo
         #endregion
 
         #region Miscellaneous helper functions
-        
+
         private DataGridRow DataGridRowBeingClicked(DataGrid grid, MouseButtonEventArgs e)
         {
             HitTestResult hit = VisualTreeHelper.HitTest(grid, e.GetPosition(grid));

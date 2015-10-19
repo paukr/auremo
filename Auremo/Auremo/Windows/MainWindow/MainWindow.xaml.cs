@@ -1689,13 +1689,13 @@ namespace Auremo
         public void SettingsChanged(bool reconnectNeeded)
         {
             ApplyTabVisibilitySettings();
-            DataModel.ServerList.Deserialize(Settings.Default.Servers);
             m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             m_Timer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Default.ViewUpdateInterval);
             DataModel.CustomDateNormalizer.ReadFromSettings();
 
             if (reconnectNeeded)
             {
+                DataModel.ServerList.Deserialize(Settings.Default.Servers);
                 DataModel.ServerSession.Disconnect();
             }
         }

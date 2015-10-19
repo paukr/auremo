@@ -676,7 +676,7 @@
                         <Path Style="{StaticResource ButtonGlyphStyle}" Data="M 0,0 4,4 5,4 5,0 9,4 10,4 10,0 11,0 11,9 10,9 10,5 9,5 5,9 5,5 4,5 0,9"/>
                     </Button>
                 </StackPanel>
-                <Slider Name="m_VolumeControl" Style="{StaticResource MusicSliderStyle}" Value="{Binding Path=MainWindow.Volume, Mode=OneWay}" Grid.Column="1" Width="200" Minimum="0" Maximum="100" TickFrequency="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0"
+                <Slider Name="m_VolumeControl" Style="{StaticResource MusicSliderStyle}" Value="{Binding Path=MainWindow.Volume, Mode=OneWay}" IsEnabled="{Binding Path=MainWindow.VolumeControlIsEnabled}" Grid.Column="1" Width="200" Minimum="0" Maximum="100" TickFrequency="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0"
                         PreviewMouseDown="OnVolumeControlDragStart" ValueChanged="OnVolumeControlValueChanged" PreviewMouseUp="OnVolumeControlDragEnd" MouseWheel="OnVolumeMouseWheel"/>
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                     <l:StickyButton x:Name="m_RepeatButton" Style="{StaticResource PlaybackStickyButtonStyle}" IsDown="{Binding Path=ServerStatus.IsOnRepeat}" Click="OnToggleRepeatClicked">

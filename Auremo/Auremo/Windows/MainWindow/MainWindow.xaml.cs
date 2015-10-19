@@ -203,6 +203,7 @@ namespace Auremo
                 if (!m_VolumeControlBeingDragged)
                 {
                     NotifyPropertyChanged("Volume");
+                    NotifyPropertyChanged("VolumeControlIsEnabled");
                 }
             }
         }
@@ -1527,6 +1528,8 @@ namespace Auremo
 
         public int Volume => m_VolumeControlBeingDragged ? (int)m_VolumeControl.Value : DataModel.ServerStatus.Volume ?? 100;
 
+        public bool VolumeControlIsEnabled => DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
+        
         private void OnVolumeControlDragStart(object sender, MouseButtonEventArgs e)
         {
             m_VolumeControlBeingDragged = true;
@@ -1701,13 +1704,13 @@ namespace Auremo
         public void SettingsChanged(bool reconnectNeeded)
         {
             ApplyTabVisibilitySettings();
-            DataModel.ServerList.Deserialize(Settings.Default.Servers);
-            m_VolumeControl.IsEnabled = DataModel.ServerStatus.Volume.HasValue && Settings.Default.EnableVolumeControl;
             m_Timer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Default.ViewUpdateInterval);
             DataModel.CustomDateNormalizer.ReadFromSettings();
+            NotifyPropertyChanged("VolumeControlIsEnabled");
 
             if (reconnectNeeded)
             {
+                DataModel.ServerList.Deserialize(Settings.Default.Servers);
                 DataModel.ServerSession.Disconnect();
             }
         }

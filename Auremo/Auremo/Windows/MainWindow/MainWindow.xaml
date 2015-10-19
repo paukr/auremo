@@ -645,14 +645,11 @@
             <Line Name="m_DropPositionIndicator" Grid.Column="3" X1="0" X2="464" Y1="80" Y2="80" IsHitTestVisible="False" Visibility="Hidden" StrokeThickness="1" Stroke="{StaticResource DropPositionIndicatorBrush}"/>
         </Grid>
         <Border Grid.Row="2" Padding="20,4" BorderBrush="{StaticResource HeaderBorderBrush}" BorderThickness="0,1,0,0" Background="{StaticResource ControlPanelBackgroundBrush}">
-            <DockPanel Name="m_SeekPanel" LastChildFill="True" Margin="0,5,0,0">
-                <!-- m_PlayPosition and m_SeekBar cannot use bindings for play position because the
-                     seek bar can be dragged by the user and the twitchy slider looks ugly. Updates
-                     are done using a more manual event instead. -->
-                <Label Name="m_PlayPosition" DockPanel.Dock="Left" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="00:00"/>
+            <DockPanel LastChildFill="True" Margin="0,5,0,0">
+                <Label Name="m_PlayPosition" DockPanel.Dock="Left" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="{Binding Path=MainWindow.PlayPosition, Converter={StaticResource IntToTimecodeConverter}}"/>
                 <Label Name="m_SongLength" DockPanel.Dock="Right" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="{Binding Path=ServerStatus.SongLength, Converter={StaticResource IntToTimecodeConverter}}"/>
-                <Slider Name="m_SeekBar" Style="{StaticResource MusicSliderStyle}" Margin="2" VerticalAlignment="Center" Minimum="0" Value="0" Maximum="{Binding Path=ServerStatus.SongLength}" IsEnabled="{Binding Path=ServerStatus.SongLength, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}"
-                        PreviewMouseDown="OnSeekBarDragStart" ValueChanged="OnSeekBarValueChanged" PreviewMouseUp="OnSeekBarDragEnd"  MouseWheel="OnSeekBarMouseWheel"/>
+                <Slider Name="m_SeekBar" Style="{StaticResource MusicSliderStyle}" Value="{Binding Path=MainWindow.PlayPosition, Mode=OneWay}" Maximum="{Binding Path=ServerStatus.SongLength}" IsEnabled="{Binding Path=ServerStatus.SongLength, Converter={StaticResource IntToBoolConverter}, Mode=OneWay}" Margin="2" VerticalAlignment="Center"
+                        PreviewMouseDown="OnSeekBarDragStart" ValueChanged="OnSeekBarValueChanged" PreviewMouseUp="OnSeekBarDragEnd" MouseWheel="OnSeekBarMouseWheel"/>
             </DockPanel>
         </Border>
         <Border Grid.Row="3" Padding="20,5" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1" Background="{StaticResource ControlPanelBackgroundBrushBelow}">
@@ -679,8 +676,8 @@
                         <Path Style="{StaticResource ButtonGlyphStyle}" Data="M 0,0 4,4 5,4 5,0 9,4 10,4 10,0 11,0 11,9 10,9 10,5 9,5 5,9 5,5 4,5 0,9"/>
                     </Button>
                 </StackPanel>
-                <!-- The volume slider cannot use straight property bindings, just like the seek bar. -->
-                <Slider Name="m_VolumeControl" Style="{StaticResource MusicSliderStyle}" Grid.Column="1" Width="200" Minimum="0" Maximum="100" TickFrequency="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0" ValueChanged="OnVolumeSliderDragged" MouseWheel="OnVolumeMouseWheel"/>
+                <Slider Name="m_VolumeControl" Style="{StaticResource MusicSliderStyle}" Value="{Binding Path=MainWindow.Volume, Mode=OneWay}" Grid.Column="1" Width="200" Minimum="0" Maximum="100" TickFrequency="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0"
+                        PreviewMouseDown="OnVolumeControlDragStart" ValueChanged="OnVolumeControlValueChanged" PreviewMouseUp="OnVolumeControlDragEnd" MouseWheel="OnVolumeMouseWheel"/>
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                     <l:StickyButton x:Name="m_RepeatButton" Style="{StaticResource PlaybackStickyButtonStyle}" IsDown="{Binding Path=ServerStatus.IsOnRepeat}" Click="OnToggleRepeatClicked">
                         <Path Style="{StaticResource ButtonGlyphStyle}" Data="M 8,12 11,9 11,15 M 11,13 Q 17,13 17,9 L 17,6 Q 17,0 10,0 L 7,0 Q 0,0 0,6 L 0,9 Q 0,13 6,13 L 6,11 Q 2,11 2,9 L 2,6 Q 2,2 7,2 L 10,2 Q 15,2 15,6 L 15,9 Q 15,11 11,11"/>

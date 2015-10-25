@@ -156,9 +156,10 @@ namespace Auremo
                 m_Connection.SendTimeout = m_Timeout;
                 m_Connection.ReceiveTimeout = m_Timeout;
                 bool fatal = false;
-
+                                
                 try
                 {
+                    m_DataModel.NetworkLog?.LogMessage("Trying to connect to " + m_Host + ":" + m_Port);
                     m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connecting);
                     m_Parent.OnActivityChanged("");
                     IAsyncResult connectResult = m_Connection.BeginConnect(m_Host, m_Port, null, null);
@@ -176,11 +177,13 @@ namespace Auremo
                     {
                         m_Connection.EndConnect(connectResult);
                         m_Stream = m_Connection.GetStream();
+                        m_DataModel.NetworkLog?.LogMessage("Connect to " + m_Host + ":" + m_Port);
                     }
                 }
                 catch (Exception e)
                 {
                     fatal = !(e is SocketException);
+                    m_DataModel.NetworkLog?.LogMessage("Unable to connect to " + m_Host + ":" + m_Port + (fatal ? "(fatal)" : "(transient)"));
                     m_Stream = null;
                     m_Connection = null;
                 }
@@ -189,6 +192,8 @@ namespace Auremo
                 {
                     if (ParseBanner())
                     {
+                        m_DataModel.NetworkLog?.LogMessage("Banner accepted");
+
                         // Send possible password before any other commands.
                         SendPassword();
                         m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connected);
@@ -280,6 +285,7 @@ namespace Auremo
                 m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connecting);
             }
 
+            m_DataModel.NetworkLog?.LogMessage("Disconnected from " + m_Host + ":" + m_Port + ".");
             m_Parent.OnActivityChanged("Disconnected from " + m_Host + ":" + m_Port + ".");
 
             if (m_Connection != null)
@@ -320,7 +326,8 @@ namespace Auremo
         {
             try
             {
-                byte[] messageBytes = System.Text.Encoding.UTF8.GetBytes(command + "\n");
+                m_DataModel.NetworkLog?.LogCommand(command);
+                byte[] messageBytes = Encoding.UTF8.GetBytes(command + "\n");
                 m_Stream.Write(messageBytes, 0, messageBytes.Length);
                 return true;
             }
@@ -351,6 +358,8 @@ namespace Auremo
 
             if (statusLine != null)
             {
+                m_DataModel.NetworkLog?.LogResponse(statusLine);
+
                 if (statusLine.Key == MPDResponseLine.Keyword.ACK)
                 {
                     m_Parent.OnErrorMessageChanged(statusLine.Value);

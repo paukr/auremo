@@ -15,6 +15,7 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -51,13 +52,19 @@ namespace Auremo
         {
             m_DataModel = dataModel;
             Reset();
-            m_DataModel.ServerSession.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(OnServerSessionPropertyChanged);
+            m_DataModel.MainWindow.GlobalUpdateEvent += OnGlobalUpdate;
+            m_DataModel.ServerSession.PropertyChanged += OnServerSessionPropertyChanged;
         }
 
         public void Update()
         {
             m_DataModel.ServerSession.Status();
             m_DataModel.ServerSession.Stats();
+        }
+
+        private void OnGlobalUpdate()
+        {
+            Update();
         }
 
         public void OnStatusResponseReceived(IEnumerable<MPDResponseLine> response)

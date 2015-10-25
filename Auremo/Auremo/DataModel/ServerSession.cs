@@ -60,20 +60,11 @@ namespace Auremo
         public ServerSession(DataModel dataModel)
         {
             m_DataModel = dataModel;
-            m_DataModel.ServerList.PropertyChanged += new PropertyChangedEventHandler(OnServersPropertyChanged);
+            m_DataModel.MainWindow.GlobalUpdateEvent += OnGlobalUpdate;
+            m_DataModel.ServerList.PropertyChanged += OnServersPropertyChanged;
         }
-
-        public void UpdateConnection()
-        {
-            DoCleanup();
-
-            if (OnlineMode && State == SessionState.Disconnected)
-            {
-                Connect();
-            }
-        }
-
-        public bool Connect()
+        
+        private bool Connect()
         {
             if (m_SessionThread != null)
             {
@@ -94,16 +85,7 @@ namespace Auremo
                 m_SessionThread.Terminating = true;
             }
         }
-
-        public void DoCleanup()
-        {
-            if (m_State == SessionState.Disconnecting && m_SessionThread.Join())
-            {
-                m_SessionThread = null;
-                m_State = SessionState.Disconnected;
-            }
-        }
-
+        
         public bool OnlineMode
         {
             get
@@ -149,6 +131,25 @@ namespace Auremo
             get
             {
                 return State == SessionState.Connected;
+            }
+        }
+
+        private void OnGlobalUpdate()
+        {
+            DoCleanup();
+
+            if (OnlineMode && State == SessionState.Disconnected)
+            {
+                Connect();
+            }
+        }
+
+        private void DoCleanup()
+        {
+            if (m_State == SessionState.Disconnecting && m_SessionThread.Join())
+            {
+                m_SessionThread = null;
+                m_State = SessionState.Disconnected;
             }
         }
 

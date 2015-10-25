@@ -71,6 +71,10 @@ namespace Auremo
 
         private const int m_AutoSearchMaxKeystrokeGap = 2500;
 
+        // A global update is signaled at user-configurable intervals.
+        public delegate void GlobalUpdateHandler();
+        public event GlobalUpdateHandler GlobalUpdateEvent;
+
         #region Start-up, construction and destruction
 
         public MainWindow()
@@ -82,7 +86,7 @@ namespace Auremo
             CreateTimer(Settings.Default.ViewUpdateInterval);
             ApplyInitialSettings();
             SetInitialWindowState();
-            Update();
+            GlobalUpdateEvent();
         }
 
         public DataModel DataModel
@@ -113,8 +117,6 @@ namespace Auremo
             AssociateTreeAndController(m_GenreTree, DataModel.DatabaseView.GenreTreeController);
             AssociateTreeAndController(m_DirectoryTree, DataModel.DatabaseView.DirectoryTreeController);
         }
-
-
 
         private void CreateTimer(int interval)
         {
@@ -166,19 +168,9 @@ namespace Auremo
 
         #region Updating logic and helpers
 
-        private void OnTimerTick(Object sender, EventArgs e)
+        private void OnTimerTick(object sender, EventArgs e)
         {
-            DataModel.ServerSession.UpdateConnection();
-            Update();
-        }
-
-        private void Update()
-        {
-            if (DataModel.ServerSession.IsConnected)
-            {
-                DataModel.ServerStatus.Update();
-                DataModel.OutputCollection.Update();
-            }
+            GlobalUpdateEvent();
         }
 
         private void OnServerStatusPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -369,19 +361,19 @@ namespace Auremo
                 DataModel.ServerSession.EnableOutput(output.Index);
             }
 
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void OnToggleSingleMode(object sender, RoutedEventArgs e)
         {
             DataModel.ServerSession.Single(!DataModel.ServerStatus.IsOnSingle);
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void OnToggleConsumeMode(object sender, RoutedEventArgs e)
         {
             DataModel.ServerSession.Consume(!DataModel.ServerStatus.IsOnConsume);
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void OnCrossfadeClick(object sender, RoutedEventArgs e)
@@ -457,7 +449,7 @@ namespace Auremo
                 AddItemsToPlaylist(items);
             }
 
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void AddItemsToPlaylist(IEnumerable<LibraryItem> items)
@@ -546,7 +538,7 @@ namespace Auremo
                 AddItemsToPlaylist(controller.SelectedLeaves, insertPosition);
             }
 
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         public void OnRescanMusicCollectionClicked(object sender, RoutedEventArgs e)
@@ -828,7 +820,7 @@ namespace Auremo
                 AddItemsToPlaylist(m_DragDropPayload, targetRow);
             }
 
-            Update();
+            DataModel.ServerSession.Update();
 
             m_MousePointerHint.IsOpen = false;
             m_MousePointerHint.Visibility = Visibility.Hidden;
@@ -1173,7 +1165,7 @@ namespace Auremo
             DataModel.ServerSession.Clear();
             DataModel.ServerSession.Load(name);
             DataModel.SavedPlaylists.CurrentPlaylistName = name;
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void OnRenameSavedPlaylistClicked(object sender, RoutedEventArgs e)
@@ -1224,7 +1216,7 @@ namespace Auremo
                     if (selection.Count() == 1)
                     {
                         DataModel.ServerSession.PlayId(selection.First().Id);
-                        Update();
+                        DataModel.ServerSession.Update();
                         e.Handled = true;
                     }
                 }
@@ -1247,7 +1239,7 @@ namespace Auremo
                     IndexedLibraryItem genericItem = row.Item as IndexedLibraryItem;
                     PlaylistItem playlistItem = genericItem.Item as PlaylistItem;
                     DataModel.ServerSession.PlayId(playlistItem.Id);
-                    Update();
+                    DataModel.ServerSession.Update();
                 }
             }
         }
@@ -1256,7 +1248,7 @@ namespace Auremo
         {
             DataModel.ServerSession.Clear();
             DataModel.SavedPlaylists.CurrentPlaylistName = "";
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void OnRemoveSelectedPlaylistItemsClicked(object sender, RoutedEventArgs e)
@@ -1276,7 +1268,7 @@ namespace Auremo
                     }
                 }
 
-                Update();
+                DataModel.ServerSession.Update();
             }
         }
 
@@ -1346,7 +1338,7 @@ namespace Auremo
                 DataModel.ServerSession.DeleteId(item.Id);
             }
 
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         #endregion
@@ -1488,7 +1480,7 @@ namespace Auremo
         {
             m_SeekBarBeingDragged = false;
             DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, (int)m_SeekBar.Value);
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void OnSeekBarMouseWheel(object sender, MouseWheelEventArgs e)
@@ -1518,7 +1510,7 @@ namespace Auremo
             if (newPosition != currentPosition)
             {
                 DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, newPosition);
-                Update();
+                DataModel.ServerSession.Update();
             }
         }
 
@@ -1543,7 +1535,7 @@ namespace Auremo
         private void OnVolumeControlDragEnd(object sender, MouseButtonEventArgs e)
         {
             m_VolumeControlBeingDragged = false;
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void OnVolumeMouseWheel(object sender, MouseWheelEventArgs e)
@@ -1569,7 +1561,7 @@ namespace Auremo
                 if (newVolume != currentVolume)
                 {
                     DataModel.ServerSession.SetVol(newVolume);
-                    Update();
+                    DataModel.ServerSession.Update();
                 }
             }
         }
@@ -1585,7 +1577,7 @@ namespace Auremo
                 if (newVolume != currentVolume)
                 {
                     DataModel.ServerSession.SetVol(newVolume);
-                    Update();
+                    DataModel.ServerSession.Update();
                 }
             }
         }
@@ -1627,13 +1619,13 @@ namespace Auremo
         private void OnToggleRandomClicked(object sender, RoutedEventArgs e)
         {
             DataModel.ServerSession.Random(!DataModel.ServerStatus.IsOnRandom);
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void OnToggleRepeatClicked(object sender, RoutedEventArgs e)
         {
             DataModel.ServerSession.Repeat(!DataModel.ServerStatus.IsOnRepeat);
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         #endregion
@@ -1643,19 +1635,19 @@ namespace Auremo
         private void Back()
         {
             DataModel.ServerSession.Previous();
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void Play()
         {
             DataModel.ServerSession.Play();
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void Pause()
         {
             DataModel.ServerSession.Pause();
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void TogglePlayPause()
@@ -1672,19 +1664,19 @@ namespace Auremo
                 }
             }
 
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void Stop()
         {
             DataModel.ServerSession.Stop();
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         private void Skip()
         {
             DataModel.ServerSession.Next();
-            Update();
+            DataModel.ServerSession.Update();
         }
 
         #endregion
@@ -1912,7 +1904,7 @@ namespace Auremo
                     if (newValue.HasValue)
                     {
                         DataModel.ServerSession.Crossfade(newValue.Value);
-                        Update();
+                        DataModel.ServerSession.Update();
                     }
                 }
             }
@@ -1935,7 +1927,7 @@ namespace Auremo
                     if (newValue.HasValue)
                     {
                         DataModel.ServerSession.MixRampdb(newValue.Value);
-                        Update();
+                        DataModel.ServerSession.Update();
                     }
                 }
             }
@@ -1958,7 +1950,7 @@ namespace Auremo
                     if (newValue.HasValue)
                     {
                         DataModel.ServerSession.MixRampDelay(newValue.Value);
-                        Update();
+                        DataModel.ServerSession.Update();
                     }
                 }
             }

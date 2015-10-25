@@ -42,8 +42,9 @@ namespace Auremo
         public OutputCollection(DataModel dataModel)
         {
             m_DataModel = dataModel;
+            m_DataModel.MainWindow.GlobalUpdateEvent += OnGlobalUpdate;
         }
-
+        
         private IList<Output> m_Items = new ObservableCollection<Output>();
 
         public IList<Output> Items
@@ -62,7 +63,7 @@ namespace Auremo
             }
         }
 
-        public void Update()
+        private void OnGlobalUpdate()
         {
             m_DataModel.ServerSession.Outputs();
         }

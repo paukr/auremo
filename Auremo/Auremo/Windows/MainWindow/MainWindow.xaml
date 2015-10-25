@@ -50,6 +50,8 @@
                 <Separator/>
                 <MenuItem Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=ServerSession.IsConnected}"/>
                 <Separator/>
+                <MenuItem Header="Dump network log to file..." Click="OnDumpNetworkLogClicked"/>
+                <Separator/>
                 <MenuItem Header="Exit" Click="OnExitClicked"/>
             </MenuItem>
             <MenuItem Name="m_ConnectionMenuItem" Header="Connection">

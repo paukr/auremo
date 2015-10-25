@@ -650,12 +650,10 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="140"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Border Width="100" Height="100" Margin="8,8,18,8" Grid.RowSpan="3">
-                <Image Source="{Binding Path=CurrentSong.Cover}"  HorizontalAlignment="Center" VerticalAlignment="Center" MouseDown="OnCoverArtClick"/>
-            </Border>
+            <Image Source="{Binding Path=CurrentSong.Cover}" Stretch="Uniform" Grid.RowSpan="2" Margin="10,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center" MouseDown="OnCoverArtClick"/>
             <DockPanel Name="m_SeekPanel" Grid.Column="1" Margin="20,0" LastChildFill="True">
                 <Label DockPanel.Dock="Left" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="{Binding Path=MainWindow.PlayPosition, Converter={StaticResource IntToTimecodeConverter}}"/>
                 <Label DockPanel.Dock="Right" VerticalAlignment="Center" Width="40" FontSize="9" Foreground="{StaticResource ButtonActiveGlyphGlowBrush}" Content="{Binding Path=ServerStatus.SongLength, Converter={StaticResource IntToTimecodeConverter}}"/>
@@ -690,15 +688,16 @@
                     <Path Style="{StaticResource ButtonGlyphStyle}" Data="M 0,0 1,0 1,4 2,4 6,0 6,4 7,4 11,0 11,9 7,5 6,5 6,9 2,5 1,5 1,9 0,9"/>
                 </Button>
             </DockPanel>
-            <Grid Grid.Column="1" Grid.Row="2" Background="{StaticResource WindowBackgroundBrush}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="17"/>
-                    <RowDefinition Height="17"/>
-                </Grid.RowDefinitions>
-                <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerSession.StatusMessage, Mode=OneWay}" Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
-                <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=CurrentSong.DisplayString, Mode=OneWay}" Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
-            </Grid>
+            <Border Grid.Row="2" Grid.ColumnSpan="2" BorderBrush="{StaticResource SeparatorBorderBrush}" BorderThickness="0,1,0,0">
+                <StatusBar Padding="5,0" Background="{StaticResource WindowBackgroundBrush}" Height="30">
+                    <StatusBarItem HorizontalAlignment="Left">
+                        <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=CurrentSong.DisplayString, Mode=OneWay}"/>
+                    </StatusBarItem>
+                    <StatusBarItem HorizontalAlignment="Right">
+                        <TextBox Style="{StaticResource CopyableTextBlockStyle}" Text="{Binding Path=ServerSession.StatusMessage, Mode=OneWay}" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                    </StatusBarItem>
+                </StatusBar>
+            </Border>
         </Grid>
         <l:MainWindowOverlay x:Name="m_Overlay" Grid.ColumnSpan="2" Grid.RowSpan="5" Visibility="Collapsed"/>
         <l:CoverArtOverlay x:Name="m_CoverArtOverlay" Grid.RowSpan="5" Visibility="Collapsed"/>

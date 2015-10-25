@@ -361,19 +361,19 @@ namespace Auremo
                 DataModel.ServerSession.EnableOutput(output.Index);
             }
 
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void OnToggleSingleMode(object sender, RoutedEventArgs e)
         {
             DataModel.ServerSession.Single(!DataModel.ServerStatus.IsOnSingle);
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void OnToggleConsumeMode(object sender, RoutedEventArgs e)
         {
             DataModel.ServerSession.Consume(!DataModel.ServerStatus.IsOnConsume);
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void OnCrossfadeClick(object sender, RoutedEventArgs e)
@@ -449,7 +449,7 @@ namespace Auremo
                 AddItemsToPlaylist(items);
             }
 
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void AddItemsToPlaylist(IEnumerable<LibraryItem> items)
@@ -538,7 +538,7 @@ namespace Auremo
                 AddItemsToPlaylist(controller.SelectedLeaves, insertPosition);
             }
 
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         public void OnRescanMusicCollectionClicked(object sender, RoutedEventArgs e)
@@ -820,7 +820,7 @@ namespace Auremo
                 AddItemsToPlaylist(m_DragDropPayload, targetRow);
             }
 
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
 
             m_MousePointerHint.IsOpen = false;
             m_MousePointerHint.Visibility = Visibility.Hidden;
@@ -1165,7 +1165,7 @@ namespace Auremo
             DataModel.ServerSession.Clear();
             DataModel.ServerSession.Load(name);
             DataModel.SavedPlaylists.CurrentPlaylistName = name;
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void OnRenameSavedPlaylistClicked(object sender, RoutedEventArgs e)
@@ -1216,7 +1216,7 @@ namespace Auremo
                     if (selection.Count() == 1)
                     {
                         DataModel.ServerSession.PlayId(selection.First().Id);
-                        DataModel.ServerSession.Update();
+                        GlobalUpdateEvent();
                         e.Handled = true;
                     }
                 }
@@ -1239,7 +1239,7 @@ namespace Auremo
                     IndexedLibraryItem genericItem = row.Item as IndexedLibraryItem;
                     PlaylistItem playlistItem = genericItem.Item as PlaylistItem;
                     DataModel.ServerSession.PlayId(playlistItem.Id);
-                    DataModel.ServerSession.Update();
+                    GlobalUpdateEvent();
                 }
             }
         }
@@ -1248,7 +1248,7 @@ namespace Auremo
         {
             DataModel.ServerSession.Clear();
             DataModel.SavedPlaylists.CurrentPlaylistName = "";
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void OnRemoveSelectedPlaylistItemsClicked(object sender, RoutedEventArgs e)
@@ -1268,7 +1268,7 @@ namespace Auremo
                     }
                 }
 
-                DataModel.ServerSession.Update();
+                GlobalUpdateEvent();
             }
         }
 
@@ -1338,7 +1338,7 @@ namespace Auremo
                 DataModel.ServerSession.DeleteId(item.Id);
             }
 
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         #endregion
@@ -1480,7 +1480,7 @@ namespace Auremo
         {
             m_SeekBarBeingDragged = false;
             DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, (int)m_SeekBar.Value);
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void OnSeekBarMouseWheel(object sender, MouseWheelEventArgs e)
@@ -1510,7 +1510,7 @@ namespace Auremo
             if (newPosition != currentPosition)
             {
                 DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, newPosition);
-                DataModel.ServerSession.Update();
+                GlobalUpdateEvent();
             }
         }
 
@@ -1535,7 +1535,7 @@ namespace Auremo
         private void OnVolumeControlDragEnd(object sender, MouseButtonEventArgs e)
         {
             m_VolumeControlBeingDragged = false;
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void OnVolumeMouseWheel(object sender, MouseWheelEventArgs e)
@@ -1561,7 +1561,7 @@ namespace Auremo
                 if (newVolume != currentVolume)
                 {
                     DataModel.ServerSession.SetVol(newVolume);
-                    DataModel.ServerSession.Update();
+                    GlobalUpdateEvent();
                 }
             }
         }
@@ -1577,7 +1577,7 @@ namespace Auremo
                 if (newVolume != currentVolume)
                 {
                     DataModel.ServerSession.SetVol(newVolume);
-                    DataModel.ServerSession.Update();
+                    GlobalUpdateEvent();
                 }
             }
         }
@@ -1619,13 +1619,13 @@ namespace Auremo
         private void OnToggleRandomClicked(object sender, RoutedEventArgs e)
         {
             DataModel.ServerSession.Random(!DataModel.ServerStatus.IsOnRandom);
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void OnToggleRepeatClicked(object sender, RoutedEventArgs e)
         {
             DataModel.ServerSession.Repeat(!DataModel.ServerStatus.IsOnRepeat);
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         #endregion
@@ -1635,19 +1635,19 @@ namespace Auremo
         private void Back()
         {
             DataModel.ServerSession.Previous();
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void Play()
         {
             DataModel.ServerSession.Play();
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void Pause()
         {
             DataModel.ServerSession.Pause();
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void TogglePlayPause()
@@ -1664,19 +1664,19 @@ namespace Auremo
                 }
             }
 
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void Stop()
         {
             DataModel.ServerSession.Stop();
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         private void Skip()
         {
             DataModel.ServerSession.Next();
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         #endregion
@@ -1685,7 +1685,7 @@ namespace Auremo
 
         private void OnUpdateCollectionClicked(object sender, RoutedEventArgs e)
         {
-            DataModel.ServerSession.Update();
+            GlobalUpdateEvent();
         }
 
         #endregion
@@ -1904,7 +1904,7 @@ namespace Auremo
                     if (newValue.HasValue)
                     {
                         DataModel.ServerSession.Crossfade(newValue.Value);
-                        DataModel.ServerSession.Update();
+                        GlobalUpdateEvent();
                     }
                 }
             }
@@ -1927,7 +1927,7 @@ namespace Auremo
                     if (newValue.HasValue)
                     {
                         DataModel.ServerSession.MixRampdb(newValue.Value);
-                        DataModel.ServerSession.Update();
+                        GlobalUpdateEvent();
                     }
                 }
             }
@@ -1950,7 +1950,7 @@ namespace Auremo
                     if (newValue.HasValue)
                     {
                         DataModel.ServerSession.MixRampDelay(newValue.Value);
-                        DataModel.ServerSession.Update();
+                        GlobalUpdateEvent();
                     }
                 }
             }

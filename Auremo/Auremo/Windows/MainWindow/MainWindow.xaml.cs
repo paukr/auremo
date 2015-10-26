@@ -556,7 +556,7 @@ namespace Auremo
 
             if (dialogResult == true)
             {
-                DataModel?.NetworkLog.WriteToFile(dialog.FileName);
+                DataModel.CreateNetworkLog(dialog.FileName);
             }
         }
 
@@ -1725,7 +1725,6 @@ namespace Auremo
         {
             ApplyTabVisibilitySettings();
             DataModel.ServerList.Deserialize(Settings.Default.Servers);
-            DataModel.CreateNetworkLog();
         }
 
         private void ApplyTabVisibilitySettings()

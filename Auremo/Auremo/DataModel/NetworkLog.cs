@@ -22,41 +22,33 @@ namespace Auremo
 {
     public class NetworkLog
     {
-        StringBuilder m_Log = new StringBuilder();
+        private string m_Filename = null;
 
-        public NetworkLog()
+        public NetworkLog(string filename)
         {
+            m_Filename = filename;
         }
 
         public void LogCommand(string command)
         {
-            lock (this)
-            {
-                m_Log.AppendLine("S: " + command);
-            }
+            Write("S: " + command);
         }
 
         public void LogResponse(MPDResponseLine response)
         {
-            lock (this)
-            {
-                m_Log.AppendLine("R: " + response.ToString());
-            }
+             Write("R: " + response.ToString());
         }
 
         public void LogMessage(string message)
         {
-            lock (this)
-            {
-                m_Log.AppendLine("--- " + message + " ---");
-            }
+            Write("--- " + message + " ---");
         }
 
-        public void WriteToFile(string filename)
+        private void Write(string s)
         {
             lock (this)
             {
-                File.WriteAllText(filename, m_Log.ToString());
+                File.AppendAllText(m_Filename, s);
             }
         }
     }

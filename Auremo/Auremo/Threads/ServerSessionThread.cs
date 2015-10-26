@@ -159,7 +159,7 @@ namespace Auremo
                                 
                 try
                 {
-                    m_DataModel.NetworkLog?.LogMessage("Trying to connect to " + m_Host + ":" + m_Port);
+                    m_DataModel.NetworkLog?.LogMessage("Trying to connect to server");
                     m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connecting);
                     m_Parent.OnActivityChanged("");
                     IAsyncResult connectResult = m_Connection.BeginConnect(m_Host, m_Port, null, null);
@@ -177,13 +177,13 @@ namespace Auremo
                     {
                         m_Connection.EndConnect(connectResult);
                         m_Stream = m_Connection.GetStream();
-                        m_DataModel.NetworkLog?.LogMessage("Connect to " + m_Host + ":" + m_Port);
+                        m_DataModel.NetworkLog?.LogMessage("Connected to server");
                     }
                 }
                 catch (Exception e)
                 {
                     fatal = !(e is SocketException);
-                    m_DataModel.NetworkLog?.LogMessage("Unable to connect to " + m_Host + ":" + m_Port + (fatal ? "(fatal)" : "(transient)"));
+                    m_DataModel.NetworkLog?.LogMessage("Unable to connect to server " + (fatal ? "(fatal)" : "(transient)"));
                     m_Stream = null;
                     m_Connection = null;
                 }

@@ -308,15 +308,18 @@ namespace Auremo
 
             if (banner == null)
             {
+                m_DataModel.NetworkLog?.LogMessage("Server did not send banner");
                 m_Parent.OnErrorMessageChanged("The server banner is not valid; check settings.");
                 return false;
             }
             else if (banner.Key == MPDResponseLine.Keyword.OK && banner.Value.StartsWith("MPD"))
             {
+                m_DataModel.NetworkLog?.LogMessage("Valid banner: " + banner.Literal);
                 return true;
             }
             else
             {
+                m_DataModel.NetworkLog?.LogMessage("Banner: " + banner.Literal);
                 m_Parent.OnErrorMessageChanged("Error from server: " + banner.Literal);
                 return false;
             }

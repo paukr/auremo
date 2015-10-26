@@ -22,25 +22,26 @@ namespace Auremo
 {
     public class NetworkLog
     {
-        private string m_Filename = null;
+        private TextWriter m_Log = null;
         private bool m_Verbose = false;
 
         public NetworkLog(string filename, bool verbose)
         {
-            m_Filename = filename;
             m_Verbose = verbose;
-            File.WriteAllText(m_Filename, GetTimestampPrefix() + " --- Logging started ---" + Environment.NewLine);
+            FileStream file = File.Open(filename, FileMode.Create, FileAccess.Write, FileShare.Read);
+            m_Log = new StreamWriter(file);
+            LogMessage("Logging started");
         }
 
         public void LogCommand(string command)
         {
             if (command.ToLowerInvariant().StartsWith("password"))
             {
-                Write(GetTimestampPrefix() + " S: password: <redacted>");
+                Write("S: password: <redacted>");
             }
             else
             {
-                Write(GetTimestampPrefix() + " S: " + command);
+                Write("S: " + command);
             }
         }
 
@@ -48,7 +49,7 @@ namespace Auremo
         {
             if (!m_Verbose)
             {
-                Write(GetTimestampPrefix() + " R: " + response.ToString());
+                Write("R: " + response.ToString());
             }
         }
 
@@ -56,7 +57,7 @@ namespace Auremo
         {
             if (m_Verbose)
             {
-                Write(GetTimestampPrefix() + " R: " + response.ToString());
+                Write("R: " + response.ToString());
             }
         }
 
@@ -67,9 +68,12 @@ namespace Auremo
 
         private void Write(string s)
         {
+            string message = GetTimestampPrefix() + " " + s;
+
             lock (this)
             {
-                File.AppendAllText(m_Filename, s + Environment.NewLine);
+                m_Log.WriteLine(message);
+                m_Log.Flush();
             }
         }
 

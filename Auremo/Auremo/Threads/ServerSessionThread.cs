@@ -326,9 +326,9 @@ namespace Auremo
         {
             try
             {
-                m_DataModel.NetworkLog?.LogCommand(command);
                 byte[] messageBytes = Encoding.UTF8.GetBytes(command + "\n");
                 m_Stream.Write(messageBytes, 0, messageBytes.Length);
+                m_DataModel.NetworkLog?.LogCommand(command);
                 return true;
             }
             catch (Exception)

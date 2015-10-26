@@ -14,7 +14,8 @@
  * You should have received a copy of the GNU General Public License along
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
- 
+
+using System;
 using System.IO;
 using System.Text;
 
@@ -27,11 +28,19 @@ namespace Auremo
         public NetworkLog(string filename)
         {
             m_Filename = filename;
+            File.WriteAllText(m_Filename, "--- Auremo diagnostics log ---" + Environment.NewLine);
         }
 
         public void LogCommand(string command)
         {
-            Write("S: " + command);
+            if (command.ToLowerInvariant().StartsWith("password"))
+            {
+                Write("S: password: <redacted>");
+            }
+            else
+            {
+                Write("S: " + command);
+            }
         }
 
         public void LogResponse(MPDResponseLine response)
@@ -48,7 +57,7 @@ namespace Auremo
         {
             lock (this)
             {
-                File.AppendAllText(m_Filename, s);
+                File.AppendAllText(m_Filename, s + Environment.NewLine);
             }
         }
     }

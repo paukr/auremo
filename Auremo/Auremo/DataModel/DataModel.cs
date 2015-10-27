@@ -40,11 +40,11 @@ namespace Auremo
             YearNormalizer = new DateNormalizer(new string[] {"YYYY"});
         }
 
-        public void CreateNetworkLog(string filename)
+        public void CreateNetworkLog(string filename, bool verbose)
         {
             if (NetworkLog == null)
             {
-                NetworkLog = new NetworkLog(filename);
+                NetworkLog = new NetworkLog(filename, verbose);
             }
         }
 

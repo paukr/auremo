@@ -24,10 +24,12 @@ namespace Auremo
     public class NetworkLog
     {
         private string m_Filename = null;
+        private bool m_Verbose = false;
 
-        public NetworkLog(string filename)
+        public NetworkLog(string filename, bool verbose)
         {
             m_Filename = filename;
+            m_Verbose = verbose;
             File.WriteAllText(m_Filename, "--- Auremo diagnostics log ---" + Environment.NewLine);
         }
 
@@ -43,9 +45,20 @@ namespace Auremo
             }
         }
 
-        public void LogResponse(MPDResponseLine response)
+        public void LogResponseCompact(MPDResponseLine response)
         {
-             Write("R: " + response.ToString());
+            if (!m_Verbose)
+            {
+                Write("R: " + response.ToString());
+            }
+        }
+
+        public void LogResponseVerbose(MPDResponseLine response)
+        {
+            if (m_Verbose)
+            {
+                Write("R: " + response.ToString());
+            }
         }
 
         public void LogMessage(string message)

@@ -63,7 +63,7 @@ namespace Auremo
 
         public void LogMessage(string message)
         {
-            Write(GetTimestampPrefix() + " --- " + message + " ---");
+            Write("--- " + message + " ---");
         }
 
         private void Write(string s)

@@ -357,11 +357,12 @@ namespace Auremo
                 }
 
                 statusLine = GetResponseLine();
+                m_DataModel.NetworkLog?.LogResponseVerbose(statusLine);
             }
 
             if (statusLine != null)
             {
-                m_DataModel.NetworkLog?.LogResponse(statusLine);
+                m_DataModel.NetworkLog?.LogResponseCompact(statusLine);
 
                 if (statusLine.Key == MPDResponseLine.Keyword.ACK)
                 {

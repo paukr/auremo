@@ -30,18 +30,18 @@ namespace Auremo
         {
             m_Filename = filename;
             m_Verbose = verbose;
-            File.WriteAllText(m_Filename, "--- Auremo diagnostics log ---" + Environment.NewLine);
+            File.WriteAllText(m_Filename, GetTimestampPrefix() + " --- Logging started ---" + Environment.NewLine);
         }
 
         public void LogCommand(string command)
         {
             if (command.ToLowerInvariant().StartsWith("password"))
             {
-                Write("S: password: <redacted>");
+                Write(GetTimestampPrefix() + " S: password: <redacted>");
             }
             else
             {
-                Write("S: " + command);
+                Write(GetTimestampPrefix() + " S: " + command);
             }
         }
 
@@ -49,7 +49,7 @@ namespace Auremo
         {
             if (!m_Verbose)
             {
-                Write("R: " + response.ToString());
+                Write(GetTimestampPrefix() + " R: " + response.ToString());
             }
         }
 
@@ -57,13 +57,13 @@ namespace Auremo
         {
             if (m_Verbose)
             {
-                Write("R: " + response.ToString());
+                Write(GetTimestampPrefix() + " R: " + response.ToString());
             }
         }
 
         public void LogMessage(string message)
         {
-            Write("--- " + message + " ---");
+            Write(GetTimestampPrefix() + " --- " + message + " ---");
         }
 
         private void Write(string s)
@@ -72,6 +72,11 @@ namespace Auremo
             {
                 File.AppendAllText(m_Filename, s + Environment.NewLine);
             }
+        }
+
+        private string GetTimestampPrefix()
+        {
+            return DateTime.Now.ToString(@"HH\:mm\:ss.fff");
         }
     }
 }

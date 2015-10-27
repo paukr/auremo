@@ -556,7 +556,7 @@ namespace Auremo
 
             if (dialogResult == true)
             {
-                DataModel.CreateNetworkLog(dialog.FileName, false);
+                DataModel.CreateNetworkLog(dialog.FileName, sender == m_VerboseNetworkLogMenuItem);
             }
         }
 

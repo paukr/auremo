@@ -50,8 +50,6 @@
                 <Separator/>
                 <MenuItem Header="Rescan music collection" Click="OnRescanMusicCollectionClicked" IsEnabled="{Binding Path=ServerSession.IsConnected}"/>
                 <Separator/>
-                <MenuItem Header="Dump network log to file..." Click="OnDumpNetworkLogClicked"/>
-                <Separator/>
                 <MenuItem Header="Exit" Click="OnExitClicked"/>
             </MenuItem>
             <MenuItem Name="m_ConnectionMenuItem" Header="Connection">
@@ -86,6 +84,9 @@
                 <Separator/>
                 <Hyperlink NavigateUri="http://auremo.codeplex.com/" RequestNavigate="OnNavigate">Project home page</Hyperlink>
                 <Hyperlink NavigateUri="http://auremo.codeplex.com/releases/" RequestNavigate="OnNavigate">Download page</Hyperlink>
+                <Separator/>
+                <MenuItem Header="Dump compact network log to file..." Click="OnDumpNetworkLogClicked"/>
+                <MenuItem Name="m_VerboseNetworkLogMenuItem" Header="Dump verbose network log to file..." Click="OnDumpNetworkLogClicked"/>
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1" Margin="0,10" Grid.ColumnSpan="2">

@@ -30,18 +30,18 @@ namespace Auremo
             m_Verbose = verbose;
             FileStream file = File.Open(filename, FileMode.Create, FileAccess.Write, FileShare.Read);
             m_Log = new StreamWriter(file);
-            m_Log.WriteLine(GetTimestampPrefix() + " --- Logging started ---");
+            LogMessage("Logging started");
         }
 
         public void LogCommand(string command)
         {
             if (command.ToLowerInvariant().StartsWith("password"))
             {
-                Write(GetTimestampPrefix() + " S: password: <redacted>");
+                Write("S: password: <redacted>");
             }
             else
             {
-                Write(GetTimestampPrefix() + " S: " + command);
+                Write("S: " + command);
             }
         }
 
@@ -49,7 +49,7 @@ namespace Auremo
         {
             if (!m_Verbose)
             {
-                Write(GetTimestampPrefix() + " R: " + response.ToString());
+                Write("R: " + response.ToString());
             }
         }
 
@@ -57,20 +57,22 @@ namespace Auremo
         {
             if (m_Verbose)
             {
-                Write(GetTimestampPrefix() + " R: " + response.ToString());
+                Write("R: " + response.ToString());
             }
         }
 
         public void LogMessage(string message)
         {
-            Write(GetTimestampPrefix() + " --- " + message + " ---");
+            Write("--- " + message + " ---");
         }
 
         private void Write(string s)
         {
+            string message = GetTimestampPrefix() + " " + s;
+
             lock (this)
             {
-                m_Log.WriteLine(s);
+                m_Log.WriteLine(message);
                 m_Log.Flush();
             }
         }

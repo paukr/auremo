@@ -97,7 +97,7 @@ namespace Auremo
             NotifyPropertyChanged("Database");
         }
 
-        public void RefreshCollection()
+        private void RefreshCollection()
         {
             ProcessSettings();
             ClearCollection();
@@ -382,11 +382,7 @@ namespace Auremo
         {
             if (e.PropertyName == "State")
             {
-                if (m_DataModel.ServerSession.State == ServerSession.SessionState.Connected)
-                {
-                    RefreshCollection();
-                }
-                else
+                if (m_DataModel.ServerSession.State != ServerSession.SessionState.Connected)
                 {
                     ClearCollection();
                 }

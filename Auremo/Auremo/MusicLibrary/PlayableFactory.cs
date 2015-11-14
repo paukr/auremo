@@ -29,15 +29,17 @@ namespace Auremo.MusicLibrary
             {
                 return CreateAudioStream(path, null, block);
             }
-            else if (dataModel == null || !path.IsLocal())
+            else if (dataModel != null && path.IsLocal())
+            {
+                return FetchSongOrCreateLink(path, block, dataModel.Database);
+            }
+            else
             {
                 return CreateLink(path, block);
             }
-
-            return FetchSong(path, block, dataModel.Database);
         }
 
-        public static Song FetchSong(Path path, MPDSongResponseBlock block, Database database)
+        public static Playable FetchSongOrCreateLink(Path path, MPDSongResponseBlock block, Database database)
         {
             Song song = null;
 
@@ -47,7 +49,7 @@ namespace Auremo.MusicLibrary
             }
             else
             {
-                throw new Exception("PlayableFactory.FetchSong(): expected to find \"" + block.File + "\" in library, didn't.");
+                return CreateLink(path, block);
             }
         }
 

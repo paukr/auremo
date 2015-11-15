@@ -456,8 +456,10 @@ namespace Auremo
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                m_DataModel.NetworkLog?.LogMessage("ServerSessionThread: caught expection:");
+                m_DataModel.NetworkLog?.LogMessage(e.ToString());
                 return false;
             }
         }

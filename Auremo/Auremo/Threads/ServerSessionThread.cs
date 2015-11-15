@@ -351,14 +351,14 @@ namespace Auremo
 
             while (statusLine != null && !statusLine.IsStatus)
             {
-                statusLine = GetResponseLine();
+                m_DataModel.NetworkLog?.LogResponseVerbose(statusLine);
 
                 if (statusLine.Key != MPDResponseLine.Keyword.Unknown)
                 {
                     m_CurrentResponse.Add(statusLine);
                 }
-                
-                m_DataModel.NetworkLog?.LogResponseVerbose(statusLine);
+
+                statusLine = GetResponseLine();
             }
 
             if (statusLine != null)

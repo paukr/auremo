@@ -46,7 +46,7 @@ namespace Auremo
         private int m_Timeout = 0;
         private TcpClient m_Connection = null;
         private NetworkStream m_Stream = null;
-        private const int m_ReceiveBufferSize = 16384;
+        private const int m_ReceiveBufferSize = 1048576;
         private byte[] m_ReceiveBuffer = null;
         private int m_ReceiveBufferPosition = 0;
         private int m_BytesInBuffer = 0;

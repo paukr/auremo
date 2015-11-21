@@ -480,7 +480,7 @@ namespace Auremo
                 {
                     pos += 3;
                 }
-                else
+                else  // First in a 4-byte character.
                 {
                     pos += 4;
                 }
@@ -491,7 +491,7 @@ namespace Auremo
                 // Only complete UTF-8 characters in the buffer -- good!
                 if (pos > lineStartPosition)
                 {
-                    m_CharsLeftFromLastBuffer = m_UTF8.GetString(m_ReceiveBuffer, lineStartPosition, pos - lineStartPosition);
+                    m_CharsLeftFromLastBuffer = m_CharsLeftFromLastBuffer + m_UTF8.GetString(m_ReceiveBuffer, lineStartPosition, m_BytesInBuffer - lineStartPosition);
                 }
 
                 m_BytesInBuffer = 0;
@@ -499,9 +499,10 @@ namespace Auremo
             }
             else
             {
-                // There are dangling bytes -- we need to keep them in the
-                // buffer so they can be completed by the next read.
-                m_CharsLeftFromLastBuffer = m_UTF8.GetString(m_ReceiveBuffer, lineStartPosition, pos - firstDanglingByte);
+                // There are dangling bytes -- we need to keep them in
+                // the buffer so they can be completed to a full character
+                // on the next round.
+                m_CharsLeftFromLastBuffer = m_CharsLeftFromLastBuffer + m_UTF8.GetString(m_ReceiveBuffer, lineStartPosition, m_BytesInBuffer - firstDanglingByte);
 
                 for (int i = firstDanglingByte; i < m_BytesInBuffer; ++i)
                 {

@@ -200,6 +200,8 @@ namespace Auremo
             }
         }
 
+        public bool OutputsAreDisplayed => m_OutputsMenu.IsSubmenuOpen;
+
         #endregion
 
         #region Selection notifications to data model

@@ -65,7 +65,10 @@ namespace Auremo
 
         private void OnGlobalUpdate()
         {
-            m_DataModel.ServerSession.Outputs();
+            if (Items.Count == 0 || m_DataModel.MainWindow.OutputsAreDisplayed)
+            {
+                m_DataModel.ServerSession.Outputs();
+            }
         }
 
         public void OnOutputsResponseReceived(IEnumerable<MPDResponseLine> response)

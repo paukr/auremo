@@ -156,9 +156,10 @@ namespace Auremo
                 m_Connection.SendTimeout = m_Timeout;
                 m_Connection.ReceiveTimeout = m_Timeout;
                 bool fatal = false;
-
+                                
                 try
                 {
+                    m_DataModel.NetworkLog?.LogMessage("Trying to connect to server");
                     m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connecting);
                     m_Parent.OnActivityChanged("");
                     IAsyncResult connectResult = m_Connection.BeginConnect(m_Host, m_Port, null, null);
@@ -176,11 +177,13 @@ namespace Auremo
                     {
                         m_Connection.EndConnect(connectResult);
                         m_Stream = m_Connection.GetStream();
+                        m_DataModel.NetworkLog?.LogMessage("Connected to server");
                     }
                 }
                 catch (Exception e)
                 {
                     fatal = !(e is SocketException);
+                    m_DataModel.NetworkLog?.LogMessage("Unable to connect to server " + (fatal ? "(fatal)" : "(transient)"));
                     m_Stream = null;
                     m_Connection = null;
                 }
@@ -189,6 +192,8 @@ namespace Auremo
                 {
                     if (ParseBanner())
                     {
+                        m_DataModel.NetworkLog?.LogMessage("Banner accepted");
+
                         // Send possible password before any other commands.
                         SendPassword();
                         m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connected);
@@ -280,6 +285,7 @@ namespace Auremo
                 m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connecting);
             }
 
+            m_DataModel.NetworkLog?.LogMessage("Disconnected from " + m_Host + ":" + m_Port + ".");
             m_Parent.OnActivityChanged("Disconnected from " + m_Host + ":" + m_Port + ".");
 
             if (m_Connection != null)
@@ -302,15 +308,18 @@ namespace Auremo
 
             if (banner == null)
             {
+                m_DataModel.NetworkLog?.LogMessage("Server did not send banner");
                 m_Parent.OnErrorMessageChanged("The server banner is not valid; check settings.");
                 return false;
             }
             else if (banner.Key == MPDResponseLine.Keyword.OK && banner.Value.StartsWith("MPD"))
             {
+                m_DataModel.NetworkLog?.LogMessage("Valid banner: " + banner.Literal);
                 return true;
             }
             else
             {
+                m_DataModel.NetworkLog?.LogMessage("Banner: " + banner.Literal);
                 m_Parent.OnErrorMessageChanged("Error from server: " + banner.Literal);
                 return false;
             }
@@ -320,8 +329,9 @@ namespace Auremo
         {
             try
             {
-                byte[] messageBytes = System.Text.Encoding.UTF8.GetBytes(command + "\n");
+                byte[] messageBytes = Encoding.UTF8.GetBytes(command + "\n");
                 m_Stream.Write(messageBytes, 0, messageBytes.Length);
+                m_DataModel.NetworkLog?.LogCommand(command);
                 return true;
             }
             catch (Exception)
@@ -341,6 +351,8 @@ namespace Auremo
 
             while (statusLine != null && !statusLine.IsStatus)
             {
+                m_DataModel.NetworkLog?.LogResponseVerbose(statusLine);
+
                 if (statusLine.Key != MPDResponseLine.Keyword.Unknown)
                 {
                     m_CurrentResponse.Add(statusLine);
@@ -351,6 +363,8 @@ namespace Auremo
 
             if (statusLine != null)
             {
+                m_DataModel.NetworkLog?.LogResponseCompact(statusLine);
+
                 if (statusLine.Key == MPDResponseLine.Keyword.ACK)
                 {
                     m_Parent.OnErrorMessageChanged(statusLine.Value);
@@ -442,8 +456,10 @@ namespace Auremo
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                m_DataModel.NetworkLog?.LogMessage("ServerSessionThread: caught expection:");
+                m_DataModel.NetworkLog?.LogMessage(e.ToString());
                 return false;
             }
         }

@@ -546,6 +546,20 @@ namespace Auremo
             DataModel.ServerSession.Update();
         }
 
+        private void OnDumpNetworkLogClicked(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Title = "Dump network log";
+            dialog.Filter = "Text Files|*.txt";
+
+            bool? dialogResult = dialog.ShowDialog();
+
+            if (dialogResult == true)
+            {
+                DataModel.CreateNetworkLog(dialog.FileName, sender == m_VerboseNetworkLogMenuItem);
+            }
+        }
+
         public void OnRescanPlaylistsCollectionClicked(object sender, RoutedEventArgs e)
         {
             DataModel.SavedPlaylists.Refresh();

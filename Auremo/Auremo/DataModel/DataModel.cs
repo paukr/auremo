@@ -22,6 +22,7 @@ namespace Auremo
         public DataModel(MainWindow mainWindow)
         {
             MainWindow = mainWindow;
+            NetworkLog = null;
             ServerList = new ServerList();
             ServerSession = new ServerSession(this);
             ServerStatus = new ServerStatus(this);
@@ -39,7 +40,21 @@ namespace Auremo
             YearNormalizer = new DateNormalizer(new string[] {"YYYY"});
         }
 
+        public void CreateNetworkLog(string filename, bool verbose)
+        {
+            if (NetworkLog == null)
+            {
+                NetworkLog = new NetworkLog(filename, verbose);
+            }
+        }
+
         public MainWindow MainWindow
+        {
+            get;
+            private set;
+        }
+
+        public NetworkLog NetworkLog
         {
             get;
             private set;

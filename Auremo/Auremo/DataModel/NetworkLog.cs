@@ -47,10 +47,7 @@ namespace Auremo
 
         public void LogResponseCompact(MPDResponseLine response)
         {
-            if (!m_Verbose)
-            {
-                Write("R: " + response.ToString());
-            }
+            Write("R: " + response.ToString());
         }
 
         public void LogResponseVerbose(MPDResponseLine response)

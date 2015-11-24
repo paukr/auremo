@@ -58,8 +58,8 @@ namespace Auremo
 
         public void Update()
         {
-            m_DataModel.ServerSession.Status();
-            m_DataModel.ServerSession.Stats();
+            m_DataModel.ServerSession.Send(MPDCommandFactory.Status());
+            m_DataModel.ServerSession.Send(MPDCommandFactory.Stats());
         }
 
         private void OnGlobalUpdate()

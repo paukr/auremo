@@ -193,7 +193,7 @@ namespace Auremo
 
         private void QuerySongInfo()
         {
-            m_DataModel.ServerSession.ListAllInfo();
+            m_DataModel.ServerSession.Send(MPDCommandFactory.ListAllInfo());
         }
 
         private void PopulateDatabase(IEnumerable<MPDSongResponseBlock> response)

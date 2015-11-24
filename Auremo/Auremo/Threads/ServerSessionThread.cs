@@ -292,7 +292,7 @@ namespace Auremo
             {
                 if (m_Connection.Connected)
                 {
-                    SendCommand("close");
+                    SendCommand("close"); // TODO use the factory
                 }
 
                 m_Stream.Close();

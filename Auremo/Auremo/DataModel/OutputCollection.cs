@@ -67,7 +67,7 @@ namespace Auremo
         {
             if (Items.Count == 0 || m_DataModel.MainWindow.OutputsAreDisplayed)
             {
-                m_DataModel.ServerSession.Outputs();
+                m_DataModel.ServerSession.Send(MPDCommandFactory.Outputs());
             }
         }
 

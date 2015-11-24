@@ -81,7 +81,7 @@ namespace Auremo
                 m_UnfilteredSearchResults.Clear();
                 SearchResults.Clear();
                 string type = m_SearchType.ToString().ToLowerInvariant();
-                m_DataModel.ServerSession.Search(type, SearchString);
+                m_DataModel.ServerSession.Send(MPDCommandFactory.Search(type, SearchString));
             }
         }
 

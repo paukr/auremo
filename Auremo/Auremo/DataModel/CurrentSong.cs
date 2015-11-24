@@ -51,7 +51,7 @@ namespace Auremo
 
         public void Update()
         {
-            m_DataModel.ServerSession.CurrentSong();
+            m_DataModel.ServerSession.Send(MPDCommandFactory.CurrentSong());
         }
 
         public void OnCurrentSongResponseReceived(IEnumerable<MPDSongResponseBlock> response)

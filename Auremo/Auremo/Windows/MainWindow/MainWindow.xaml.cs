@@ -356,11 +356,11 @@ namespace Auremo
 
             if (output.IsEnabled)
             {
-                DataModel.ServerSession.DisableOutput(output.Index);
+                DataModel.ServerSession.Send(MPDCommandFactory.DisableOutput(output.Index));
             }
             else
             {
-                DataModel.ServerSession.EnableOutput(output.Index);
+                DataModel.ServerSession.Send(MPDCommandFactory.EnableOutput(output.Index));
             }
 
             GlobalUpdateEvent();
@@ -368,13 +368,13 @@ namespace Auremo
 
         private void OnToggleSingleMode(object sender, RoutedEventArgs e)
         {
-            DataModel.ServerSession.Single(!DataModel.ServerStatus.IsOnSingle);
+            DataModel.ServerSession.Send(MPDCommandFactory.Single(!DataModel.ServerStatus.IsOnSingle));
             GlobalUpdateEvent();
         }
 
         private void OnToggleConsumeMode(object sender, RoutedEventArgs e)
         {
-            DataModel.ServerSession.Consume(!DataModel.ServerStatus.IsOnConsume);
+            DataModel.ServerSession.Send(MPDCommandFactory.Consume(!DataModel.ServerStatus.IsOnConsume));
             GlobalUpdateEvent();
         }
 
@@ -442,9 +442,9 @@ namespace Auremo
             }
             else if (Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString())
             {
-                DataModel.ServerSession.Clear();
+                DataModel.ServerSession.Send(MPDCommandFactory.Clear());
                 AddItemsToPlaylist(items);
-                DataModel.ServerSession.Play();
+                DataModel.ServerSession.Send(MPDCommandFactory.Play());
             }
             else // Assume SendToPlaylistMethod.Append as the default
             {
@@ -460,7 +460,7 @@ namespace Auremo
             {
                 if (item is Playable)
                 {
-                    DataModel.ServerSession.Add((item as Playable).Path.Full);
+                    DataModel.ServerSession.Send(MPDCommandFactory.Add((item as Playable).Path.Full));
                 }
                 else
                 {
@@ -477,7 +477,7 @@ namespace Auremo
             {
                 if (item is Playable)
                 {
-                    DataModel.ServerSession.AddId((item as Playable).Path.Full, position++);
+                    DataModel.ServerSession.Send(MPDCommandFactory.AddId((item as Playable).Path.Full, position++));
                 }
                 else
                 {
@@ -517,9 +517,9 @@ namespace Auremo
 
         public void OnPlayThisClicked(object sender, RoutedEventArgs e)
         {
-            DataModel.ServerSession.Clear();
+            DataModel.ServerSession.Send(MPDCommandFactory.Clear());
             AddToPlaylistContextMenuViaContextMenu(sender, 0);
-            DataModel.ServerSession.Play();
+            DataModel.ServerSession.Send(MPDCommandFactory.Play());
         }
 
         public void AddToPlaylistContextMenuViaContextMenu(object sender, int insertPosition)
@@ -545,7 +545,7 @@ namespace Auremo
 
         public void OnRescanMusicCollectionClicked(object sender, RoutedEventArgs e)
         {
-            DataModel.ServerSession.Update();
+            DataModel.ServerSession.Send(MPDCommandFactory.Update());
         }
 
         private void OnDumpNetworkLogClicked(object sender, RoutedEventArgs e)
@@ -823,11 +823,11 @@ namespace Auremo
                 {
                     if (item.Position < targetRow)
                     {
-                        DataModel.ServerSession.MoveId(item.Id, targetRow - 1);
+                        DataModel.ServerSession.Send(MPDCommandFactory.MoveId(item.Id, targetRow - 1));
                     }
                     else
                     {
-                        DataModel.ServerSession.MoveId(item.Id, targetRow++);
+                        DataModel.ServerSession.Send(MPDCommandFactory.MoveId(item.Id, targetRow++));
                     }
                 }
             }
@@ -1178,8 +1178,8 @@ namespace Auremo
 
         private void LoadSavedPlaylist(string name)
         {
-            DataModel.ServerSession.Clear();
-            DataModel.ServerSession.Load(name);
+            DataModel.ServerSession.Send(MPDCommandFactory.Clear());
+            DataModel.ServerSession.Send(MPDCommandFactory.Load(name));
             DataModel.SavedPlaylists.CurrentPlaylistName = name;
             GlobalUpdateEvent();
         }
@@ -1210,7 +1210,7 @@ namespace Auremo
 
             if (selection != null)
             {
-                DataModel.ServerSession.Rm(selection.Title);
+                DataModel.ServerSession.Send(MPDCommandFactory.Rm(selection.Title));
                 DataModel.SavedPlaylists.Refresh();
             }
         }
@@ -1231,7 +1231,7 @@ namespace Auremo
 
                     if (selection.Count() == 1)
                     {
-                        DataModel.ServerSession.PlayId(selection.First().Id);
+                        DataModel.ServerSession.Send(MPDCommandFactory.PlayId(selection.First().Id));
                         GlobalUpdateEvent();
                         e.Handled = true;
                     }
@@ -1254,7 +1254,7 @@ namespace Auremo
                 {
                     IndexedLibraryItem genericItem = row.Item as IndexedLibraryItem;
                     PlaylistItem playlistItem = genericItem.Item as PlaylistItem;
-                    DataModel.ServerSession.PlayId(playlistItem.Id);
+                    DataModel.ServerSession.Send(MPDCommandFactory.PlayId(playlistItem.Id));
                     GlobalUpdateEvent();
                 }
             }
@@ -1262,7 +1262,7 @@ namespace Auremo
 
         private void OnClearPlaylistViewClicked(object sender, RoutedEventArgs e)
         {
-            DataModel.ServerSession.Clear();
+            DataModel.ServerSession.Send(MPDCommandFactory.Clear());
             DataModel.SavedPlaylists.CurrentPlaylistName = "";
             GlobalUpdateEvent();
         }
@@ -1280,7 +1280,7 @@ namespace Auremo
                 {
                     if (!row.IsSelected)
                     {
-                        DataModel.ServerSession.DeleteId((row.Item as PlaylistItem).Id);
+                        DataModel.ServerSession.Send(MPDCommandFactory.DeleteId((row.Item as PlaylistItem).Id));
                     }
                 }
 
@@ -1303,7 +1303,7 @@ namespace Auremo
 
                 if (paths.Contains(item.Path))
                 {
-                    DataModel.ServerSession.DeleteId(item.Id);
+                    DataModel.ServerSession.Send(MPDCommandFactory.DeleteId(item.Id));
                 }
                 else
                 {
@@ -1314,7 +1314,7 @@ namespace Auremo
 
         private void OnShufflePlaylistClicked(object sender, RoutedEventArgs e)
         {
-            DataModel.ServerSession.Shuffle();
+            DataModel.ServerSession.Send(MPDCommandFactory.Shuffle());
         }
 
         private void OnShowInArtistsListClicked(object sender, RoutedEventArgs e)
@@ -1351,7 +1351,7 @@ namespace Auremo
         {
             foreach (PlaylistItem item in m_PlaylistView.Selection().Cast<PlaylistItem>())
             {
-                DataModel.ServerSession.DeleteId(item.Id);
+                DataModel.ServerSession.Send(MPDCommandFactory.DeleteId(item.Id));
             }
 
             GlobalUpdateEvent();
@@ -1495,7 +1495,7 @@ namespace Auremo
         private void OnSeekBarDragEnd(object sender, MouseButtonEventArgs e)
         {
             m_SeekBarBeingDragged = false;
-            DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, (int)m_SeekBar.Value);
+            DataModel.ServerSession.Send(MPDCommandFactory.Seek(DataModel.ServerStatus.CurrentSongIndex, (int)m_SeekBar.Value));
             GlobalUpdateEvent();
         }
 
@@ -1525,7 +1525,7 @@ namespace Auremo
 
             if (newPosition != currentPosition)
             {
-                DataModel.ServerSession.Seek(DataModel.ServerStatus.CurrentSongIndex, newPosition);
+                DataModel.ServerSession.Send(MPDCommandFactory.Seek(DataModel.ServerStatus.CurrentSongIndex, newPosition));
                 GlobalUpdateEvent();
             }
         }
@@ -1545,7 +1545,7 @@ namespace Auremo
 
         private void OnVolumeControlValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            DataModel.ServerSession.SetVol((int)m_VolumeControl.Value);
+            DataModel.ServerSession.Send(MPDCommandFactory.SetVol((int)m_VolumeControl.Value));
         }
 
         private void OnVolumeControlDragEnd(object sender, MouseButtonEventArgs e)
@@ -1576,7 +1576,7 @@ namespace Auremo
 
                 if (newVolume != currentVolume)
                 {
-                    DataModel.ServerSession.SetVol(newVolume);
+                    DataModel.ServerSession.Send(MPDCommandFactory.SetVol(newVolume));
                     GlobalUpdateEvent();
                 }
             }
@@ -1592,7 +1592,7 @@ namespace Auremo
 
                 if (newVolume != currentVolume)
                 {
-                    DataModel.ServerSession.SetVol(newVolume);
+                    DataModel.ServerSession.Send(MPDCommandFactory.SetVol(newVolume));
                     GlobalUpdateEvent();
                 }
             }
@@ -1634,13 +1634,13 @@ namespace Auremo
 
         private void OnToggleRandomClicked(object sender, RoutedEventArgs e)
         {
-            DataModel.ServerSession.Random(!DataModel.ServerStatus.IsOnRandom);
+            DataModel.ServerSession.Send(MPDCommandFactory.Random(!DataModel.ServerStatus.IsOnRandom));
             GlobalUpdateEvent();
         }
 
         private void OnToggleRepeatClicked(object sender, RoutedEventArgs e)
         {
-            DataModel.ServerSession.Repeat(!DataModel.ServerStatus.IsOnRepeat);
+            DataModel.ServerSession.Send(MPDCommandFactory.Repeat(!DataModel.ServerStatus.IsOnRepeat));
             GlobalUpdateEvent();
         }
 
@@ -1650,19 +1650,19 @@ namespace Auremo
 
         private void Back()
         {
-            DataModel.ServerSession.Previous();
+            DataModel.ServerSession.Send(MPDCommandFactory.Previous());
             GlobalUpdateEvent();
         }
 
         private void Play()
         {
-            DataModel.ServerSession.Play();
+            DataModel.ServerSession.Send(MPDCommandFactory.Play());
             GlobalUpdateEvent();
         }
 
         private void Pause()
         {
-            DataModel.ServerSession.Pause();
+            DataModel.ServerSession.Send(MPDCommandFactory.Pause());
             GlobalUpdateEvent();
         }
 
@@ -1672,11 +1672,11 @@ namespace Auremo
             {
                 if (DataModel.ServerStatus.IsPlaying)
                 {
-                    DataModel.ServerSession.Pause();
+                    DataModel.ServerSession.Send(MPDCommandFactory.Pause());
                 }
                 else
                 {
-                    DataModel.ServerSession.Play();
+                    DataModel.ServerSession.Send(MPDCommandFactory.Play());
                 }
             }
 
@@ -1685,13 +1685,13 @@ namespace Auremo
 
         private void Stop()
         {
-            DataModel.ServerSession.Stop();
+            DataModel.ServerSession.Send(MPDCommandFactory.Stop());
             GlobalUpdateEvent();
         }
 
         private void Skip()
         {
-            DataModel.ServerSession.Next();
+            DataModel.ServerSession.Send(MPDCommandFactory.Next());
             GlobalUpdateEvent();
         }
 
@@ -1870,8 +1870,8 @@ namespace Auremo
             if (ok && trimmedName.Length > 0)
             {
                 DataModel.SavedPlaylists.CurrentPlaylistName = trimmedName;
-                DataModel.ServerSession.Rm(DataModel.SavedPlaylists.CurrentPlaylistName);
-                DataModel.ServerSession.Save(DataModel.SavedPlaylists.CurrentPlaylistName);
+                DataModel.ServerSession.Send(MPDCommandFactory.Rm(DataModel.SavedPlaylists.CurrentPlaylistName));
+                DataModel.ServerSession.Send(MPDCommandFactory.Save(DataModel.SavedPlaylists.CurrentPlaylistName));
                 DataModel.SavedPlaylists.Refresh();
             }
 
@@ -1893,7 +1893,7 @@ namespace Auremo
 
             if (ok && trimmedName.Length > 0)
             {
-                DataModel.ServerSession.Rename(m_Overlay.Data as string, trimmedName);
+                DataModel.ServerSession.Send(MPDCommandFactory.Rename(m_Overlay.Data as string, trimmedName));
                 DataModel.SavedPlaylists.CurrentPlaylistName = trimmedName;
                 DataModel.SavedPlaylists.Refresh();
             }
@@ -1911,7 +1911,7 @@ namespace Auremo
             {
                 if (input.Length == 0)
                 {
-                    DataModel.ServerSession.Crossfade(0);
+                    DataModel.ServerSession.Send(MPDCommandFactory.Crossfade(0));
                 }
                 else
                 {
@@ -1919,7 +1919,7 @@ namespace Auremo
 
                     if (newValue.HasValue)
                     {
-                        DataModel.ServerSession.Crossfade(newValue.Value);
+                        DataModel.ServerSession.Send(MPDCommandFactory.Crossfade(newValue.Value));
                         GlobalUpdateEvent();
                     }
                 }
@@ -1934,7 +1934,7 @@ namespace Auremo
             {
                 if (input.Length == 0)
                 {
-                    DataModel.ServerSession.MixRampDelay(double.NaN);
+                    DataModel.ServerSession.Send(MPDCommandFactory.MixRampDelay(double.NaN));
                 }
                 else
                 {
@@ -1942,7 +1942,7 @@ namespace Auremo
 
                     if (newValue.HasValue)
                     {
-                        DataModel.ServerSession.MixRampdb(newValue.Value);
+                        DataModel.ServerSession.Send(MPDCommandFactory.MixRampdb(newValue.Value));
                         GlobalUpdateEvent();
                     }
                 }
@@ -1957,7 +1957,7 @@ namespace Auremo
             {
                 if (input.Length == 0)
                 {
-                    DataModel.ServerSession.MixRampDelay(double.NaN);
+                    DataModel.ServerSession.Send(MPDCommandFactory.MixRampDelay(double.NaN));
                 }
                 else
                 {
@@ -1965,7 +1965,7 @@ namespace Auremo
 
                     if (newValue.HasValue)
                     {
-                        DataModel.ServerSession.MixRampDelay(newValue.Value);
+                        DataModel.ServerSession.Send(MPDCommandFactory.MixRampDelay(newValue.Value));
                         GlobalUpdateEvent();
                     }
                 }

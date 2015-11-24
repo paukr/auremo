@@ -132,7 +132,7 @@ namespace Auremo
 
         private void UpdateItems()
         {
-            m_DataModel.ServerSession.PlaylistInfo();
+            m_DataModel.ServerSession.Send(MPDCommandFactory.PlaylistInfo());
         }
 
         public void OnPlaylistInfoResponseReceived(IEnumerable<MPDSongResponseBlock> response)

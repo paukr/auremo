@@ -63,7 +63,7 @@ namespace Auremo
 
         public void Refresh()
         {
-            m_DataModel.ServerSession.LsInfo();
+            m_DataModel.ServerSession.Send(MPDCommandFactory.LsInfo());
         }
 
         public void OnLsInfoResponseReceived(IEnumerable<MPDResponseLine> response)
@@ -79,7 +79,7 @@ namespace Auremo
                     playlists.Add(playlist);
                     m_Playlists[line.Value] = playlist;
                     m_PlaylistContents[playlist] = new List<LibraryItem>();
-                    m_DataModel.ServerSession.ListPlaylistInfo(playlist.Title);
+                    m_DataModel.ServerSession.Send(MPDCommandFactory.ListPlaylistInfo(playlist.Title));
                 }
             }
 

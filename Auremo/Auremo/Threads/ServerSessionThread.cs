@@ -36,7 +36,7 @@ namespace Auremo
         private object m_Lock = new object();
         private bool m_Terminating = false;
         private ManualResetEvent m_ThreadEvent = new ManualResetEvent(false);
-        private Queue<MPDCommand> m_CommandQueue = new Queue<MPDCommand>();
+        private Queue<MPDSendable> m_CommandQueue = new Queue<MPDSendable>();
         private bool m_StatusUpdateEnqueued = false;
         private bool m_StatsUpdateEnqueued = false;
         private string m_Host = "";
@@ -137,6 +137,15 @@ namespace Auremo
             }
         }
 
+        public void Send(MPDSendable sendable)
+        {
+            lock (m_Lock)
+            {
+                m_CommandQueue.Enqueue(sendable);
+                m_ThreadEvent.Set();
+            }
+        }
+
         private void SetInitialState()
         {
             m_CommandQueue.Clear();
@@ -233,7 +242,7 @@ namespace Auremo
 
             while (!terminating)
             {
-                MPDCommand command = null;
+                MPDSendable sendable = null;
 
                 lock (m_Lock)
                 {
@@ -245,29 +254,42 @@ namespace Auremo
 
                     if (m_CommandQueue.Count > 0)
                     {
-                        command = m_CommandQueue.Dequeue();
+                        sendable = m_CommandQueue.Dequeue();
                         m_ThreadEvent.Reset();
                     }
                 }
 
                 if (!terminating)
                 {
-                    if (command == null)
+                    if (sendable == null)
                     {
                         m_ThreadEvent.WaitOne();
                     }
                     else
                     {
-                        UpdateThreadMessage(command);
-
-                        bool optimizeOut = false;
-                        optimizeOut = optimizeOut || (command.Op == "status" && m_StatusUpdateEnqueued);
-                        optimizeOut = optimizeOut || (command.Op == "stats" && m_StatsUpdateEnqueued);
-
-                        if (!optimizeOut)
+                        if (sendable is MPDCommand)
                         {
-                            SendCommand(command.FullSyntax);
-                            ReceiveResponse(command);
+                            MPDCommand command = sendable as MPDCommand;
+                            UpdateThreadMessage(command);
+                            bool optimizeOut = false;
+                            optimizeOut = optimizeOut || (command.Op == "status" && m_StatusUpdateEnqueued);
+                            optimizeOut = optimizeOut || (command.Op == "stats" && m_StatsUpdateEnqueued);
+
+                            if (!optimizeOut)
+                            {
+                                SendCommand(command.FullSyntax);
+                                ReceiveResponse(command);
+                            }
+                        }
+                        else if (sendable is MPDCommandList)
+                        {
+                            MPDCommandList commands = sendable as MPDCommandList;
+
+                            if (commands.Nonempty)
+                            {
+                                SendCommand(sendable.FullSyntax);
+                                ReceiveResponse(sendable);
+                            }
                         }
                     }
                 }
@@ -292,7 +314,7 @@ namespace Auremo
             {
                 if (m_Connection.Connected)
                 {
-                    SendCommand("close"); // TODO use the factory
+                    SendCommand("close\n"); // TODO use the factory
                 }
 
                 m_Stream.Close();
@@ -329,7 +351,7 @@ namespace Auremo
         {
             try
             {
-                byte[] messageBytes = Encoding.UTF8.GetBytes(command + "\n");
+                byte[] messageBytes = Encoding.UTF8.GetBytes(command);
                 m_Stream.Write(messageBytes, 0, messageBytes.Length);
                 m_DataModel.NetworkLog?.LogCommand(command);
                 return true;
@@ -343,7 +365,7 @@ namespace Auremo
             return false;
         }
 
-        private void ReceiveResponse(MPDCommand command)
+        private void ReceiveResponse(MPDSendable sendable)
         {
             // TODO: if the server is really slow (Mopidy on an RPI for
             // example), we can get stuck here during shutdown.
@@ -369,8 +391,10 @@ namespace Auremo
                 {
                     m_Parent.OnErrorMessageChanged(statusLine.Value);
                 }
-                else
+                else if (sendable is MPDCommand)
                 {
+                    MPDCommand command = sendable as MPDCommand;
+
                     if (command.Op == "currentsong")
                     {
                         ParseSongList();

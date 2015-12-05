@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace Auremo.Protocol
+namespace Auremo
 {
-    public class MPDCommandList
+    public class MPDCommandList : MPDSendable
     {
         private Queue<MPDCommand> m_Queue = new Queue<MPDCommand>();
 
@@ -11,9 +11,17 @@ namespace Auremo.Protocol
         {
         }
 
-        public void AddCommand(MPDCommand command)
+        public void Add(MPDCommand command)
         {
             m_Queue.Enqueue(command);
+        }
+
+        public bool Nonempty
+        {
+            get
+            {
+                return m_Queue.Count > 0;
+            }
         }
 
         public string FullSyntax
@@ -26,7 +34,6 @@ namespace Auremo.Protocol
                 foreach (MPDCommand command in m_Queue)
                 {
                     result.Append(command.FullSyntax);
-                    result.Append("\n");
                 }
 
                 result.Append("command_list_end\n");

@@ -19,14 +19,14 @@ using System.Globalization;
 
 namespace Auremo
 {
-    public class MPDCommand
+    public class MPDCommand : MPDSendable
     {
         public MPDCommand(string op)
         {
             Op = op;
             Argument1 = null;
             Argument2 = null;
-            FullSyntax = op;
+            FullSyntax = op + "\n";
         }
 
         public MPDCommand(string op, string argument1)
@@ -34,7 +34,7 @@ namespace Auremo
             Op = op;
             Argument1 = argument1;
             Argument2 = null;
-            FullSyntax = op + " " + Quote(argument1);
+            FullSyntax = op + " " + Quote(argument1) + "\n";
         }
 
         public MPDCommand(string op, int argument1)
@@ -42,7 +42,7 @@ namespace Auremo
             Op = op;
             Argument1 = argument1.ToString();
             Argument2 = null;
-            FullSyntax = op + " " + Quote(argument1);
+            FullSyntax = op + " " + Quote(argument1) + "\n";
         }
 
         public MPDCommand(string op, bool argument1)
@@ -50,7 +50,7 @@ namespace Auremo
             Op = op;
             Argument1 = argument1 ? "1" : "0";
             Argument2 = null;
-            FullSyntax = op + " " + Quote(Argument1);
+            FullSyntax = op + " " + Quote(Argument1) + "\n";
         }
 
         public MPDCommand(string op, double argument)
@@ -58,7 +58,7 @@ namespace Auremo
             Op = op;
             Argument1 = double.IsNaN(argument) ? "nan" : argument.ToString(NumberFormatInfo.InvariantInfo);
             Argument2 = null;
-            FullSyntax = op + " " + Quote(Argument1);
+            FullSyntax = op + " " + Quote(Argument1) + "\n";
         }
 
         public MPDCommand(string op, string argument1, string argument2)
@@ -66,7 +66,7 @@ namespace Auremo
             Op = op;
             Argument1 = argument1;
             Argument2 = argument2;
-            FullSyntax = op + " " + Quote(argument1) + " " + Quote(argument2);
+            FullSyntax = op + " " + Quote(argument1) + " " + Quote(argument2) + "\n";
         }
 
         public MPDCommand(string op, string argument1, int argument2)
@@ -74,7 +74,7 @@ namespace Auremo
             Op = op;
             Argument1 = argument1;
             Argument2 = argument2.ToString();
-            FullSyntax = op + " " + Quote(argument1) + " " + Quote(argument2);
+            FullSyntax = op + " " + Quote(argument1) + " " + Quote(argument2) + "\n";
         }
 
         public MPDCommand(string op, int argument1, int argument2)
@@ -82,7 +82,7 @@ namespace Auremo
             Op = op;
             Argument1 = argument1.ToString();
             Argument2 = argument2.ToString();
-            FullSyntax = op + " " + Quote(argument1) + " " + Quote(argument2);
+            FullSyntax = op + " " + Quote(argument1) + " " + Quote(argument2) + "\n";
         }
 
         public string Op

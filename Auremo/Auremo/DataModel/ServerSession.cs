@@ -142,7 +142,13 @@ namespace Auremo
             }
         }
 
-
+        public void Send(MPDCommandList commands)
+        {
+            if (m_SessionThread != null || m_State == SessionState.Connected)
+            {
+                m_SessionThread.Send(commands);
+            }
+        }
 
         private void OnGlobalUpdate()
         {

@@ -434,42 +434,66 @@ namespace Auremo
             }
         }
 
+        /// <summary>
+        /// Add items to the playlist with the current preferred adding
+        /// mechanism. (Enter or double-click.)
+        /// </summary>
         private void SendItemsToPlaylist(IEnumerable<LibraryItem> items)
         {
+            MPDCommandList commands = new MPDCommandList();
+
             if (Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.AddAsNext.ToString())
             {
-                AddItemsToPlaylist(items, DataModel.ServerStatus.CurrentSongIndex + 1);
+                AddItemsToPlaylist(commands, items, DataModel.ServerStatus.CurrentSongIndex + 1);
             }
             else if (Settings.Default.SendToPlaylistMethod == SendToPlaylistMethod.ReplaceAndPlay.ToString())
             {
-                DataModel.ServerSession.Send(MPDCommandFactory.Clear());
-                AddItemsToPlaylist(items);
-                DataModel.ServerSession.Send(MPDCommandFactory.Play());
+                commands.Add(MPDCommandFactory.Clear());
+                AddItemsToPlaylist(commands, items);
+                commands.Add(MPDCommandFactory.Play());
             }
             else // Assume SendToPlaylistMethod.Append as the default
             {
-                AddItemsToPlaylist(items);
+                AddItemsToPlaylist(commands, items);
             }
 
+            DataModel.ServerSession.Send(commands);
             GlobalUpdateEvent();
         }
 
-        private void AddItemsToPlaylist(IEnumerable<LibraryItem> items)
+        /// <summary>
+        /// Fill a command list for appending items to the playlist.
+        /// </summary>
+        private void AddItemsToPlaylist(MPDCommandList commands, IEnumerable<LibraryItem> items)
         {
             foreach (LibraryItem item in items)
             {
                 if (item is Playable)
                 {
-                    DataModel.ServerSession.Send(MPDCommandFactory.Add((item as Playable).Path.Full));
+                    commands.Add(MPDCommandFactory.Add((item as Playable).Path.Full));
                 }
                 else
                 {
-                    AddItemsToPlaylist(DataModel.Database.Expand(item));
+                    AddItemsToPlaylist(commands, DataModel.Database.Expand(item));
                 }
             }
         }
 
-        private int AddItemsToPlaylist(IEnumerable<LibraryItem> items, int startingPosition)
+        /// <summary>
+        /// Insert items to the specified position on the playlist.
+        /// </summary>
+        private void AddItemsToPlaylist(IEnumerable<LibraryItem> items, int startingPosition)
+        {
+            MPDCommandList commands = new MPDCommandList();
+            AddItemsToPlaylist(commands, items, startingPosition);
+            DataModel.ServerSession.Send(commands);
+            GlobalUpdateEvent();
+        }
+
+        /// <summary>
+        /// Fill a command list for inserting items to the specified position on the playlist.
+        /// </summary>
+        private int AddItemsToPlaylist(MPDCommandList commands, IEnumerable<LibraryItem> items, int startingPosition)
         {
             int position = startingPosition;
 
@@ -477,11 +501,11 @@ namespace Auremo
             {
                 if (item is Playable)
                 {
-                    DataModel.ServerSession.Send(MPDCommandFactory.AddId((item as Playable).Path.Full, position++));
+                    commands.Add(MPDCommandFactory.AddId((item as Playable).Path.Full, position++));
                 }
                 else
                 {
-                    position = AddItemsToPlaylist(DataModel.Database.Expand(item), position);
+                    position = AddItemsToPlaylist(commands, DataModel.Database.Expand(item), position);
                 }
             }
 
@@ -819,24 +843,26 @@ namespace Auremo
             }
             else if (m_DragDropPayload[0] is PlaylistItem)
             {
+                MPDCommandList commands = new MPDCommandList();
+
                 foreach (PlaylistItem item in m_DragDropPayload)
                 {
                     if (item.Position < targetRow)
                     {
-                        DataModel.ServerSession.Send(MPDCommandFactory.MoveId(item.Id, targetRow - 1));
+                        commands.Add(MPDCommandFactory.MoveId(item.Id, targetRow - 1));
                     }
                     else
                     {
-                        DataModel.ServerSession.Send(MPDCommandFactory.MoveId(item.Id, targetRow++));
+                        commands.Add(MPDCommandFactory.MoveId(item.Id, targetRow++));
                     }
                 }
+
+                DataModel.ServerSession.Send(commands);
             }
             else
             {
                 AddItemsToPlaylist(m_DragDropPayload, targetRow);
             }
-
-            GlobalUpdateEvent();
 
             m_MousePointerHint.IsOpen = false;
             m_MousePointerHint.Visibility = Visibility.Hidden;
@@ -1276,14 +1302,17 @@ namespace Auremo
         {
             if (m_PlaylistView.SelectedItems.Count > 0)
             {
+                MPDCommandList commands = new MPDCommandList();
+
                 foreach (IndexedLibraryItem row in DataModel.Playlist.Items)
                 {
                     if (!row.IsSelected)
                     {
-                        DataModel.ServerSession.Send(MPDCommandFactory.DeleteId((row.Item as PlaylistItem).Id));
+                        commands.Add(MPDCommandFactory.DeleteId((row.Item as PlaylistItem).Id));
                     }
                 }
 
+                DataModel.ServerSession.Send(commands);
                 GlobalUpdateEvent();
             }
         }
@@ -1296,6 +1325,7 @@ namespace Auremo
         private void OnDedupPlaylistViewClicked(object sender, RoutedEventArgs e)
         {
             ISet<Path> paths = new SortedSet<Path>();
+            MPDCommandList commands = new MPDCommandList();
 
             foreach (IndexedLibraryItem row in DataModel.Playlist.Items)
             {
@@ -1303,13 +1333,16 @@ namespace Auremo
 
                 if (paths.Contains(item.Path))
                 {
-                    DataModel.ServerSession.Send(MPDCommandFactory.DeleteId(item.Id));
+                    commands.Add(MPDCommandFactory.DeleteId(item.Id));
                 }
                 else
                 {
                     paths.Add(item.Path);
                 }
             }
+
+            DataModel.ServerSession.Send(commands);
+            GlobalUpdateEvent();
         }
 
         private void OnShufflePlaylistClicked(object sender, RoutedEventArgs e)
@@ -1349,11 +1382,14 @@ namespace Auremo
 
         private void DeleteSelectedItemsFromPlaylist()
         {
+            MPDCommandList commands = new MPDCommandList();
+
             foreach (PlaylistItem item in m_PlaylistView.Selection().Cast<PlaylistItem>())
             {
-                DataModel.ServerSession.Send(MPDCommandFactory.DeleteId(item.Id));
+                commands.Add(MPDCommandFactory.DeleteId(item.Id));
             }
 
+            DataModel.ServerSession.Send(commands);
             GlobalUpdateEvent();
         }
 

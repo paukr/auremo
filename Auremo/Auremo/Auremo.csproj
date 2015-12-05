@@ -120,6 +120,7 @@
     <Compile Include="DataModel\NetworkLog.cs" />
     <Compile Include="Protocol\MPDCommandFactory.cs" />
     <Compile Include="Protocol\MPDCommandList.cs" />
+    <Compile Include="Protocol\MPDSendable.cs" />
     <Compile Include="Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>

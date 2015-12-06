@@ -33,7 +33,7 @@ namespace Auremo.MusicLibrary
             Length = block.Time;
             Track = block.Track;
             Length = block.Time;
-            Filename = Path.Directories.Last();
+            
 
             // These need to be set by the caller as they require external external objects.
             Artist = null;
@@ -59,12 +59,6 @@ namespace Auremo.MusicLibrary
         {
             get;
             set;
-        }
-
-        public string Filename
-        {
-            get;
-            private set;
         }
 
         public Artist Artist
@@ -137,7 +131,7 @@ namespace Auremo.MusicLibrary
         {
             get
             {
-                return Title ?? Filename;
+                return Title ?? Path.Filename;
             }
         }
 
@@ -145,7 +139,7 @@ namespace Auremo.MusicLibrary
         {
             get
             {
-                return Filename;
+                return Path.Filename;
             }
         }
 

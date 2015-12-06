@@ -66,7 +66,7 @@ namespace Auremo.MusicLibrary
             }
             else
             {
-                Title = block.Title;
+                Title = block.Title ?? Path.Filename;
                 Album = block.Album;
 
                 if (Settings.Default.UseAlbumArtist)

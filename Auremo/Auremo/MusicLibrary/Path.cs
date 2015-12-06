@@ -16,6 +16,7 @@
  */
 
 using System;
+using System.Linq;
 
 namespace Auremo.MusicLibrary
 {
@@ -68,6 +69,8 @@ namespace Auremo.MusicLibrary
             }
         }
 
+        public string Filename => Directories.Last();
+
         public bool IsLocal()
         {
             return IsLocal(Full);
@@ -89,10 +92,7 @@ namespace Auremo.MusicLibrary
             return path.StartsWith("spotify:track:");
         }
 
-        public bool IsStream()
-        {
-            return IsStream(Full);
-        }
+        public bool IsStream() => IsStream(Full);
 
         public static bool IsStream(string path)
         {

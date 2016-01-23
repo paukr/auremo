@@ -83,6 +83,12 @@ namespace Auremo
             path = GetRestOfLine();
             ConsumeWhitespace();
 
+            // If the label is empty, use the path instead.
+            if (label == null || label.Trim().Length == 0)
+            {
+                label = path;
+            }
+
             if (path != "")
             {
                 m_ParsedStreams.Add(new AudioStream(new Path(path), label));

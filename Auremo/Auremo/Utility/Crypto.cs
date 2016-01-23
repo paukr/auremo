@@ -24,7 +24,7 @@ namespace Auremo
     // Provide safe password storage.
     //
     // CAUTION: Aspects of this are not in fact safe. A plaintext version of the
-    // password will reside in memory after it has been saved to disk of sent to
+    // password will reside in memory after it has been saved to disk or sent to
     // the server. However, since the MPD protocol requires that the password is
     // sent in plaintext form, the password is easily retrieved by spying on the
     // network. If this changes, this code must be rewritten, but this should be

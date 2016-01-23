@@ -46,7 +46,7 @@ namespace Auremo
         private int m_PlayPosition = 0;
         private int m_SongLength = 0;
         private string m_State = "";
-        private int m_DatabaseUpdateTime = 0;
+        private int m_DatabaseUpdateTime = -1;
 
         public ServerStatus(DataModel dataModel)
         {
@@ -584,7 +584,7 @@ namespace Auremo
             IsOnRandom = false;
             IsOnRepeat = false;
             State = "stop";
-            DatabaseUpdateTime = 0;
+            DatabaseUpdateTime = -1;
             AudioQuality = "";
             Crossfade = 0;
             MixRampdb = double.NaN;

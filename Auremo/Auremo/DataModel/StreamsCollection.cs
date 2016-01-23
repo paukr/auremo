@@ -203,7 +203,7 @@ namespace Auremo
 
         private bool AddWithoutNotification(AudioStream stream)
         {
-            if (m_StreamsByLabel.ContainsKey(stream.Label))
+            if (stream.Label == null || m_StreamsByLabel.ContainsKey(stream.Label))
             {
                 return false;
             }

@@ -214,7 +214,7 @@ namespace Auremo
 
         private bool DeleteWithoutNotification(AudioStream stream)
         {
-            if (m_StreamsByLabel.ContainsKey(stream.Label))
+            if (stream.Label != null && m_StreamsByLabel.ContainsKey(stream.Label))
             {
                 m_StreamsByLabel.Remove(stream.Label);
                 return true;    

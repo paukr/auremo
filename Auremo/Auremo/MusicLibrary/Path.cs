@@ -53,18 +53,7 @@ namespace Auremo.MusicLibrary
                 }
                 else
                 {
-                    string pathSegment = Full;
-
-                    if (pathSegment.StartsWith(MopidySpotifyPrefix))
-                    {
-                        pathSegment.Remove(0, MopidySpotifyPrefix.Length);
-                    }
-                    else if (pathSegment.StartsWith(MopidyLocalPrefix))
-                    {
-                        pathSegment.Remove(0, MopidyLocalPrefix.Length);
-                    }
-
-                    return pathSegment.Split('/');
+                    return RemoveAnyMopidyPrefix(Full).Split('/');
                 }
             }
         }
@@ -99,7 +88,7 @@ namespace Auremo.MusicLibrary
             string lowercase = path.ToLowerInvariant();
             return lowercase.StartsWith("http://") || lowercase.StartsWith("https://");
         }
-
+        
         public int CompareTo(object o)
         {
             if (o is Path)
@@ -110,6 +99,20 @@ namespace Auremo.MusicLibrary
             {
                 throw new Exception("Path: attempt to compare to an incompatible object");
             }
+        }
+
+        private static string RemoveAnyMopidyPrefix(string s)
+        {
+            if (s.StartsWith(MopidyLocalPrefix))
+            {
+                return s.Substring(MopidyLocalPrefix.Length);
+            }
+            else if (s.StartsWith(MopidySpotifyPrefix))
+            {
+                return s.Substring(MopidySpotifyPrefix.Length);
+            }
+
+            return s;
         }
     }
 }

@@ -16,7 +16,6 @@
  */
 
 using System;
-using System.Linq;
 
 namespace Auremo.MusicLibrary
 {

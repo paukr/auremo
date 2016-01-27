@@ -1,4 +1,4 @@
-﻿Auremo Copyright © 2013 Mikko Teräs and Niilo Säämänen.
+﻿Auremo Copyright © 2016 Mikko Teräs and Niilo Säämänen.
 
 Written by
     Mikko Teräs (auremompd@gmail.com)

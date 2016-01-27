@@ -51,7 +51,14 @@ namespace Auremo
                 {
                     if (parameters.Path != null)
                     {
-                        result.Add(new AudioStream(parameters.Path, parameters.Label));
+                        if (parameters.Label == null || parameters.Label.Trim().Length == 0)
+                        {
+                            result.Add(new AudioStream(parameters.Path, parameters.Path.ToString()));
+                        }
+                        else
+                        {
+                            result.Add(new AudioStream(parameters.Path, parameters.Label));
+                        }
                     }
                 }
             }

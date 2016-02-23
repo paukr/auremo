@@ -1,6 +1,24 @@
 Version history
 ===============
 
+Auremo 0.8.0
+------------
+
+ * Reimplement local database code, improving code quality.
+ * Add support for MPD's crossfade and mix ramp parameters.
+ * Add support for configuring multiple MPD server addresses quick
+   switching between them.
+ * Improve behavior when the network connection is laggy or is slow
+   or unresponsive.
+ * Fix item order when sending multiple items to the playlist at once.
+ * Fix (again) behavior when selecting very many items at once.
+ * Add option to order albums by their directory names.
+ * Add a network diagnostics log function, for easier troubleshooting
+   and debugging.
+ * Update webpage links in the help tab.
+ * Many other smaller improvements and bugfixes.
+ * Released on 23rd February 2016.
+
 Auremo 0.7.0
 ------------
 

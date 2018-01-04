@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -161,32 +162,35 @@ namespace Auremo
         {
             while (!Terminating && m_Connection == null)
             {
-                m_Connection = new TcpClient();
-                m_Connection.SendTimeout = m_Timeout;
-                m_Connection.ReceiveTimeout = m_Timeout;
                 bool fatal = false;
-                                
                 try
                 {
-                    m_DataModel.NetworkLog?.LogMessage("Trying to connect to server");
-                    m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connecting);
-                    m_Parent.OnActivityChanged("");
-                    IAsyncResult connectResult = m_Connection.BeginConnect(m_Host, m_Port, null, null);
+                    foreach (var address in Dns.GetHostAddresses(m_Host))
+                    {
+                        m_Connection = new TcpClient(address.AddressFamily);
+                        m_Connection.SendTimeout = m_Timeout;
+                        m_Connection.ReceiveTimeout = m_Timeout;
+                        m_DataModel.NetworkLog?.LogMessage("Trying to connect to server");
+                        m_Parent.OnConnectionStateChanged(ServerSession.SessionState.Connecting);
+                        m_Parent.OnActivityChanged("");
+                        IAsyncResult connectResult = m_Connection.BeginConnect(address, m_Port, null, null);
 
-                    while (!connectResult.IsCompleted && !Terminating)
-                    {
-                        Thread.Sleep(100);
-                    }
+                        while (!connectResult.IsCompleted && !Terminating)
+                        {
+                            Thread.Sleep(100);
+                        }
 
-                    if (Terminating)
-                    {
-                        m_Connection = null;
-                    }
-                    else
-                    {
-                        m_Connection.EndConnect(connectResult);
-                        m_Stream = m_Connection.GetStream();
-                        m_DataModel.NetworkLog?.LogMessage("Connected to server");
+                        if (Terminating)
+                        {
+                            m_Connection = null;
+                        }
+                        else
+                        {
+                            m_Connection.EndConnect(connectResult);
+                            m_Stream = m_Connection.GetStream();
+                            m_DataModel.NetworkLog?.LogMessage("Connected to server");
+                        }
+                        break;
                     }
                 }
                 catch (Exception e)

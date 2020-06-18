@@ -16,21 +16,18 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Auremo.MusicLibrary
 {
     public class Directory : LibraryItem
     {
-        public Directory(string name)
-        {
-            Name = name;
-            Parent = null;
-        }
-
         public Directory(string name, Directory parent)
         {
             Name = name;
             Parent = parent;
+            Children = new List<LibraryItem>();
         }
 
         public string Name
@@ -40,6 +37,12 @@ namespace Auremo.MusicLibrary
         }
         
         public Directory Parent
+        {
+            get;
+            private set;
+        }
+
+        public ICollection<LibraryItem> Children
         {
             get;
             private set;
@@ -65,7 +68,8 @@ namespace Auremo.MusicLibrary
         {
             get
             {
-                return Name;
+                var date = Children.OfType<Song>().Select(x => x.LastModified).DefaultIfEmpty().Max();
+                return $"{Name} {(date != DateTime.MinValue ? $"[{date.ToLocalTime()}]" : "")}";
             }
         }
 

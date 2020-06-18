@@ -345,6 +345,16 @@ namespace Auremo
             private set;
         }
 
+        private class LastModifiedComparer : IComparer<Directory>
+        {
+            public int Compare(Directory x, Directory y)
+            {
+                var d1 = x.Children.OfType<Song>().Select(song => song.LastModified).DefaultIfEmpty(DateTime.MinValue).Max();
+                var d2 = y.Children.OfType<Song>().Select(song => song.LastModified).DefaultIfEmpty(DateTime.MinValue).Max();
+                return d1.CompareTo(d2) * -1;
+            }
+        }
+
         private void PopulateDirectoryTree()
         {
             DirectoryTreeController.Clear();
@@ -352,7 +362,10 @@ namespace Auremo
 
             IDictionary<Directory, HierarchicalLibraryItem> directoryLookup = new SortedDictionary<Directory, HierarchicalLibraryItem>();
 
-            foreach (Directory directory in m_DataModel.Database.Directories.Values)
+            var directories = m_DataModel.Database.Directories.Values.ToList();
+            //directories.Sort(new LastModifiedComparer());
+
+            foreach (Directory directory in directories)
             {
                 CreateDirectoryBranchNodesRecursively(directory, directoryLookup);
             }
@@ -378,6 +391,10 @@ namespace Auremo
 
             if (directory.Parent == null)
             {
+                if (directoryLookup.TryGetValue(directory, out var item))
+                {
+                    return item;
+                }
                 result = new HierarchicalLibraryItem(directory, DirectoryTreeController);
                 DirectoryTree.Add(result);
             }

@@ -32,7 +32,7 @@ namespace Auremo.MusicLibrary
             Length = block.Time;
             Track = block.Track;
             Length = block.Time;
-            
+            LastModified = block.LastModified ?? DateTime.MinValue;
 
             // These need to be set by the caller as they require external external objects.
             Artist = null;
@@ -90,6 +90,12 @@ namespace Auremo.MusicLibrary
             private set;
         }
 
+        public DateTime LastModified
+        {
+            get;
+            private set;
+        }
+
         public int? Track
         {
             get;
@@ -138,7 +144,7 @@ namespace Auremo.MusicLibrary
         {
             get
             {
-                return Path.Filename;
+                return $"{Path.Filename} [{LastModified.ToLocalTime()}]";
             }
         }
 

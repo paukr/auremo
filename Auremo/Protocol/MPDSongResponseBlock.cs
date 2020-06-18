@@ -15,6 +15,8 @@
  * with Auremo. If not, see http://www.gnu.org/licenses/.
  */
 
+using System;
+
 namespace Auremo
 {
     public class MPDSongResponseBlock
@@ -102,6 +104,12 @@ namespace Auremo
         }
 
         public int Track
+        {
+            get;
+            set;
+        }
+
+        public DateTime? LastModified
         {
             get;
             set;

@@ -25,7 +25,7 @@ namespace Auremo
         {
             OK = 0, ACK,
             State, Volume, Playlist, Song, Time, Random, Repeat, Single, Consume, Xfade, MixRampdb, MixRampDelay, Audio, Error,
-            File, Name, Title, Artist, AlbumArtist, Album, Genre, Date, Track, Id, Pos,
+            File, Name, Title, Artist, AlbumArtist, Album, Genre, Date, Track, Id, Pos, LastModified,
             DbUpdate,
             OutputId, OutputName, OutputEnabled,
             Unknown
@@ -36,7 +36,7 @@ namespace Auremo
         {
             "ok", "ack",
             "state", "volume", "playlist", "song", "time", "random", "repeat", "single", "consume", "xfade", "mixrampdb", "mixrampdelay", "audio", "error",
-            "file", "name", "title", "artist", "albumartist", "album", "genre", "date", "track", "id", "pos",
+            "file", "name", "title", "artist", "albumartist", "album", "genre", "date", "track", "id", "pos", "last-modified",
             "db_update",
             "outputid", "outputname", "outputenabled"
         };

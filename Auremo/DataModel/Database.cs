@@ -211,6 +211,7 @@ namespace Auremo
                 song.Album = GetOrCreateAlbum(block);
                 song.GenreFilteredAlbum = GetOrCreateGenreFilteredAlbum(song.Album, block);
                 song.Directory = GetOrCreateDirectory(song.Path);
+                song.Directory.Children.Add(song);
 
                 Songs[song.Path] = song;
                 AddAlbumExpansion(song.Album, song);

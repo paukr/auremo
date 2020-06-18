@@ -621,6 +621,13 @@ namespace Auremo
                 {
                     song.Track = line.IntValue;
                 }
+                else if (line.Key == MPDResponseLine.Keyword.LastModified)
+                {
+                    if (DateTime.TryParse(line.Value, out var date))
+                    {
+                        song.LastModified = date;
+                    }
+                }
             }
 
             if (song.File != null)

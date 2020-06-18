@@ -363,7 +363,7 @@ namespace Auremo
             IDictionary<Directory, HierarchicalLibraryItem> directoryLookup = new SortedDictionary<Directory, HierarchicalLibraryItem>();
 
             var directories = m_DataModel.Database.Directories.Values.ToList();
-            //directories.Sort(new LastModifiedComparer());
+            directories.Sort(new LastModifiedComparer());
 
             foreach (Directory directory in directories)
             {
